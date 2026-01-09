@@ -3,148 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生存法则 - 官方社区</title>
-    <style>
-        :root { --main-green: #2ecc71; --accent-blue: #3498db; --bg: #05080a; --card-bg: rgba(22, 27, 34, 0.7); }
-        body { background: var(--bg); color: white; font-family: 'Poppins', 'PingFang SC', sans-serif; margin: 0; overflow-x: hidden; }
-        
-        /* 动态背景 */
-        body::before { content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% 50%, #1a2c22 0%, #05080a 70%); z-index: -1; }
-
-        /* 导航栏美化 */
-        nav { display: flex; justify-content: space-between; padding: 20px 50px; align-items: center; background: rgba(13, 17, 23, 0.8); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.1); position: sticky; top: 0; z-index: 100; }
-        .logo { color: var(--main-green); font-size: 26px; font-weight: 800; text-decoration: none; letter-spacing: 1px; text-shadow: 0 0 10px rgba(46, 204, 113, 0.3); }
-        
-        /* 按钮样式 */
-        .auth-btn { background: linear-gradient(135deg, var(--main-green), #27ae60); color: black; border: none; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 15px rgba(46, 204, 113, 0.2); }
-        .auth-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(46, 204, 113, 0.4); }
-
-        /* 磁贴网格 - 高级质感 */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 40px auto; padding: 0 20px; }
-        .card { background: var(--card-bg); padding: 30px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(5px); cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; }
-        .card::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(45deg, transparent, rgba(46, 204, 113, 0.1)); opacity: 0; transition: 0.3s; }
-        .card:hover { border-color: var(--main-green); transform: translateY(-8px); background: rgba(22, 27, 34, 0.9); }
-        .card:hover::after { opacity: 1; }
-        .card h3 { margin: 0 0 10px 0; font-size: 20px; color: var(--main-green); }
-        .card p { color: #8b949e; line-height: 1.6; margin: 0; }
-
-        /* 提示系统 (Toast) */
-        #toast-container { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 9999; }
-        .toast { background: rgba(46, 204, 113, 0.9); color: black; padding: 12px 30px; border-radius: 50px; font-weight: bold; margin-top: 10px; animation: fadeInUp 0.4s ease, fadeOut 0.4s ease 2.6s; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* 聊天室 */
-        #chat-panel { display: none; position: fixed; bottom: 90px; right: 30px; width: 380px; height: 550px; background: #0d1117; border: 1px solid var(--main-green); border-radius: 16px; flex-direction: column; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
-        #chat-header { padding: 15px 20px; background: #161b22; border-bottom: 1px solid #30363d; border-radius: 16px 16px 0 0; display: flex; justify-content: space-between; align-items: center; }
-        #chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 12px; }
-        .msg { background: #1c2128; padding: 10px 15px; border-radius: 12px; font-size: 14px; max-width: 80%; border-left: 3px solid var(--main-green); }
-        .msg b { display: block; font-size: 11px; margin-bottom: 4px; opacity: 0.6; }
-
-        /* 登录框 */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px); z-index: 2000; }
-        .modal { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #161b22; padding: 40px; border-radius: 20px; width: 340px; border: 1px solid rgba(46, 204, 113, 0.3); }
-        .input-group { position: relative; margin-bottom: 20px; }
-        .modal input { width: 100%; padding: 14px; background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 10px; box-sizing: border-box; outline: none; transition: 0.3s; }
-        .modal input:focus { border-color: var(--main-green); }
-        .eye-btn { position: absolute; right: 15px; top: 15px; cursor: pointer; filter: grayscale(1); }
-    </style>
+    <title>生存法则 · SURVIVAL RULES</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div id="toast-container"></div>
 
 <nav>
-    <a href="#" class="logo">生存法则 · 社区</a>
-    <div id="auth-ui"></div>
+    <div class="nav-container">
+        <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
+        <div id="auth-ui">
+            </div>
+    </div>
 </nav>
 
-<div style="text-align:center; padding: 80px 20px;">
-    <h1 style="font-size: 56px; margin: 0; background: linear-gradient(to bottom, #fff, #888); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">生存法则</h1>
-    <p style="color: #8b949e; font-size: 20px; margin-top: 15px;">在这个充满危险的世界中，活下去是唯一的初衷</p>
-</div>
+<header class="hero">
+    <div class="hero-content">
+        <h1>生存法则</h1>
+        <p>搜集物资 · 建立营地 · 寻找队友 · 活到最后</p>
+    </div>
+</header>
 
-<div class="grid">
-    <div class="card" onclick="openChat()"><h3>💬 组队大厅</h3><p>实时在线聊天，寻找可靠的生存伙伴</p></div>
-    <div class="card" onclick="notify('📚 玩法介绍：探索地图、搜刮物资并寻找撤离点。')"><h3>📜 玩法介绍</h3><p>了解服务器核心规则与生存技巧</p></div>
-    <div class="card" onclick="notify('🛠️ 交易行：即将支持玩家间的物资安全交易。')"><h3>⚖️ 交易行</h3><p>安全的物资互换与财富积累中心</p></div>
-    <div class="card" onclick="notify('🎁 兑换码：暂无可用的全球兑换码。')"><h3>💎 兑换码</h3><p>领取限时物资奖励与专属皮肤</p></div>
-</div>
+<main class="grid-container">
+    <div class="card chat-card" onclick="openChat()">
+        <div class="icon">💬</div>
+        <h3>组队大厅</h3>
+        <p>实时在线频道，寻找你的生存伙伴</p>
+    </div>
+    <div class="card" onclick="showTip('📚 指令：/home (回家), /spawn (回出生点), /tpa (传送)')">
+        <div class="icon">📜</div>
+        <h3>玩法介绍</h3>
+        <p>查看服务器规则、指令及新手攻略</p>
+    </div>
+    <div class="card" onclick="showTip('⚖️ 交易行正在建设中，预计 1.5 版本上线')">
+        <div class="icon">🏛️</div>
+        <h3>交易行</h3>
+        <p>安全的物资互换中心，打造你的财富</p>
+    </div>
+    <div class="card" onclick="showTip('🎁 当前没有可领取的全球兑换码')">
+        <div class="icon">💎</div>
+        <h3>兑换码</h3>
+        <p>输入密令领取社区专属物资包</p>
+    </div>
+</main>
 
-<div id="chat-panel">
-    <div id="chat-header"><span>🌍 组队大厅聊天室</span><span onclick="closeChat()" style="cursor:pointer">✕</span></div>
-    <div id="chat-messages"></div>
-    <div style="padding:15px; display:flex; gap:10px; border-top:1px solid #30363d;">
-        <input type="text" id="msg-input" placeholder="输入消息..." style="flex:1; background:#0d1117; border:1px solid #30363d; color:white; padding:10px; border-radius:8px;">
-        <button class="auth-btn" onclick="sendMsg()">发送</button>
+<div id="chat-panel" class="glass">
+    <div class="chat-header">
+        <span>🌍 组队大厅</span>
+        <button onclick="closeChat()">✕</button>
+    </div>
+    <div id="chat-msgs"></div>
+    <div class="chat-input-area">
+        <input type="text" id="m-input" placeholder="输入消息..." onkeypress="if(event.keyCode==13) sendMsg()">
+        <button class="send-btn" onclick="sendMsg()">发送</button>
     </div>
 </div>
 
 <div class="modal-overlay" id="modal-overlay">
-    <div class="modal">
-        <div style="display:flex; gap:20px; margin-bottom:30px; justify-content:center;">
-            <span id="tab-login" style="cursor:pointer; font-weight:bold" onclick="switchTab('login')">登录</span>
-            <span id="tab-reg" style="cursor:pointer; color:#8b949e" onclick="switchTab('reg')">注册</span>
+    <div class="modal glass">
+        <div class="tab-switcher">
+            <button id="t-login" class="active" onclick="setTab('login')">账户登录</button>
+            <button id="t-reg" onclick="setTab('reg')">新员注册</button>
         </div>
-        <div id="nick-box" style="display:none" class="input-group"><input type="text" id="auth-nick" placeholder="游戏昵称"></div>
-        <div class="input-group"><input type="text" id="auth-id" placeholder="登录 ID"></div>
+        
+        <div id="nick-field" class="input-group" style="display:none">
+            <input type="text" id="a-nick" placeholder="游戏昵称 (Nickname)">
+        </div>
+        
         <div class="input-group">
-            <input type="password" id="auth-pw" placeholder="密码">
-            <span class="eye-btn" onclick="togglePw()">👁️</span>
+            <input type="text" id="a-id" placeholder="登录 ID (Unique ID)">
         </div>
-        <button class="auth-btn" style="width:100%" onclick="doAuth()">确定</button>
-        <p onclick="closeModal()" style="text-align:center; color:#8b949e; cursor:pointer; font-size:13px; margin-top:15px;">稍后再说</p>
+        
+        <div class="input-group">
+            <input type="password" id="a-pw" placeholder="访问密码 (Password)">
+            <span class="eye-toggle" onclick="togglePw()">👁️</span>
+        </div>
+        
+        <button class="submit-btn" onclick="handleAuth()">确认进入</button>
+        <p class="cancel-link" onclick="closeModal()">返回首页</p>
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-    const firebaseConfig = {
-        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
-        authDomain: "bloxd-survival.firebaseapp.com",
-        projectId: "bloxd-survival",
-        storageBucket: "bloxd-survival.firebasestorage.app",
-        messagingSenderId: "60666065786",
-        appId: "1:60666065786:web:bdc3131accaceb0180dcc3"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    let currentUser = JSON.parse(localStorage.getItem('user_v2'));
-    let authMode = 'login';
-
-    // 登录/注册逻辑更新
-    window.doAuth = () => {
-        const id = document.getElementById('auth-id').value.trim();
-        const pw = document.getElementById('auth-pw').value;
-        const nick = document.getElementById('auth-nick').value;
-
-        if(!id || !pw) return notify("请填写完整！");
-
-        if(authMode === 'reg') {
-            if(!nick) return notify("请输入昵称！");
-            // 检查 ID 是否已存在
-            if(localStorage.getItem('saved_u_' + id)) return notify("❌ 该 ID 已被注册，请更换！");
-            
-            const user = { id, pw, nick };
-            localStorage.setItem('saved_u_' + id, JSON.stringify(user));
-            login(user);
-        } else {
-            const saved = localStorage.getItem('saved_u_' + id);
-            if(!saved) return notify("账号不存在！");
-            const user = JSON.parse(saved);
-            if(user.pw !== pw) return notify("密码错误！");
-            login(user);
-        }
-    };
-
-    function login(user) {
-        localStorage.setItem('user_v2', JSON.stringify(user));
-        currentUser = user;
-        closeModal();
-        updateUI();
-        notify("✨ 欢迎进入生存法则，" + user.nick);
-    }
-
-    //
+<script type="module" src="script.js"></script>
+</body>
+</html>
