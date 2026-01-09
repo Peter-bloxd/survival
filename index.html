@@ -6,34 +6,14 @@
     <title>生存法则 - 官方社区</title>
     <style>
         :root { --main-green: #2ecc71; --card-bg: #161b22; --text-gray: #8b949e; }
-        body { background-color: #0d1117; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; overflow-x: hidden; }
-        
-        /* 导航栏 */
-        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; position: sticky; top: 0; z-index: 100; }
+        body { background-color: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; position: sticky; top: 0; }
         .logo { color: var(--main-green); font-size: 22px; font-weight: bold; text-decoration: none; }
-        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 6px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
-        .auth-btn:hover { background: white; color: black; }
-
-        /* 主视觉区 */
-        .hero { text-align: center; padding: 80px 20px; background: radial-gradient(circle at center, #1e272e 0%, #0d1117 100%); }
-        .hero h1 { font-size: 45px; margin: 0; letter-spacing: 2px; }
-        .hero p { color: var(--text-gray); margin: 15px 0 30px; }
-        
-        /* 磁贴功能区 */
-        .grid-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
-            gap: 20px; max-width: 1100px; margin: -40px auto 50px; padding: 0 20px;
-        }
-        .feature-card { 
-            background: var(--card-bg); padding: 30px; border-radius: 8px; 
-            border: 1px solid #30363d; transition: 0.3s; cursor: pointer; text-align: center;
-        }
-        .feature-card:hover { border-color: var(--main-green); background: #1c2128; transform: translateY(-5px); }
-        .feature-card h3 { margin: 0; font-size: 18px; color: #f0f6fc; }
-        .feature-card p { color: var(--text-gray); font-size: 14px; margin-top: 10px; }
-
-        /* 登录状态展示 */
+        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 6px 15px; border-radius: 4px; cursor: pointer; }
+        .hero { text-align: center; padding: 60px 20px; }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: 20px auto; padding: 0 20px; }
+        .feature-card { background: var(--card-bg); padding: 30px; border-radius: 8px; border: 1px solid #30363d; cursor: pointer; text-align: center; transition: 0.3s; }
+        .feature-card:hover { border-color: var(--main-green); transform: translateY(-5px); }
         .user-info { display: flex; align-items: center; gap: 10px; }
         .user-info img { width: 30px; border-radius: 50%; border: 1px solid var(--main-green); }
     </style>
@@ -49,77 +29,65 @@
 
 <div class="hero">
     <h1 id="welcome-text">生存法则 · 官方社区</h1>
-    <p>搜集物资、交易货品、探索未知地图</p>
+    <p style="color:var(--text-gray)">搜集物资、交易货品、探索未知地图</p>
 </div>
 
 <div class="grid-container">
-    <div class="feature-card" onclick="checkAuth('组队大厅')"><h3>组队大厅</h3><p>寻找可靠队友，组队并肩作战</p></div>
-    <div class="feature-card" onclick="alert('即将上线！')"><h3>玩法介绍</h3><p>了解服务器规则、指令及技巧</p></div>
-    <div class="feature-card" onclick="alert('暂无更新')"><h3>更新日志</h3><p>查看最新的版本变动与修复</p></div>
-    <div class="feature-card" onclick="checkAuth('交易行')"><h3>交易行</h3><p>玩家间安全的物资买卖中心</p></div>
-    <div class="feature-card" onclick="checkAuth('兑换码')"><h3>兑换码</h3><p>输入礼包码获取限时物资奖励</p></div>
-    <div class="feature-card" onclick="alert('当前社区环境良好')"><h3>处罚名单</h3><p>公开透明的违规记录查询</p></div>
+    <div class="feature-card" onclick="checkLogin('组队大厅')"><h3>组队大厅</h3><p>寻找队友并肩作战</p></div>
+    <div class="feature-card" onclick="checkLogin('交易行')"><h3>交易行</h3><p>安全的物资买卖中心</p></div>
+    <div class="feature-card" onclick="alert('暂无更新')"><h3>更新日志</h3><p>查看版本修复内容</p></div>
+    <div class="feature-card" onclick="checkLogin('兑换码')"><h3>兑换码</h3><p>领取限时物资奖励</p></div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // 根据你下午 7:06:58 截图填写的配置
-  const firebaseConfig = {
-    apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
-    authDomain: "bloxd-survival.firebaseapp.com",
-    projectId: "bloxd-survival",
-    storageBucket: "bloxd-survival.firebasestorage.app",
-    messagingSenderId: "60666065786",
-    appId: "1:60666065786:web:bdc3131accaceb0180dcc3",
-    measurementId: "G-L39F7GPMF4"
-  };
+    const firebaseConfig = {
+        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
+        authDomain: "bloxd-survival.firebaseapp.com",
+        projectId: "bloxd-survival",
+        storageBucket: "bloxd-survival.firebasestorage.app",
+        messagingSenderId: "60666065786",
+        appId: "1:60666065786:web:bdc3131accaceb0180dcc3",
+        measurementId: "G-L39F7GPMF4"
+    };
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  let currentUser = null;
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    let currentUser = null;
 
-  // 登录逻辑
-  window.login = () => {
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
-    signInWithPopup(auth, provider).catch((error) => {
-      alert("登录失败: " + error.message + "\n请确保 Firebase 已点击‘保存’按钮！");
+    window.login = () => {
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: 'select_account' });
+        signInWithPopup(auth, provider).catch((error) => {
+            console.error(error);
+            alert("❌ 登录失败！\n原因：" + error.code + "\n\n💡 解决办法：请确保你在 Firebase 的 Google 登录设置页点击了右下角的蓝色“保存”按钮。");
+        });
+    };
+
+    window.logout = () => signOut(auth);
+
+    window.checkLogin = (target) => {
+        if (!currentUser) {
+            alert("请先完成 Google 登录再访问 " + target);
+        } else {
+            alert("正在跳转到 " + target + "...");
+        }
+    };
+
+    onAuthStateChanged(auth, (user) => {
+        const ui = document.getElementById('auth-ui');
+        const welcome = document.getElementById('welcome-text');
+        currentUser = user;
+        if (user) {
+            welcome.innerText = `欢迎回来, ${user.displayName}`;
+            ui.innerHTML = `<div class="user-info"><img src="${user.photoURL}"><span>${user.displayName}</span><button class="auth-btn" onclick="logout()">退出</button></div>`;
+        } else {
+            welcome.innerText = "生存法则 · 官方社区";
+            ui.innerHTML = `<button class="auth-btn" onclick="login()">Google 登录</button>`;
+        }
     });
-  };
-
-  // 登出逻辑
-  window.logout = () => signOut(auth);
-
-  // 权限检查逻辑
-  window.checkAuth = (name) => {
-    if (!currentUser) {
-        alert("请先点击右上角登录 Google 账号，才能进入 " + name);
-    } else {
-        alert("欢迎进入 " + name + "，" + currentUser.displayName + "！数据同步中...");
-    }
-  };
-
-  // 状态监听：实现登录后的界面变化
-  onAuthStateChanged(auth, (user) => {
-    const authUi = document.getElementById('auth-ui');
-    const welcomeText = document.getElementById('welcome-text');
-    currentUser = user;
-    
-    if (user) {
-      welcomeText.innerText = `欢迎回来, ${user.displayName}`;
-      authUi.innerHTML = `
-        <div class="user-info">
-            <img src="${user.photoURL}" alt="avatar">
-            <span>${user.displayName}</span>
-            <button class="auth-btn" onclick="logout()">退出</button>
-        </div>`;
-    } else {
-      welcomeText.innerText = "生存法则 · 官方社区";
-      authUi.innerHTML = `<button class="auth-btn" onclick="login()">Google 登录</button>`;
-    }
-  });
 </script>
 </body>
 </html>
