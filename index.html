@@ -7,36 +7,26 @@
     <style>
         :root { --main-green: #2ecc71; --card-bg: #161b22; --text-gray: #8b949e; }
         body { background-color: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; }
-        
-        /* 导航栏样式 */
-        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; position: sticky; top: 0; z-index: 100; }
+        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; }
         .logo { color: var(--main-green); font-size: 24px; font-weight: bold; text-decoration: none; }
-        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 8px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
-        .auth-btn:hover { background: white; color: black; }
-
-        /* 主视觉区 */
-        .hero { padding: 80px 20px; background: radial-gradient(circle at center, #1e272e 0%, #0d1117 100%); }
-        .hero h1 { font-size: 45px; margin: 0; letter-spacing: 2px; }
-        
-        /* 磁贴功能区 */
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: -40px auto 50px; padding: 0 20px; }
+        .auth-btn { background: var(--main-green); color: black; border: none; padding: 8px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .hero { padding: 60px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1000px; margin: 20px auto; padding: 0 20px; }
         .card { background: var(--card-bg); padding: 30px; border-radius: 10px; border: 1px solid #30363d; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: var(--main-green); transform: translateY(-5px); background: #1c2128; }
-        .card h3 { margin: 0; font-size: 18px; }
-        .card p { color: var(--text-gray); font-size: 14px; margin-top: 10px; }
-
-        /* 用户信息 */
-        .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-info img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--main-green); }
+        .card:hover { border-color: var(--main-green); transform: translateY(-5px); }
+        
+        /* 登录弹窗样式 */
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #21262d; padding: 30px; border-radius: 10px; border: 1px solid var(--main-green); z-index: 1000; width: 300px; }
+        .modal input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #30363d; background: #0d1117; color: white; }
+        .modal-btns { display: flex; justify-content: space-around; margin-top: 15px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; }
     </style>
 </head>
 <body>
 
 <nav>
     <a href="#" class="logo">生存法则</a>
-    <div id="auth-ui">
-        <button class="auth-btn" onclick="login()">Google 登录</button>
-    </div>
+    <div id="auth-ui"><button class="auth-btn" onclick="showModal()">登录 / 注册</button></div>
 </nav>
 
 <div class="hero">
@@ -45,20 +35,28 @@
 </div>
 
 <div class="grid">
-    <div class="card" onclick="checkAuth('组队大厅')"><h3>组队大厅</h3><p>寻找可靠队友，并肩作战</p></div>
-    <div class="card" onclick="checkAuth('交易行')"><h3>交易行</h3><p>玩家间安全的物资买卖中心</p></div>
-    <div class="card" onclick="alert('暂无更新')"><h3>更新日志</h3><p>查看最新的版本修复内容</p></div>
-    <div class="card" onclick="checkAuth('兑换码')"><h3>兑换码</h3><p>领取限时礼包物资奖励</p></div>
+    <div class="card" onclick="checkAuth('组队大厅')"><h3>组队大厅</h3><p>寻找队友并肩作战</p></div>
+    <div class="card" onclick="checkAuth('交易行')"><h3>交易行</h3><p>安全的物资买卖中心</p></div>
+    <div class="card" onclick="checkAuth('兑换码')"><h3>兑换码</h3><p>领取限时物资奖励</p></div>
+</div>
+
+<div class="overlay" id="overlay" onclick="hideModal()"></div>
+<div class="modal" id="auth-modal">
+    <h3 id="modal-title">账号登录</h3>
+    <input type="email" id="email" placeholder="输入邮箱 (作为账号)">
+    <input type="password" id="password" placeholder="输入密码">
+    <div class="modal-btns">
+        <button class="auth-btn" onclick="handleAuth('login')">登录</button>
+        <button class="auth-btn" style="background:transparent; color:white; border:1px solid white;" onclick="handleAuth('register')">注册</button>
+    </div>
 </div>
 
 <script type="module">
-    // 使用 CDN 引入 Firebase 模块
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // 严格校对后的配置
     const firebaseConfig = {
-        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", // 已修复 SiI 拼写错误
+        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
         authDomain: "bloxd-survival.firebaseapp.com",
         projectId: "bloxd-survival",
         storageBucket: "bloxd-survival.firebasestorage.app",
@@ -67,53 +65,48 @@
         measurementId: "G-L39F7GPMF4"
     };
 
-    // 初始化应用
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     let currentUser = null;
 
-    // 登录函数
-    window.login = () => {
-        const provider = new GoogleAuthProvider();
-        provider.setCustomParameters({ prompt: 'select_account' });
-        signInWithPopup(auth, provider).catch((error) => {
-            console.error(error);
-            // 友好的报错提示
-            alert("❌ 登录失败！\n原因：" + error.code + "\n\n💡 请确保在 Firebase 设置中已点击蓝色“保存”按钮并绑定邮箱！");
-        });
-    };
+    // 弹窗控制
+    window.showModal = () => { document.getElementById('auth-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; };
+    window.hideModal = () => { document.getElementById('auth-modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; };
 
-    // 登出函数
-    window.logout = () => signOut(auth);
+    // 登录与注册逻辑
+    window.handleAuth = (type) => {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if (!email || !password) return alert("请填写账号和密码");
 
-    // 检查权限
-    window.checkAuth = (name) => {
-        if (!currentUser) {
-            alert("请先登录 Google 账号再进入 " + name + "！");
+        if (type === 'register') {
+            createUserWithEmailAndPassword(auth, email, password)
+                .then(() => { alert("注册成功并已登录！"); hideModal(); })
+                .catch(err => alert("注册失败: " + err.message));
         } else {
-            alert("欢迎进入 " + name + "，" + currentUser.displayName + "！数据加载中...");
+            signInWithEmailAndPassword(auth, email, password)
+                .then(() => { alert("登录成功！"); hideModal(); })
+                .catch(err => alert("登录失败: " + err.message));
         }
     };
 
-    // 监听登录状态
+    window.logout = () => signOut(auth);
+
+    window.checkAuth = (name) => {
+        if (!currentUser) alert("请先登录！");
+        else alert("欢迎来到 " + name);
+    };
+
     onAuthStateChanged(auth, (user) => {
         const ui = document.getElementById('auth-ui');
-        const msg = document.getElementById('welcome-msg');
+        const welcome = document.getElementById('welcome-msg');
         currentUser = user;
-        
         if (user) {
-            // 已登录状态
-            msg.innerText = "欢迎回来, " + user.displayName;
-            ui.innerHTML = `
-                <div class="user-info">
-                    <img src="${user.photoURL}" alt="头像">
-                    <span>${user.displayName}</span>
-                    <button class="auth-btn" onclick="logout()">退出</button>
-                </div>`;
+            welcome.innerText = "欢迎回来, 生存者";
+            ui.innerHTML = `<button class="auth-btn" onclick="logout()">退出登录</button>`;
         } else {
-            // 未登录状态
-            msg.innerText = "生存法则 · 官方社区";
-            ui.innerHTML = `<button class="auth-btn" onclick="login()">Google 登录</button>`;
+            welcome.innerText = "生存法则 · 官方社区";
+            ui.innerHTML = `<button class="auth-btn" onclick="showModal()">登录 / 注册</button>`;
         }
     });
 </script>
