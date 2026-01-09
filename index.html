@@ -16,17 +16,21 @@
         .card:hover { border-color: var(--main-green); transform: translateY(-5px); }
         
         /* 登录弹窗样式 */
-        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #21262d; padding: 30px; border-radius: 10px; border: 1px solid var(--main-green); z-index: 1000; width: 300px; }
-        .modal input { width: 90%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #30363d; background: #0d1117; color: white; }
-        .modal-btns { display: flex; justify-content: space-around; margin-top: 15px; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 999; }
+        .modal { display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #21262d; padding: 30px; border-radius: 10px; border: 2px solid var(--main-green); z-index: 1000; width: 320px; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .modal h3 { margin-top: 0; color: var(--main-green); }
+        .modal input { width: 90%; padding: 12px; margin: 8px 0; border-radius: 5px; border: 1px solid #30363d; background: #0d1117; color: white; }
+        .modal-btns { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 999; }
+        .user-tag { color: var(--main-green); font-weight: bold; margin-right: 15px; }
     </style>
 </head>
 <body>
 
 <nav>
     <a href="#" class="logo">生存法则</a>
-    <div id="auth-ui"><button class="auth-btn" onclick="showModal()">登录 / 注册</button></div>
+    <div id="auth-ui">
+        <button class="auth-btn" onclick="showModal()">登录 / 注册</button>
+    </div>
 </nav>
 
 <div class="hero">
@@ -42,73 +46,110 @@
 
 <div class="overlay" id="overlay" onclick="hideModal()"></div>
 <div class="modal" id="auth-modal">
-    <h3 id="modal-title">账号登录</h3>
-    <input type="email" id="email" placeholder="输入邮箱 (作为账号)">
-    <input type="password" id="password" placeholder="输入密码">
+    <h3 id="modal-title">加入社区</h3>
+    <input type="text" id="reg-nickname" placeholder="游戏昵称">
+    <input type="text" id="reg-id" placeholder="账号 ID (下次登录用)">
+    <input type="password" id="reg-pw" placeholder="设置密码">
+    <input type="password" id="reg-pw-confirm" placeholder="确认密码">
     <div class="modal-btns">
-        <button class="auth-btn" onclick="handleAuth('login')">登录</button>
-        <button class="auth-btn" style="background:transparent; color:white; border:1px solid white;" onclick="handleAuth('register')">注册</button>
+        <button class="auth-btn" onclick="handleRegister()">立即注册</button>
+        <p style="font-size: 12px; color: var(--text-gray); cursor: pointer;" onclick="switchToLogin()">已有账号？去登录</p>
     </div>
 </div>
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+<div class="modal" id="login-modal">
+    <h3>欢迎回来</h3>
+    <input type="text" id="login-id" placeholder="输入账号 ID">
+    <input type="password" id="login-pw" placeholder="输入密码">
+    <div class="modal-btns">
+        <button class="auth-btn" onclick="handleLogin()">登录</button>
+        <p style="font-size: 12px; color: var(--text-gray); cursor: pointer;" onclick="switchToRegister()">没账号？去注册</p>
+    </div>
+</div>
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
-        authDomain: "bloxd-survival.firebaseapp.com",
-        projectId: "bloxd-survival",
-        storageBucket: "bloxd-survival.firebasestorage.app",
-        messagingSenderId: "60666065786",
-        appId: "1:60666065786:web:bdc3131accaceb0180dcc3",
-        measurementId: "G-L39F7GPMF4"
+<script>
+    let currentUser = JSON.parse(localStorage.getItem('survival_user'));
+
+    // 页面加载检查登录状态
+    window.onload = () => { updateUI(); };
+
+    window.showModal = () => { switchToRegister(); document.getElementById('overlay').style.display = 'block'; };
+    window.hideModal = () => { 
+        document.getElementById('auth-modal').style.display = 'none'; 
+        document.getElementById('login-modal').style.display = 'none';
+        document.getElementById('overlay').style.display = 'none'; 
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    let currentUser = null;
-
-    // 弹窗控制
-    window.showModal = () => { document.getElementById('auth-modal').style.display = 'block'; document.getElementById('overlay').style.display = 'block'; };
-    window.hideModal = () => { document.getElementById('auth-modal').style.display = 'none'; document.getElementById('overlay').style.display = 'none'; };
-
-    // 登录与注册逻辑
-    window.handleAuth = (type) => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        if (!email || !password) return alert("请填写账号和密码");
-
-        if (type === 'register') {
-            createUserWithEmailAndPassword(auth, email, password)
-                .then(() => { alert("注册成功并已登录！"); hideModal(); })
-                .catch(err => alert("注册失败: " + err.message));
-        } else {
-            signInWithEmailAndPassword(auth, email, password)
-                .then(() => { alert("登录成功！"); hideModal(); })
-                .catch(err => alert("登录失败: " + err.message));
-        }
+    window.switchToLogin = () => {
+        document.getElementById('auth-modal').style.display = 'none';
+        document.getElementById('login-modal').style.display = 'block';
     };
 
-    window.logout = () => signOut(auth);
-
-    window.checkAuth = (name) => {
-        if (!currentUser) alert("请先登录！");
-        else alert("欢迎来到 " + name);
+    window.switchToRegister = () => {
+        document.getElementById('login-modal').style.display = 'none';
+        document.getElementById('auth-modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
     };
 
-    onAuthStateChanged(auth, (user) => {
+    // 注册逻辑
+    window.handleRegister = () => {
+        const name = document.getElementById('reg-nickname').value;
+        const id = document.getElementById('reg-id').value;
+        const pw = document.getElementById('reg-pw').value;
+        const pwc = document.getElementById('reg-pw-confirm').value;
+
+        if(!name || !id || !pw) return alert("请填写完整信息！");
+        if(pw !== pwc) return alert("两次密码输入不一致！");
+        if(localStorage.getItem('user_' + id)) return alert("该 ID 已被注册！");
+
+        const userData = { name, id, pw };
+        localStorage.setItem('user_' + id, JSON.stringify(userData));
+        localStorage.setItem('survival_user', JSON.stringify(userData));
+        currentUser = userData;
+        alert("注册成功！欢迎你，" + name);
+        hideModal();
+        updateUI();
+    };
+
+    // 登录逻辑
+    window.handleLogin = () => {
+        const id = document.getElementById('login-id').value;
+        const pw = document.getElementById('login-pw').value;
+        const savedData = localStorage.getItem('user_' + id);
+
+        if(!savedData) return alert("账号不存在！");
+        const user = JSON.parse(savedData);
+        if(user.pw !== pw) return alert("密码错误！");
+
+        localStorage.setItem('survival_user', JSON.stringify(user));
+        currentUser = user;
+        alert("登录成功！");
+        hideModal();
+        updateUI();
+    };
+
+    window.logout = () => {
+        localStorage.removeItem('survival_user');
+        currentUser = null;
+        updateUI();
+    };
+
+    window.checkAuth = (target) => {
+        if(!currentUser) return alert("请先登录账号！");
+        alert("正在进入 " + target + "...");
+    };
+
+    function updateUI() {
         const ui = document.getElementById('auth-ui');
         const welcome = document.getElementById('welcome-msg');
-        currentUser = user;
-        if (user) {
-            welcome.innerText = "欢迎回来, 生存者";
-            ui.innerHTML = `<button class="auth-btn" onclick="logout()">退出登录</button>`;
+        if (currentUser) {
+            welcome.innerText = "欢迎回来, " + currentUser.name;
+            ui.innerHTML = `<span class="user-tag">ID: ${currentUser.id}</span><button class="auth-btn" style="background:#e74c3c; color:white;" onclick="logout()">退出</button>`;
         } else {
             welcome.innerText = "生存法则 · 官方社区";
             ui.innerHTML = `<button class="auth-btn" onclick="showModal()">登录 / 注册</button>`;
         }
-    });
+    }
 </script>
 </body>
 </html>
