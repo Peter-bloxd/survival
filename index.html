@@ -2,47 +2,59 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>生存法则 - 官方社区</title>
     <style>
-        :root { --main-green: #2ecc71; --card-bg: #161b22; }
-        body { background-color: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
-        nav { display: flex; justify-content: space-between; padding: 20px 50px; align-items: center; border-bottom: 1px solid #30363d; }
-        .logo { color: var(--main-green); font-size: 24px; font-weight: bold; text-decoration: none; }
-        .hero { text-align: center; padding: 60px 20px; background: linear-gradient(to bottom, #161b22, #0d1117); }
-        .hero h1 { font-size: 48px; margin-bottom: 10px; }
-        .btn { padding: 12px 25px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; margin: 0 10px; transition: 0.3s; }
-        .btn-main { background: var(--main-green); color: black; }
-        .btn-sec { background: transparent; color: white; border: 1px solid white; }
-        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
+        :root { --main-green: #2ecc71; --card-bg: #161b22; --text-gray: #8b949e; }
+        body { background-color: #0d1117; color: white; font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; overflow-x: hidden; }
+        
+        /* 导航栏 */
+        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; position: sticky; top: 0; z-index: 100; }
+        .logo { color: var(--main-green); font-size: 22px; font-weight: bold; text-decoration: none; }
+        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 6px 15px; border-radius: 4px; cursor: pointer; transition: 0.3s; }
+        .auth-btn:hover { background: white; color: black; }
 
-        /* 磁贴菜单 [对应你提供的逃里块科夫风格] */
+        /* 主视觉区 */
+        .hero { text-align: center; padding: 80px 20px; background: radial-gradient(circle at center, #1e272e 0%, #0d1117 100%); }
+        .hero h1 { font-size: 45px; margin: 0; letter-spacing: 2px; }
+        .hero p { color: var(--text-gray); margin: 15px 0 30px; }
+        .btn-group .btn { padding: 12px 30px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; margin: 0 10px; transition: 0.3s; }
+        .btn-main { background: var(--main-green); color: black; }
+        .btn-sec { background: #30363d; color: white; }
+        .btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        /* 磁贴功能区 - 模仿你提供的图片布局 */
         .grid-container { 
             display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
-            gap: 20px; max-width: 1100px; margin: 40px auto; padding: 0 20px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); 
+            gap: 20px; max-width: 1100px; margin: -40px auto 50px; padding: 0 20px;
         }
         .feature-card { 
-            background: var(--card-bg); padding: 25px; border-radius: 12px; 
-            border: 1px solid #30363d; transition: 0.3s; cursor: pointer; text-align: left;
+            background: var(--card-bg); padding: 30px; border-radius: 8px; 
+            border: 1px solid #30363d; transition: 0.3s; cursor: pointer; position: relative;
         }
         .feature-card:hover { border-color: var(--main-green); background: #1c2128; }
-        .icon { font-size: 28px; margin-bottom: 15px; display: block; }
+        .icon { font-size: 32px; margin-bottom: 15px; display: block; }
         .feature-card h3 { margin: 0; font-size: 18px; color: #f0f6fc; }
-        .feature-card p { color: #8b949e; font-size: 14px; margin-top: 8px; line-height: 1.4; }
+        .feature-card p { color: var(--text-gray); font-size: 14px; margin-top: 10px; line-height: 1.5; }
+        
+        /* 登录成功状态 */
+        .user-info { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+        .user-info img { width: 30px; border-radius: 50%; border: 1px solid var(--main-green); }
     </style>
 </head>
 <body>
 
 <nav>
     <a href="#" class="logo">生存法则</a>
-    <div id="auth-status">
-        <button class="btn-sec" onclick="login()">Google 登录</button>
+    <div id="auth-ui">
+        <button class="auth-btn" onclick="login()">Google 登录</button>
     </div>
 </nav>
 
 <div class="hero">
-    <h1 id="welcome-msg">生存法则 · 官方社区</h1>
-    <p style="color: #8b949e;">腐竹: IKUN5556 | 副腐竹: Peter_YT_Bilibili</p>
+    <h1 id="welcome-text">生存法则 · 官方社区</h1>
+    <p id="sub-text">搜集物资、交易货品、探索未知地图</p>
     <div class="btn-group">
         <button class="btn btn-main">进入组队大厅</button>
         <button class="btn btn-sec">了解玩法</button>
@@ -50,19 +62,19 @@
 </div>
 
 <div class="grid-container">
-    <div class="feature-card"><span class="icon">👥</span><h3>组队大厅</h3><p>寻找队友，组队出击</p></div>
-    <div class="feature-card"><span class="icon">🎮</span><h3>玩法介绍</h3><p>了解游戏规则和技巧</p></div>
-    <div class="feature-card"><span class="icon">🔄</span><h3>交易行</h3><p>购买和出售永久物品</p></div>
-    <div class="feature-card"><span class="icon">📝</span><h3>更新日志</h3><p>查看最新版本内容</p></div>
-    <div class="feature-card"><span class="icon">🎁</span><h3>兑换码</h3><p>输入兑换码获取奖励</p></div>
-    <div class="feature-card"><span class="icon">🚫</span><h3>处罚名单</h3><p>查看违规处罚记录</p></div>
+    <div class="feature-card"><span class="icon">👥</span><h3>组队大厅</h3><p>寻找可靠队友，组队并肩作战</p></div>
+    <div class="feature-card"><span class="icon">🎮</span><h3>玩法介绍</h3><p>了解服务器规则、指令及技巧</p></div>
+    <div class="feature-card"><span class="icon">🔄</span><h3>更新日志</h3><p>查看最新的版本变动与修复</p></div>
+    <div class="feature-card" onclick="alert('请先登录以访问交易行')"><span class="icon">⚖️</span><h3>交易行</h3><p>玩家间安全的物资买卖中心</p></div>
+    <div class="feature-card"><span class="icon">🎁</span><h3>兑换码</h3><p>输入礼包码获取限时物资奖励</p></div>
+    <div class="feature-card"><span class="icon">🚫</span><h3>处罚名单</h3><p>公开透明的违规封禁记录查询</p></div>
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-  // 这是你截图里的配置内容
+  // 你的专属配置
   const firebaseConfig = {
     apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
     authDomain: "bloxd-survival.firebaseapp.com",
@@ -74,22 +86,40 @@
   };
 
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth();
+  const auth = getAuth(app);
 
-  // 登录逻辑
+  // 登录函数
   window.login = () => {
     const provider = new GoogleAuthProvider();
-    signInWithPopup(auth, provider).catch((error) => alert("登录失败: " + error.message));
+    // 解决 "requested action is invalid"：强制弹出账户选择
+    provider.setCustomParameters({ prompt: 'select_account' });
+    
+    signInWithPopup(auth, provider).catch((error) => {
+      console.error("登录错误:", error);
+      alert("登录失败！\n请确保在 Firebase 控制台：\n1. Google 登录已点击“保存”按钮\n2. 已添加 peter-bloxd.github.io 到“已获授权的网域”");
+    });
   };
 
-  // 监听登录状态
+  // 登出函数
+  window.logout = () => signOut(auth);
+
+  // 监听登录状态：实现“记住我”功能
   onAuthStateChanged(auth, (user) => {
+    const authUi = document.getElementById('auth-ui');
+    const welcomeText = document.getElementById('welcome-text');
+    
     if (user) {
-      document.getElementById('welcome-msg').innerText = `欢迎回来, ${user.displayName}`;
-      document.getElementById('auth-status').innerHTML = `
-        <span style="margin-right:15px; font-size:14px;">已登录: ${user.displayName}</span>
-        <button class="btn-sec" style="padding:5px 10px;" onclick="auth.signOut()">退出</button>
-      `;
+      welcomeText.innerText = `欢迎回来, ${user.displayName}`;
+      authUi.innerHTML = `
+        <div class="user-info">
+            <img src="${user.photoURL}" alt="avatar">
+            <span>${user.displayName}</span>
+            <button class="auth-btn" style="border-color:#e74c3c; color:#e74c3c" onclick="logout()">退出</button>
+        </div>`;
+      // 这里可以添加逻辑：如果用户是第一次登录，自动发送 Formspree 注册邮件
+    } else {
+      welcomeText.innerText = "生存法则 · 官方社区";
+      authUi.innerHTML = `<button class="auth-btn" onclick="login()">Google 登录</button>`;
     }
   });
 </script>
