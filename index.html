@@ -3,145 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生存法则 - Bloxd.io 服务器官方主页</title>
+    <title>生存法则 - Bloxd.io 官方社区</title>
     <style>
-        /* 基础样式 */
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #1a1a1a; /* 深色游戏背景 */
-            color: #e0e0e0;
-            line-height: 1.6;
-        }
+        /* 核心样式：深色游戏风格 */
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: #121212; color: #e0e0e0; line-height: 1.6; }
+        header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 40px 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
+        .staff-box { margin-top: 15px; }
+        .tag { background: #f1c40f; color: #1a1a1a; padding: 3px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; margin: 0 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
+        
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
+        .card { background: #1e272e; border-radius: 15px; padding: 25px; margin-bottom: 25px; border: 1px solid #34495e; transition: 0.3s; }
+        .card:hover { border-color: #2ecc71; }
+        h2 { color: #2ecc71; margin-top: 0; border-bottom: 2px solid #2ecc71; padding-bottom: 10px; display: inline-block; }
 
-        /* 顶部装饰条 */
-        header {
-            background: linear-gradient(45deg, #2ecc71, #27ae60);
-            padding: 40px 20px;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
-        }
+        /* 注册表单样式 */
+        form input, form textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #34495e; background: #2d3436; color: white; box-sizing: border-box; }
+        .btn-submit { background: #2ecc71; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
+        .btn-submit:hover { background: #27ae60; transform: translateY(-2px); }
 
-        header h1 {
-            margin: 0;
-            font-size: 3rem;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-            color: white;
-        }
+        /* 聊天室样式 */
+        #chat-window { height: 300px; background: #0f1418; border-radius: 10px; padding: 15px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #2c3e50; }
+        .msg { margin-bottom: 10px; animation: fadeIn 0.3s; }
+        .msg-user { color: #f1c40f; font-weight: bold; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 主体容器 */
-        .container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-
-        /* 卡片样式 */
-        .section {
-            background: #2c3e50;
-            border-radius: 12px;
-            padding: 25px;
-            margin-bottom: 20px;
-            border-left: 5px solid #2ecc71;
-            transition: transform 0.3s;
-        }
-
-        .section:hover {
-            transform: translateY(-5px);
-        }
-
-        h2 {
-            color: #2ecc71;
-            border-bottom: 1px solid #3e4f5f;
-            padding-bottom: 10px;
-        }
-
-        /* 规则列表 */
-        .rules {
-            list-style-type: none;
-            padding: 0;
-        }
-
-        .rules li {
-            background: #34495e;
-            margin: 10px 0;
-            padding: 15px;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-        }
-
-        .rules li::before {
-            content: "🛡️";
-            margin-right: 15px;
-        }
-
-        /* 按钮 */
-        .join-btn {
-            display: inline-block;
-            background: #f1c40f;
-            color: #2c3e50;
-            padding: 15px 40px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin-top: 20px;
-            transition: background 0.3s, scale 0.2s;
-        }
-
-        .join-btn:hover {
-            background: #f39c12;
-            transform: scale(1.05);
-        }
-
-        footer {
-            text-align: center;
-            padding: 40px;
-            font-size: 0.9rem;
-            color: #777;
-        }
+        /* 交易市场样式 */
+        .market-item { background: #2d3436; padding: 15px; border-radius: 10px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #f1c40f; }
+        .price-tag { color: #f1c40f; font-weight: bold; font-size: 1.1em; }
+        .input-group { display: flex; gap: 10px; margin-top: 15px; }
+        .input-group input { flex: 1; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>生存法则</h1>
-        <p>—— Bloxd.io 纯粹生存 · 极致竞技 ——</p>
-    </header>
+<header>
+    <h1>生存法则 · 官方玩家社区</h1>
+    <div class="staff-box">
+        <span class="tag">主腐竹: IKUN5556</span>
+        <span class="tag">副腐竹: Peter_YT_Bilibili</span>
+    </div>
+</header>
 
-    <div class="container">
+<div class="container">
+    <div class="main-column">
         
-        <div class="section">
-            <h2>📜 服务器简介</h2>
-            <p>欢迎来到“生存法则”！在这里，你将体验到最原始的生存挑战。没有捷径，只有智慧与勇气的碰撞。无论你是建筑大师还是战斗狂人，这里都有属于你的舞台。</p>
+        <div class="card">
+            <h2>💬 世界聊天</h2>
+            <div id="chat-window">
+                <div class="msg" style="color: #888;">[系统] 欢迎来到“生存法则”官方网页版聊天室！</div>
+            </div>
+            <div class="input-group">
+                <input type="text" id="chat-name" placeholder="游戏名" style="flex: 0.3;">
+                <input type="text" id="chat-text" placeholder="说点什么吧...">
+                <button onclick="sendMsg()" style="background:#2ecc71; border:none; color:white; padding:0 20px; border-radius:8px; cursor:pointer;">发送</button>
+            </div>
         </div>
 
-        <div class="section">
-            <h2>⚖️ 核心法则</h2>
-            <ul class="rules">
-                <li><strong>公平竞争：</strong> 严禁使用任何第三方作弊软件。</li>
-                <li><strong>尊重他人：</strong> 严禁言语攻击或恶意刷屏。</li>
-                <li><strong>领地意识：</strong> 保护自己的领地，尊重他人的财产。</li>
-                <li><strong>适者生存：</strong> 合理利用资源，建立你的帝国。</li>
-            </ul>
-        </div>
-
-        <div class="section" style="text-align: center;">
-            <h2>🎮 立即加入</h2>
-            <p>打开 <strong>Bloxd.io</strong>，在服务器列表中搜索：</p>
-            <h3 style="color: #f1c40f;">[ 生存法则 ]</h3>
-            <a href="https://bloxd.io" target="_blank" class="join-btn">进入游戏</a>
+        <div class="card">
+            <h2>⚖️ 物品交易中心</h2>
+            <div id="market-shelf">
+                <div class="market-item">
+                    <span>📦 钻石战斧 (卖家: 系统)</span>
+                    <span class="price-tag">💰 8000 金币</span>
+                </div>
+            </div>
+            <div style="margin-top:20px; padding:15px; background: rgba(255,255,255,0.05); border-radius:10px;">
+                <h4 style="margin:0 0 10px 0;">我要上架物品</h4>
+                <div class="input-group">
+                    <input type="text" id="it-name" placeholder="物品名称">
+                    <input type="text" id="it-price" placeholder="价格">
+                    <button onclick="postItem()" style="background:#f1c40f; border:none; color:#000; padding:0 20px; border-radius:8px; cursor:pointer; font-weight:bold;">发布</button>
+                </div>
+            </div>
         </div>
 
     </div>
 
-    <footer>
-        &copy; 2024 生存法则服务器 - 由热爱 Bloxd.io 的玩家创建
-    </footer>
+    <div class="side-column">
+        
+        <div class="card">
+            <h2>📧 玩家注册</h2>
+            <p style="font-size: 14px; color: #bdc3c7;">填写后信息将直接发送给腐竹，用于录入白名单或发放礼包。</p>
+            <form action="https://formspree.io/f/xykkgerr" method="POST">
+                <input type="text" name="玩家ID" placeholder="你的游戏内 ID" required>
+                <input type="email" name="邮箱" placeholder="你的常用邮箱" required>
+                <textarea name="留言" rows="4" placeholder="想对腐竹说的话..."></textarea>
+                <button type="submit" class="btn-submit">提交注册信息</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>📢 服务器公告</h2>
+            <ul style="padding-left: 20px; font-size: 14px; color: #bdc3c7;">
+                <li>严禁使用外挂！发现即封禁。</li>
+                <li>每周六晚 8 点举办生存大赛。</li>
+                <li>新玩家进群领新手礼包。</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    // 简易聊天功能（刷新后会清空，除非接入 Firebase）
+    function sendMsg() {
+        const name = document.getElementById('chat-name').value || "无名玩家";
+        const text = document.getElementById('chat-text').value;
+        if(text) {
+            const win = document.getElementById('chat-window');
+            win.innerHTML += `<div class="msg"><span class="msg-user">${name}:</span> ${text}</div>`;
+            document.getElementById('chat-text').value = '';
+            win.scrollTop = win.scrollHeight;
+        }
+    }
+
+    // 简易市场功能
+    function postItem() {
+        const name = document.getElementById('it-name').value;
+        const price = document.getElementById('it-price').value;
+        const seller = document.getElementById('chat-name').value || "匿名";
+        if(name && price) {
+            const shelf = document.getElementById('market-shelf');
+            shelf.innerHTML += `
+                <div class="market-item">
+                    <span>📦 ${name} (卖家: ${seller})</span>
+                    <span class="price-tag">💰 ${price}</span>
+                </div>`;
+            document.getElementById('it-name').value = '';
+            document.getElementById('it-price').value = '';
+            alert("上架成功！");
+        }
+    }
+</script>
 
 </body>
 </html>
