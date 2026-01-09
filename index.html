@@ -2,139 +2,96 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生存法则 - Bloxd.io 官方社区</title>
+    <title>生存法则 - 官方社区</title>
     <style>
-        /* 核心样式：深色游戏风格 */
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: #121212; color: #e0e0e0; line-height: 1.6; }
-        header { background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%); padding: 40px 20px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.6); }
-        .staff-box { margin-top: 15px; }
-        .tag { background: #f1c40f; color: #1a1a1a; padding: 3px 12px; border-radius: 20px; font-weight: bold; font-size: 14px; margin: 0 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.3); }
-        
-        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 2fr 1fr; gap: 25px; }
-        .card { background: #1e272e; border-radius: 15px; padding: 25px; margin-bottom: 25px; border: 1px solid #34495e; transition: 0.3s; }
-        .card:hover { border-color: #2ecc71; }
-        h2 { color: #2ecc71; margin-top: 0; border-bottom: 2px solid #2ecc71; padding-bottom: 10px; display: inline-block; }
+        :root { --main-green: #2ecc71; --card-bg: #161b22; }
+        body { background-color: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; }
+        nav { display: flex; justify-content: space-between; padding: 20px 50px; align-items: center; border-bottom: 1px solid #30363d; }
+        .logo { color: var(--main-green); font-size: 24px; font-weight: bold; text-decoration: none; }
+        .hero { text-align: center; padding: 60px 20px; background: linear-gradient(to bottom, #161b22, #0d1117); }
+        .hero h1 { font-size: 48px; margin-bottom: 10px; }
+        .btn { padding: 12px 25px; border-radius: 5px; cursor: pointer; border: none; font-weight: bold; margin: 0 10px; transition: 0.3s; }
+        .btn-main { background: var(--main-green); color: black; }
+        .btn-sec { background: transparent; color: white; border: 1px solid white; }
+        .btn:hover { opacity: 0.8; transform: translateY(-2px); }
 
-        /* 注册表单样式 */
-        form input, form textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #34495e; background: #2d3436; color: white; box-sizing: border-box; }
-        .btn-submit { background: #2ecc71; color: white; border: none; padding: 15px; width: 100%; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; font-size: 16px; }
-        .btn-submit:hover { background: #27ae60; transform: translateY(-2px); }
-
-        /* 聊天室样式 */
-        #chat-window { height: 300px; background: #0f1418; border-radius: 10px; padding: 15px; overflow-y: auto; margin-bottom: 15px; border: 1px solid #2c3e50; }
-        .msg { margin-bottom: 10px; animation: fadeIn 0.3s; }
-        .msg-user { color: #f1c40f; font-weight: bold; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* 交易市场样式 */
-        .market-item { background: #2d3436; padding: 15px; border-radius: 10px; margin: 10px 0; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #f1c40f; }
-        .price-tag { color: #f1c40f; font-weight: bold; font-size: 1.1em; }
-        .input-group { display: flex; gap: 10px; margin-top: 15px; }
-        .input-group input { flex: 1; }
+        /* 磁贴菜单 [对应你提供的逃里块科夫风格] */
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 20px; max-width: 1100px; margin: 40px auto; padding: 0 20px;
+        }
+        .feature-card { 
+            background: var(--card-bg); padding: 25px; border-radius: 12px; 
+            border: 1px solid #30363d; transition: 0.3s; cursor: pointer; text-align: left;
+        }
+        .feature-card:hover { border-color: var(--main-green); background: #1c2128; }
+        .icon { font-size: 28px; margin-bottom: 15px; display: block; }
+        .feature-card h3 { margin: 0; font-size: 18px; color: #f0f6fc; }
+        .feature-card p { color: #8b949e; font-size: 14px; margin-top: 8px; line-height: 1.4; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>生存法则 · 官方玩家社区</h1>
-    <div class="staff-box">
-        <span class="tag">主腐竹: IKUN5556</span>
-        <span class="tag">副腐竹: Peter_YT_Bilibili</span>
+<nav>
+    <a href="#" class="logo">生存法则</a>
+    <div id="auth-status">
+        <button class="btn-sec" onclick="login()">Google 登录</button>
     </div>
-</header>
+</nav>
 
-<div class="container">
-    <div class="main-column">
-        
-        <div class="card">
-            <h2>💬 世界聊天</h2>
-            <div id="chat-window">
-                <div class="msg" style="color: #888;">[系统] 欢迎来到“生存法则”官方网页版聊天室！</div>
-            </div>
-            <div class="input-group">
-                <input type="text" id="chat-name" placeholder="游戏名" style="flex: 0.3;">
-                <input type="text" id="chat-text" placeholder="说点什么吧...">
-                <button onclick="sendMsg()" style="background:#2ecc71; border:none; color:white; padding:0 20px; border-radius:8px; cursor:pointer;">发送</button>
-            </div>
-        </div>
-
-        <div class="card">
-            <h2>⚖️ 物品交易中心</h2>
-            <div id="market-shelf">
-                <div class="market-item">
-                    <span>📦 钻石战斧 (卖家: 系统)</span>
-                    <span class="price-tag">💰 8000 金币</span>
-                </div>
-            </div>
-            <div style="margin-top:20px; padding:15px; background: rgba(255,255,255,0.05); border-radius:10px;">
-                <h4 style="margin:0 0 10px 0;">我要上架物品</h4>
-                <div class="input-group">
-                    <input type="text" id="it-name" placeholder="物品名称">
-                    <input type="text" id="it-price" placeholder="价格">
-                    <button onclick="postItem()" style="background:#f1c40f; border:none; color:#000; padding:0 20px; border-radius:8px; cursor:pointer; font-weight:bold;">发布</button>
-                </div>
-            </div>
-        </div>
-
-    </div>
-
-    <div class="side-column">
-        
-        <div class="card">
-            <h2>📧 玩家注册</h2>
-            <p style="font-size: 14px; color: #bdc3c7;">填写后信息将直接发送给腐竹，用于录入白名单或发放礼包。</p>
-            <form action="https://formspree.io/f/xykkgerr" method="POST">
-                <input type="text" name="玩家ID" placeholder="你的游戏内 ID" required>
-                <input type="email" name="邮箱" placeholder="你的常用邮箱" required>
-                <textarea name="留言" rows="4" placeholder="想对腐竹说的话..."></textarea>
-                <button type="submit" class="btn-submit">提交注册信息</button>
-            </form>
-        </div>
-
-        <div class="card">
-            <h2>📢 服务器公告</h2>
-            <ul style="padding-left: 20px; font-size: 14px; color: #bdc3c7;">
-                <li>严禁使用外挂！发现即封禁。</li>
-                <li>每周六晚 8 点举办生存大赛。</li>
-                <li>新玩家进群领新手礼包。</li>
-            </ul>
-        </div>
-
+<div class="hero">
+    <h1 id="welcome-msg">生存法则 · 官方社区</h1>
+    <p style="color: #8b949e;">腐竹: IKUN5556 | 副腐竹: Peter_YT_Bilibili</p>
+    <div class="btn-group">
+        <button class="btn btn-main">进入组队大厅</button>
+        <button class="btn btn-sec">了解玩法</button>
     </div>
 </div>
 
-<script>
-    // 简易聊天功能（刷新后会清空，除非接入 Firebase）
-    function sendMsg() {
-        const name = document.getElementById('chat-name').value || "无名玩家";
-        const text = document.getElementById('chat-text').value;
-        if(text) {
-            const win = document.getElementById('chat-window');
-            win.innerHTML += `<div class="msg"><span class="msg-user">${name}:</span> ${text}</div>`;
-            document.getElementById('chat-text').value = '';
-            win.scrollTop = win.scrollHeight;
-        }
-    }
+<div class="grid-container">
+    <div class="feature-card"><span class="icon">👥</span><h3>组队大厅</h3><p>寻找队友，组队出击</p></div>
+    <div class="feature-card"><span class="icon">🎮</span><h3>玩法介绍</h3><p>了解游戏规则和技巧</p></div>
+    <div class="feature-card"><span class="icon">🔄</span><h3>交易行</h3><p>购买和出售永久物品</p></div>
+    <div class="feature-card"><span class="icon">📝</span><h3>更新日志</h3><p>查看最新版本内容</p></div>
+    <div class="feature-card"><span class="icon">🎁</span><h3>兑换码</h3><p>输入兑换码获取奖励</p></div>
+    <div class="feature-card"><span class="icon">🚫</span><h3>处罚名单</h3><p>查看违规处罚记录</p></div>
+</div>
 
-    // 简易市场功能
-    function postItem() {
-        const name = document.getElementById('it-name').value;
-        const price = document.getElementById('it-price').value;
-        const seller = document.getElementById('chat-name').value || "匿名";
-        if(name && price) {
-            const shelf = document.getElementById('market-shelf');
-            shelf.innerHTML += `
-                <div class="market-item">
-                    <span>📦 ${name} (卖家: ${seller})</span>
-                    <span class="price-tag">💰 ${price}</span>
-                </div>`;
-            document.getElementById('it-name').value = '';
-            document.getElementById('it-price').value = '';
-            alert("上架成功！");
-        }
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+  import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+
+  // 这是你截图里的配置内容
+  const firebaseConfig = {
+    apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
+    authDomain: "bloxd-survival.firebaseapp.com",
+    projectId: "bloxd-survival",
+    storageBucket: "bloxd-survival.firebasestorage.app",
+    messagingSenderId: "60666065786",
+    appId: "1:60666065786:web:bdc3131accaceb0180dcc3",
+    measurementId: "G-L39F7GPMF4"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth();
+
+  // 登录逻辑
+  window.login = () => {
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider).catch((error) => alert("登录失败: " + error.message));
+  };
+
+  // 监听登录状态
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      document.getElementById('welcome-msg').innerText = `欢迎回来, ${user.displayName}`;
+      document.getElementById('auth-status').innerHTML = `
+        <span style="margin-right:15px; font-size:14px;">已登录: ${user.displayName}</span>
+        <button class="btn-sec" style="padding:5px 10px;" onclick="auth.signOut()">退出</button>
+      `;
     }
+  });
 </script>
-
 </body>
 </html>
