@@ -6,16 +6,16 @@
     <title>生存法则 - 官方社区</title>
     <style>
         :root { --main-green: #2ecc71; --card-bg: #161b22; --text-gray: #8b949e; }
-        body { background-color: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
-        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; position: sticky; top: 0; }
-        .logo { color: var(--main-green); font-size: 22px; font-weight: bold; text-decoration: none; }
-        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 6px 15px; border-radius: 4px; cursor: pointer; }
-        .hero { text-align: center; padding: 60px 20px; }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: 20px auto; padding: 0 20px; }
-        .feature-card { background: var(--card-bg); padding: 30px; border-radius: 8px; border: 1px solid #30363d; cursor: pointer; text-align: center; transition: 0.3s; }
-        .feature-card:hover { border-color: var(--main-green); transform: translateY(-5px); }
+        body { background-color: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; }
+        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; }
+        .logo { color: var(--main-green); font-size: 24px; font-weight: bold; text-decoration: none; }
+        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
+        .hero { padding: 60px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        .card { background: var(--card-bg); padding: 30px; border-radius: 10px; border: 1px solid #30363d; cursor: pointer; transition: 0.3s; }
+        .card:hover { border-color: var(--main-green); transform: translateY(-5px); }
         .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-info img { width: 30px; border-radius: 50%; border: 1px solid var(--main-green); }
+        .user-info img { width: 30px; border-radius: 50%; }
     </style>
 </head>
 <body>
@@ -28,21 +28,22 @@
 </nav>
 
 <div class="hero">
-    <h1 id="welcome-text">生存法则 · 官方社区</h1>
+    <h1 id="welcome-msg">生存法则 · 官方社区</h1>
     <p style="color:var(--text-gray)">搜集物资、交易货品、探索未知地图</p>
 </div>
 
-<div class="grid-container">
-    <div class="feature-card" onclick="checkLogin('组队大厅')"><h3>组队大厅</h3><p>寻找队友并肩作战</p></div>
-    <div class="feature-card" onclick="checkLogin('交易行')"><h3>交易行</h3><p>安全的物资买卖中心</p></div>
-    <div class="feature-card" onclick="alert('暂无更新')"><h3>更新日志</h3><p>查看版本修复内容</p></div>
-    <div class="feature-card" onclick="checkLogin('兑换码')"><h3>兑换码</h3><p>领取限时物资奖励</p></div>
+<div class="grid">
+    <div class="card" onclick="checkAuth('组队大厅')"><h3>组队大厅</h3><p>寻找队友并肩作战</p></div>
+    <div class="card" onclick="checkAuth('交易行')"><h3>交易行</h3><p>安全的物资买卖中心</p></div>
+    <div class="card" onclick="alert('暂无更新')"><h3>更新日志</h3><p>查看版本修复内容</p></div>
+    <div class="card" onclick="checkAuth('兑换码')"><h3>兑换码</h3><p>领取限时物资奖励</p></div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+    // 严格根据你下午 7:06:58 的截图填写
     const firebaseConfig = {
         apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
         authDomain: "bloxd-survival.firebaseapp.com",
@@ -62,26 +63,23 @@
         provider.setCustomParameters({ prompt: 'select_account' });
         signInWithPopup(auth, provider).catch((error) => {
             console.error(error);
-            alert("❌ 登录失败！\n原因：" + error.code + "\n\n💡 解决办法：请确保你在 Firebase 的 Google 登录设置页点击了右下角的蓝色“保存”按钮。");
+            alert("登录失败！错误码：" + error.code + "\n\n请确认：\n1. Firebase里Google登录是否已‘保存’\n2. 是否已添加授权网域 peter-bloxd.github.io");
         });
     };
 
     window.logout = () => signOut(auth);
 
-    window.checkLogin = (target) => {
-        if (!currentUser) {
-            alert("请先完成 Google 登录再访问 " + target);
-        } else {
-            alert("正在跳转到 " + target + "...");
-        }
+    window.checkAuth = (name) => {
+        if (!currentUser) alert("请先登录 Google 账号！");
+        else alert("欢迎来到 " + name);
     };
 
     onAuthStateChanged(auth, (user) => {
         const ui = document.getElementById('auth-ui');
-        const welcome = document.getElementById('welcome-text');
+        const welcome = document.getElementById('welcome-msg');
         currentUser = user;
         if (user) {
-            welcome.innerText = `欢迎回来, ${user.displayName}`;
+            welcome.innerText = "欢迎回来, " + user.displayName;
             ui.innerHTML = `<div class="user-info"><img src="${user.photoURL}"><span>${user.displayName}</span><button class="auth-btn" onclick="logout()">退出</button></div>`;
         } else {
             welcome.innerText = "生存法则 · 官方社区";
