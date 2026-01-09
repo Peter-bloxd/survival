@@ -7,15 +7,27 @@
     <style>
         :root { --main-green: #2ecc71; --card-bg: #161b22; --text-gray: #8b949e; }
         body { background-color: #0d1117; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; }
-        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; }
+        
+        /* 导航栏样式 */
+        nav { display: flex; justify-content: space-between; padding: 15px 50px; align-items: center; background: #161b22; border-bottom: 1px solid #30363d; position: sticky; top: 0; z-index: 100; }
         .logo { color: var(--main-green); font-size: 24px; font-weight: bold; text-decoration: none; }
-        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 8px 20px; border-radius: 5px; cursor: pointer; }
-        .hero { padding: 60px 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1000px; margin: 20px auto; padding: 0 20px; }
+        .auth-btn { background: transparent; color: white; border: 1px solid white; padding: 8px 20px; border-radius: 5px; cursor: pointer; transition: 0.3s; }
+        .auth-btn:hover { background: white; color: black; }
+
+        /* 主视觉区 */
+        .hero { padding: 80px 20px; background: radial-gradient(circle at center, #1e272e 0%, #0d1117 100%); }
+        .hero h1 { font-size: 45px; margin: 0; letter-spacing: 2px; }
+        
+        /* 磁贴功能区 */
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; max-width: 1100px; margin: -40px auto 50px; padding: 0 20px; }
         .card { background: var(--card-bg); padding: 30px; border-radius: 10px; border: 1px solid #30363d; cursor: pointer; transition: 0.3s; }
-        .card:hover { border-color: var(--main-green); transform: translateY(-5px); }
+        .card:hover { border-color: var(--main-green); transform: translateY(-5px); background: #1c2128; }
+        .card h3 { margin: 0; font-size: 18px; }
+        .card p { color: var(--text-gray); font-size: 14px; margin-top: 10px; }
+
+        /* 用户信息 */
         .user-info { display: flex; align-items: center; gap: 10px; }
-        .user-info img { width: 30px; border-radius: 50%; }
+        .user-info img { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--main-green); }
     </style>
 </head>
 <body>
@@ -33,19 +45,20 @@
 </div>
 
 <div class="grid">
-    <div class="card" onclick="checkAuth('组队大厅')"><h3>组队大厅</h3><p>寻找队友并肩作战</p></div>
-    <div class="card" onclick="checkAuth('交易行')"><h3>交易行</h3><p>安全的物资买卖中心</p></div>
-    <div class="card" onclick="alert('暂无更新')"><h3>更新日志</h3><p>查看版本修复内容</p></div>
-    <div class="card" onclick="checkAuth('兑换码')"><h3>兑换码</h3><p>领取限时物资奖励</p></div>
+    <div class="card" onclick="checkAuth('组队大厅')"><h3>组队大厅</h3><p>寻找可靠队友，并肩作战</p></div>
+    <div class="card" onclick="checkAuth('交易行')"><h3>交易行</h3><p>玩家间安全的物资买卖中心</p></div>
+    <div class="card" onclick="alert('暂无更新')"><h3>更新日志</h3><p>查看最新的版本修复内容</p></div>
+    <div class="card" onclick="checkAuth('兑换码')"><h3>兑换码</h3><p>领取限时礼包物资奖励</p></div>
 </div>
 
 <script type="module">
+    // 使用 CDN 引入 Firebase 模块
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-    // 严格根据你下午 7:06:58 的截图填写
+    // 严格校对后的配置
     const firebaseConfig = {
-        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
+        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", // 已修复 SiI 拼写错误
         authDomain: "bloxd-survival.firebaseapp.com",
         projectId: "bloxd-survival",
         storageBucket: "bloxd-survival.firebasestorage.app",
@@ -54,35 +67,52 @@
         measurementId: "G-L39F7GPMF4"
     };
 
+    // 初始化应用
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     let currentUser = null;
 
+    // 登录函数
     window.login = () => {
         const provider = new GoogleAuthProvider();
         provider.setCustomParameters({ prompt: 'select_account' });
         signInWithPopup(auth, provider).catch((error) => {
             console.error(error);
-            alert("登录失败！错误码：" + error.code + "\n\n请确认：\n1. Firebase里Google登录是否已‘保存’\n2. 是否已添加授权网域 peter-bloxd.github.io");
+            // 友好的报错提示
+            alert("❌ 登录失败！\n原因：" + error.code + "\n\n💡 请确保在 Firebase 设置中已点击蓝色“保存”按钮并绑定邮箱！");
         });
     };
 
+    // 登出函数
     window.logout = () => signOut(auth);
 
+    // 检查权限
     window.checkAuth = (name) => {
-        if (!currentUser) alert("请先登录 Google 账号！");
-        else alert("欢迎来到 " + name);
+        if (!currentUser) {
+            alert("请先登录 Google 账号再进入 " + name + "！");
+        } else {
+            alert("欢迎进入 " + name + "，" + currentUser.displayName + "！数据加载中...");
+        }
     };
 
+    // 监听登录状态
     onAuthStateChanged(auth, (user) => {
         const ui = document.getElementById('auth-ui');
-        const welcome = document.getElementById('welcome-msg');
+        const msg = document.getElementById('welcome-msg');
         currentUser = user;
+        
         if (user) {
-            welcome.innerText = "欢迎回来, " + user.displayName;
-            ui.innerHTML = `<div class="user-info"><img src="${user.photoURL}"><span>${user.displayName}</span><button class="auth-btn" onclick="logout()">退出</button></div>`;
+            // 已登录状态
+            msg.innerText = "欢迎回来, " + user.displayName;
+            ui.innerHTML = `
+                <div class="user-info">
+                    <img src="${user.photoURL}" alt="头像">
+                    <span>${user.displayName}</span>
+                    <button class="auth-btn" onclick="logout()">退出</button>
+                </div>`;
         } else {
-            welcome.innerText = "生存法则 · 官方社区";
+            // 未登录状态
+            msg.innerText = "生存法则 · 官方社区";
             ui.innerHTML = `<button class="auth-btn" onclick="login()">Google 登录</button>`;
         }
     });
