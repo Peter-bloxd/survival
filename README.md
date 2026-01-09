@@ -1,2 +1,2 @@
 https://peter-bloxd.github.io/survival/
-link to the website
+前往生存法则官网的url
