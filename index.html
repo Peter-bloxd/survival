@@ -2,57 +2,117 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>生存法则 · SURVIVAL RULES</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
+<div id="toast-container"></div>
+
 <nav>
-    <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
-    <div id="auth-ui"></div>
+    <div class="nav-wrapper">
+        <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
+        <div id="auth-ui" class="user-status">
+            </div>
+    </div>
 </nav>
 
-<div class="grid">
-    <div class="card" onclick="openChat()">
-        <h3>💬 组队大厅</h3>
-        <p>实时战术交流，寻找生存伙伴</p>
+<header class="hero">
+    <h1 class="glitch">生存法则</h1>
+    <p>搜集物资 · 建立军团 · 自由交易 · 黄金鹿角</p>
+</header>
+
+<main class="grid-container">
+    <div class="main-card chat-card" onclick="togglePanel('chat-panel')">
+        <div class="icon">💬</div>
+        <h3>组队大厅</h3>
+        <p>实时在线频道，寻找生存伙伴</p>
+        <span class="badge">ACTIVE</span>
     </div>
-    
-    <div class="card" onclick="openModal('wiki-modal')">
-        <h3>📜 玩法手册</h3>
+
+    <div class="main-card" onclick="togglePanel('wiki-modal')">
+        <div class="icon">📜</div>
+        <h3>玩法手册</h3>
         <p>军团指令、道具技能全指南</p>
     </div>
 
-    <div class="card" onclick="openModal('market-modal')">
-        <h3>⚖️ 交易行</h3>
+    <div class="main-card" onclick="togglePanel('market-modal')">
+        <div class="icon">⚖️</div>
+        <h3>交易行</h3>
         <p>自主上架/下架，物资自由贸易</p>
+    </div>
+
+    <div class="main-card disabled">
+        <div class="icon">👥</div>
+        <h3>成员名单</h3>
+        <p>全服顶尖生存军团公示</p>
+    </div>
+</main>
+
+<div id="auth-modal" class="modal-overlay">
+    <div class="glass-modal auth-box">
+        <div class="tab-header">
+            <span id="tab-login" class="active" onclick="switchAuth('login')">登录</span>
+            <span id="tab-reg" onclick="switchAuth('reg')">注册</span>
+        </div>
+        <div class="input-area">
+            <div id="reg-nick-group" style="display:none">
+                <input type="text" id="a-nick" placeholder="游戏昵称 (Nickname)">
+            </div>
+            <input type="text" id="a-id" placeholder="生存 ID (Unique ID)">
+            <div class="pw-group">
+                <input type="password" id="a-pw" placeholder="访问密码">
+                <span onclick="togglePw()">👁️</span>
+            </div>
+            <button class="prime-btn" onclick="handleAuth()">进入社区</button>
+        </div>
+        <p class="close-link" onclick="togglePanel('auth-modal')">关闭</p>
     </div>
 </div>
 
-<div id="wiki-modal" class="modal-overlay">
-    <div class="modal">
-        <h2 style="color:var(--neon)">幸存者指南</h2>
-        <div style="text-align:left; font-size:14px; max-height:300px; overflow-y:auto">
-            <p><b>🛡️ 军团系统:</b><br>
-            !创建军团 [名] | !邀请 [名] | !回基地<br>
-            (战斗锁定: 受伤后10秒内无法传送)</p>
-            <p><b>✨ 道具技能:</b><br>
-            黄金鹿角: 爆发5秒Lv.6跳跃与Lv.1加速</p>
-        </div>
-        <button class="btn-prime" onclick="closeModal('wiki-modal')">关闭</button>
+<div id="chat-panel" class="chat-glass">
+    <div class="panel-header">
+        <span>🌍 组队大厅实时频道</span>
+        <button onclick="togglePanel('chat-panel')">✕</button>
+    </div>
+    <div id="chat-msgs"></div>
+    <div class="chat-input">
+        <input type="text" id="m-input" placeholder="输入战术消息..." onkeypress="if(event.keyCode==13) sendMsg()">
+        <button onclick="sendMsg()">发送</button>
     </div>
 </div>
 
 <div id="market-modal" class="modal-overlay">
-    <div class="modal">
-        <h2 style="color:var(--neon)">物资交易中心</h2>
-        <div class="input-group">
-            <input type="text" id="m-name" placeholder="物品名称 (如: 黄金鹿角)">
-            <input type="number" id="m-price" placeholder="价格 (绿宝石)">
-            <button class="btn-prime" onclick="postMarket()">确认上架</button>
+    <div class="glass-modal market-box">
+        <div class="panel-header">
+            <h2>⚖️ 物资交易中心</h2>
+            <button onclick="togglePanel('market-modal')">✕</button>
         </div>
-        <div id="market-list" style="margin-top:20px; max-height:200px; overflow-y:auto"></div>
-        <button class="btn-prime" onclick="closeModal('market-modal')" style="background:#333; color:white; margin-top:10px">离开</button>
+        <div class="market-post">
+            <input type="text" id="item-name" placeholder="物品名 (如: 黄金鹿角)">
+            <input type="number" id="item-price" placeholder="价格 (绿宝石)">
+            <button onclick="postItem()">上架</button>
+        </div>
+        <div id="market-list"></div>
+    </div>
+</div>
+
+<div id="wiki-modal" class="modal-overlay">
+    <div class="glass-modal wiki-box">
+        <div class="panel-header">
+            <h2>📜 军团指令与特技</h2>
+            <button onclick="togglePanel('wiki-modal')">✕</button>
+        </div>
+        <div class="wiki-content">
+            <h3>🛡️ 军团系统 (!帮助)</h3>
+            <p><code>!创建军团 [名]</code> / <code>!邀请 [名]</code> / <code>!回基地</code></p>
+            <p class="tip">注意：受伤后10秒内无法回基地（战斗锁定）。</p>
+            <hr>
+            <h3>✨ 特技道具</h3>
+            <p><b>黄金鹿角:</b> 使用后爆发5秒 Lv.6 跳跃提升和速度加成。</p>
+        </div>
     </div>
 </div>
 
