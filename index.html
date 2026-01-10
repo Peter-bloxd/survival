@@ -33,14 +33,20 @@
         .btn { width: 100%; padding: 12px; background: transparent; color: var(--neon); border: 1px solid var(--neon); font-weight: bold; cursor: pointer; margin-top: 10px; transition: 0.3s; }
         .btn:hover { background: var(--neon); color: #000; }
         
-        /* 聊天窗 */
-        #chat-window { display: none; position: fixed; bottom: 30px; right: 30px; width: 350px; height: 500px; background: #0a0f14; border: 1px solid var(--neon); flex-direction: column; z-index: 3000; }
-        #chat-msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
+        /* 聊天窗 & 私聊窗 */
+        #chat-window, #p-chat-window { display: none; position: fixed; bottom: 30px; right: 30px; width: 350px; height: 500px; background: #0a0f14; border: 1px solid var(--neon); flex-direction: column; z-index: 3000; }
+        #chat-msgs, #p-chat-msgs { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; }
         .msg { background: rgba(0,242,255,0.05); padding: 10px; border-left: 3px solid var(--neon); }
         .msg b { color: var(--neon); display: block; font-size: 11px; }
 
-        .staff-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; border-left: 4px solid var(--neon); }
+        .staff-item, .f-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 4px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--neon); }
         .comment-box { margin-top: 8px; padding: 8px; background: #000; font-size: 12px; border: 1px solid #222; }
+
+        /* 打卡日历样式 */
+        .check-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .day-box { background: #000; border: 1px solid #333; padding: 10px; font-size: 12px; text-align: center; opacity: 0.5; }
+        .day-box.active { border-color: var(--neon); opacity: 1; box-shadow: 0 0 10px var(--neon); }
+        .day-box.claimed { background: var(--neon); color: #000; opacity: 1; }
     </style>
 </head>
 <body>
@@ -59,6 +65,8 @@
     
     <div class="grid">
         <div class="card" onclick="openChat()"><h3>💬 组队大厅</h3><p>实时战术交流</p></div>
+        <div class="card" onclick="openM('f-modal')"><h3>🤝 我的好友</h3><p>私聊与社交</p></div>
+        <div class="card" onclick="openM('check-modal')"><h3>📅 每日打卡</h3><p>连续签到领物资</p></div>
         <div class="card" onclick="openM('wiki-modal')"><h3>📖 玩法介绍</h3><p>军团指令、特技指南</p></div>
         <div class="card" onclick="openM('market-modal')"><h3>⚖️ 交易行</h3><p>物资自由贸易 (块)</p></div>
         <div class="card" onclick="openM('staff-modal')"><h3>👤 人员名单</h3><p>管理团队公示</p></div>
@@ -66,6 +74,22 @@
         <div class="card" onclick="alert('开发中')"><h3>🏪 变卖所</h3><p>物资快速套现</p></div>
     </div>
 </div>
+
+<div id="f-modal" class="modal"><div class="modal-content">
+    <h2 style="color:var(--neon)">好友终端</h2>
+    <input type="text" id="f-id-input" placeholder="输入对方 生存 ID">
+    <button class="btn" onclick="sendFRequest()">发送好友申请</button>
+    <div id="f-requests" style="margin-top:15px; border-bottom:1px solid #333; padding-bottom:10px;"></div>
+    <div id="f-list" style="margin-top:15px;"></div>
+    <button class="btn" onclick="closeAll()">关闭</button>
+</div></div>
+
+<div id="check-modal" class="modal"><div class="modal-content">
+    <h2 style="color:var(--neon)">补给签到</h2>
+    <div class="check-grid" id="check-ui"></div>
+    <button class="btn" id="check-btn" onclick="doCheckIn()">执行签到</button>
+    <button class="btn" style="border-color:#444;color:#666" onclick="closeAll()">返回</button>
+</div></div>
 
 <div id="auth-modal" class="modal"><div class="modal-content">
     <h2 id="auth-title">身份同步</h2>
@@ -79,8 +103,6 @@
 <div id="wiki-modal" class="modal"><div class="modal-content">
     <h2 style="color:var(--neon)">生存协议</h2>
     <p>!创建军团 | !邀请 | !回基地 | !设置基地</p>
-    <p style="color: #ff5555; font-size: 12px;">* 战斗受伤10秒内禁止传送</p>
-    <p><b>黄金鹿角:</b> 5秒跳跃提升和速度加速</p>
     <button class="btn" onclick="closeAll()">返回</button>
 </div></div>
 
@@ -88,16 +110,15 @@
     <h2 style="color:var(--neon)">管理团队</h2>
     <div class="staff-item"><span>IKUN5556</span><small>腐竹</small></div>
     <div class="staff-item"><span>Peter_YT_Bilibili</span><small>副腐竹</small></div>
-    <div class="staff-item"><span>CS||Steve</span><small>Discord 开发</small></div>
     <button class="btn" onclick="closeAll()">关闭</button>
 </div></div>
 
 <div id="gift-modal" class="modal"><div class="modal-content">
     <h2 style="color:var(--neon)">礼包兑换</h2>
-    <input type="text" id="g-game-name" placeholder="游戏内的名字 (必填)">
+    <input type="text" id="g-game-name" placeholder="游戏内的名字">
     <input type="text" id="g-code" placeholder="输入兑换码">
     <button class="btn" onclick="redeemCode()">立即兑换</button>
-    <button class="btn" style="border-color:#444;color:#666" onclick="closeAll()">取消</button>
+    <button class="btn" onclick="closeAll()">取消</button>
 </div></div>
 
 <div id="market-modal" class="modal"><div class="modal-content">
@@ -120,69 +141,236 @@
     <div style="padding:10px; display:flex; gap:5px;"><input type="text" id="m-input" placeholder="输入消息..." style="margin:0;"><button onclick="sendMsg()" class="btn" style="margin:0;width:auto;padding:0 15px;">发送</button></div>
 </div>
 
+<div id="p-chat-window">
+    <div style="padding:15px; border-bottom:1px solid var(--neon); display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center;">
+            <img src="生存法则图标.jpg" style="height:20px; margin-right:8px; border-radius:2px;">
+            <span id="p-chat-title">私密链路</span>
+        </div>
+        <button onclick="document.getElementById('p-chat-window').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
+    </div>
+    <div id="p-chat-msgs"></div>
+    <div style="padding:10px; display:flex; gap:5px;"><input type="text" id="p-m-input" placeholder="加密传输..." style="margin:0;"><button onclick="sendPMsg()" class="btn" style="margin:0;width:auto;padding:0 15px;">发送</button></div>
+</div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc, arrayUnion, where, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
     const firebaseConfig = { apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", authDomain: "bloxd-survival.firebaseapp.com", projectId: "bloxd-survival", storageBucket: "bloxd-survival.firebasestorage.app", messagingSenderId: "60666065786", appId: "1:60666065786:web:bdc3131accaceb0180dcc3" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     let user = JSON.parse(localStorage.getItem('SURVIVAL_USER'));
 
-    window.openM = (id) => { closeAll(); document.getElementById(id).style.display = 'block'; };
+    window.openM = (id) => { 
+        closeAll(); 
+        document.getElementById(id).style.display = 'block'; 
+        if(id==='check-modal') renderCheckUI();
+    };
     window.closeAll = () => { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); };
     window.openChat = () => { const c = document.getElementById('chat-window'); c.style.display = (c.style.display==='flex'?'none':'flex'); };
 
-    // --- 登录/注册/登出系统 ---
+    // --- 每日打卡系统逻辑 ---
+    const rewards = ["10木头", "10石头", "10煤炭", "10铁", "10黄金", "10黄金", "10钻石"];
+    function renderCheckUI() {
+        if(!user) return;
+        const ui = document.getElementById('check-ui');
+        ui.innerHTML = '';
+        const history = JSON.parse(localStorage.getItem(`CHECK_${user.id}`)) || { count: 0, last: 0 };
+        const today = new Date().toDateString();
+        
+        for(let i=0; i<7; i++) {
+            const box = document.createElement('div');
+            box.className = `day-box ${i < history.count ? 'claimed' : (i === history.count ? 'active' : '')}`;
+            box.innerHTML = `第${i+1}天<br>${rewards[i]}`;
+            ui.appendChild(box);
+        }
+        
+        const btn = document.getElementById('check-btn');
+        if(history.last === today) {
+            btn.innerText = "今日已领取";
+            btn.disabled = true;
+            btn.style.opacity = 0.5;
+        } else {
+            btn.innerText = "执行签到";
+            btn.disabled = false;
+            btn.style.opacity = 1;
+        }
+    }
+
+    window.doCheckIn = async () => {
+        if(!user) return openM('auth-modal');
+        const key = `CHECK_${user.id}`;
+        let history = JSON.parse(localStorage.getItem(key)) || { count: 0, last: 0 };
+        const today = new Date().toDateString();
+        
+        if(history.count >= 7) history.count = 0; // 满7天重置
+
+        const reward = rewards[history.count];
+        history.count++;
+        history.last = today;
+        localStorage.setItem(key, JSON.stringify(history));
+
+        await addDoc(collection(db, "logs"), { 
+            type: "DAILY_CHECK", 
+            userId: user.id, 
+            nick: user.nick, 
+            reward: reward, 
+            time: serverTimestamp() 
+        });
+
+        alert(`签到成功！已获得: ${reward}\n请找管理员领取`);
+        renderCheckUI();
+    };
+
+    // (其余原有功能 handleAuth, logout, redeemCode, postItem 等逻辑在此省略，请看下一回复合并)
+    // --- 好友系统逻辑 ---
+    let currentChatFriendId = null;
+
+    // 发送好友申请
+    window.sendFRequest = async () => {
+        if(!user) return openM('auth-modal');
+        const targetId = document.getElementById('f-id-input').value.trim();
+        if(!targetId || targetId === user.id) return alert("无效的 ID");
+
+        await setDoc(doc(db, "friend_requests", `${targetId}_${user.id}`), {
+            to: targetId,
+            fromId: user.id,
+            fromNick: user.nick,
+            status: "pending",
+            time: serverTimestamp()
+        });
+        alert("申请已发送，等待对方确认");
+        document.getElementById('f-id-input').value = '';
+    };
+
+    // 监听好友申请和好友列表
+    if(user) {
+        // 监听收到的申请
+        onSnapshot(query(collection(db, "friend_requests"), where("to", "==", user.id), where("status", "==", "pending")), (sn) => {
+            const container = document.getElementById('f-requests');
+            container.innerHTML = sn.empty ? '' : '<p style="font-size:12px;color:var(--neon)">收到新的申请：</p>';
+            sn.forEach(d => {
+                const req = d.data();
+                const div = document.createElement('div');
+                div.className = 'f-item';
+                div.innerHTML = `<span>${req.fromNick}</span> <button class="btn" style="width:auto;padding:2px 10px;margin:0" onclick="acceptF('${d.id}', '${req.fromId}', '${req.fromNick}')">通过</button>`;
+                container.appendChild(div);
+            });
+        });
+
+        // 监听好友列表 (在用户文档下存储好友数组)
+        onSnapshot(doc(db, "users", user.id), (d) => {
+            const fList = document.getElementById('f-list');
+            fList.innerHTML = '<p style="font-size:12px;color:var(--neon)">我的好友：</p>';
+            if(d.exists() && d.data().friends) {
+                d.data().friends.forEach(f => {
+                    const div = document.createElement('div');
+                    div.className = 'f-item';
+                    div.innerHTML = `<span>${f.nick}</span> <button class="btn" style="width:auto;padding:2px 10px;margin:0" onclick="startPChat('${f.id}', '${f.nick}')">私聊</button>`;
+                    fList.appendChild(div);
+                });
+            } else { fList.innerHTML += '<small style="opacity:0.5">暂无好友</small>'; }
+        });
+    }
+
+    // 通过申请
+    window.acceptF = async (reqDocId, fromId, fromNick) => {
+        // 更新申请状态
+        await deleteDoc(doc(db, "friend_requests", reqDocId));
+        // 双方互加好友
+        const myRef = doc(db, "users", user.id);
+        const hisRef = doc(db, "users", fromId);
+        await setDoc(myRef, { friends: arrayUnion({ id: fromId, nick: fromNick }) }, { merge: true });
+        await setDoc(hisRef, { friends: arrayUnion({ id: user.id, nick: user.nick }) }, { merge: true });
+        alert("已添加好友！");
+    };
+
+    // --- 私聊逻辑 ---
+    window.startPChat = (fId, fNick) => {
+        closeAll();
+        currentChatFriendId = fId;
+        document.getElementById('p-chat-title').innerText = `与 ${fNick} 私聊中`;
+        document.getElementById('p-chat-window').style.display = 'flex';
+        listenPMs();
+    };
+
+    function listenPMs() {
+        if(!user || !currentChatFriendId) return;
+        const chatId = [user.id, currentChatFriendId].sort().join('_');
+        const q = query(collection(db, "p_messages"), where("chatId", "==", chatId), orderBy("time", "asc"), limit(30));
+        
+        onSnapshot(q, (sn) => {
+            const b = document.getElementById('p-chat-msgs');
+            b.innerHTML = '';
+            sn.forEach(d => {
+                const m = d.data();
+                const div = document.createElement('div');
+                div.className = 'msg';
+                div.style = m.senderId === user.id ? "border-left:none; border-right:3px solid var(--neon); text-align:right;" : "";
+                div.innerHTML = `<b>${m.senderNick}</b> ${m.text}`;
+                b.appendChild(div);
+            });
+            b.scrollTop = b.scrollHeight;
+        });
+    }
+
+    window.sendPMsg = async () => {
+        const i = document.getElementById('p-m-input');
+        if(!i.value || !currentChatFriendId) return;
+        const chatId = [user.id, currentChatFriendId].sort().join('_');
+        await addDoc(collection(db, "p_messages"), {
+            chatId: chatId,
+            senderId: user.id,
+            senderNick: user.nick,
+            text: i.value,
+            time: serverTimestamp()
+        });
+        i.value = '';
+    };
+
+    // --- 原有逻辑 (登录/注册/登出/兑换码/交易行/全服聊天) ---
     window.handleAuth = async () => {
         const id = document.getElementById('a-id').value.trim();
         const nick = document.getElementById('a-nick').value.trim();
         const pw = document.getElementById('a-pw').value.trim();
-        
         if(!id || !pw) return alert("请填写 ID 和密码");
-        
         const key = 'DB_USER_' + id;
         const savedData = localStorage.getItem(key);
-
         if(!savedData) {
-            if(!nick) return alert("新用户请填写昵称以完成注册");
+            if(!nick) return alert("新用户请填写昵称");
             user = { id, nick, pw };
             localStorage.setItem(key, JSON.stringify(user));
-            // 记录到后台
             await addDoc(collection(db, "logs"), { type: "REGISTER", userId: id, nick: nick, time: serverTimestamp() });
-            alert("注册成功！身份已同步");
+            // 初始化用户云端文档
+            await setDoc(doc(db, "users", id), { id, nick, friends: [] });
+            alert("注册成功！");
         } else {
             const d = JSON.parse(savedData);
-            if(d.pw !== pw) return alert("密码验证失败");
+            if(d.pw !== pw) return alert("密码错误");
             user = d;
             await addDoc(collection(db, "logs"), { type: "LOGIN", userId: id, nick: user.nick, time: serverTimestamp() });
-            alert("欢迎回来, " + user.nick);
         }
         localStorage.setItem('SURVIVAL_USER', JSON.stringify(user));
         location.reload();
     };
 
-    window.logout = () => {
-        localStorage.removeItem('SURVIVAL_USER');
-        location.reload();
-    };
+    window.logout = () => { localStorage.removeItem('SURVIVAL_USER'); location.reload(); };
 
-    // --- 兑换码逻辑 ---
     window.redeemCode = async () => {
         if(!user) return openM('auth-modal');
         const gn = document.getElementById('g-game-name').value;
         const cd = document.getElementById('g-code').value;
         const claimKey = `CLAIMED_${user.id}_${cd}`;
-        if(localStorage.getItem(claimKey)) return alert("此账号已领取过该礼包");
+        if(localStorage.getItem(claimKey)) return alert("已领取过");
         if(cd === "SURVIVAL666" && gn) {
             await addDoc(collection(db, "logs"), { type: "REDEEM", userId: user.id, userNick: user.nick, ingameName: gn, code: cd, time: serverTimestamp() });
             localStorage.setItem(claimKey, "true");
-            alert("🎉 兑换成功！奖励将发放至: " + gn);
+            alert("兑换成功！奖励将发放至: " + gn);
             closeAll();
-        } else { alert("兑换码无效或信息不全"); }
+        } else { alert("无效"); }
     };
 
-    // --- 交易行逻辑 ---
     window.postItem = async () => {
         if(!user) return openM('auth-modal');
         const n = document.getElementById('m-name').value;
@@ -201,14 +389,9 @@
         });
     });
 
-    window.addCom = async (id) => { 
-        if(!user) return openM('auth-modal');
-        const t = prompt("留言内容:"); 
-        if(t) await updateDoc(doc(db, "market", id), { comments: arrayUnion({ user: user.nick, text: t }) }); 
-    };
+    window.addCom = async (id) => { if(!user) return openM('auth-modal'); const t = prompt("留言:"); if(t) await updateDoc(doc(db, "market", id), { comments: arrayUnion({ user: user.nick, text: t }) }); };
     window.delIt = async (id) => { await deleteDoc(doc(db, "market", id)); };
 
-    // --- 聊天逻辑 ---
     window.sendMsg = async () => {
         const i = document.getElementById('m-input'); 
         if(i.value && user) { 
@@ -222,7 +405,6 @@
         b.scrollTop = b.scrollHeight;
     });
 
-    // 初始化 UI
     if(user) {
         document.getElementById('auth-ui').innerHTML = `<span style="margin-right:15px; font-size:14px; color:var(--neon)">● ${user.nick}</span><button class="btn" style="width:auto; padding:5px 10px; margin:0; font-size:12px;" onclick="logout()">退出</button>`;
     } else {
