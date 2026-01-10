@@ -3,119 +3,290 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生存法则 · SURVIVAL RULES</title>
-    <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <title>生存法则 · 官方指挥部</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- 1. 核心视觉样式 (CSS) --- */
+        :root {
+            --neon: #2ecc71;
+            --bg: #05080a;
+            --card: rgba(255, 255, 255, 0.03);
+            --border: rgba(46, 204, 113, 0.2);
+        }
+
+        body {
+            background: var(--bg);
+            color: #e0e0e0;
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            background-image: radial-gradient(circle at 50% -20%, #1a2c22 0%, var(--bg) 70%);
+            min-height: 100vh;
+        }
+
+        /* 导航栏 */
+        nav {
+            background: rgba(10, 12, 16, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .logo { font-family: 'Orbitron'; font-size: 24px; color: #fff; text-decoration: none; }
+        .logo span { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+
+        /* 主容器 */
+        .container { max-width: 1200px; margin: 0 auto; padding: 40px 20px; text-align: center; }
+        
+        h1 { font-size: 48px; margin-bottom: 10px; color: #fff; }
+        .subtitle { color: #888; margin-bottom: 50px; }
+
+        /* 功能磁贴网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px 20px;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .card:hover {
+            border-color: var(--neon);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(46, 204, 113, 0.1);
+        }
+
+        .card h3 { color: var(--neon); font-size: 22px; margin: 15px 0; }
+        .card p { font-size: 14px; color: #aaa; }
+
+        /* 弹窗样式 */
+        .modal {
+            display: none; position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.85); z-index: 2000; backdrop-filter: blur(8px);
+        }
+
+        .modal-content {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #0d1117; border: 1px solid var(--border);
+            border-radius: 24px; padding: 40px; width: 90%; max-width: 400px;
+        }
+
+        input {
+            width: 100%; padding: 12px; margin: 10px 0; background: #05080a; 
+            border: 1px solid #30363d; border-radius: 8px; color: white; box-sizing: border-box;
+        }
+
+        .btn {
+            width: 100%; padding: 14px; background: var(--neon); color: #000; border: none;
+            border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px;
+        }
+
+        /* 聊天室面板 */
+        #chat-panel {
+            display: none; position: fixed; bottom: 30px; right: 30px; width: 350px; height: 500px;
+            background: rgba(13, 17, 23, 0.95); border: 1px solid var(--neon);
+            border-radius: 20px; flex-direction: column; overflow: hidden; z-index: 3000;
+        }
+
+        #chat-msgs { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+        .msg { background: #1c2128; padding: 10px; border-radius: 8px; border-left: 3px solid var(--neon); }
+        .msg b { color: var(--neon); display: block; font-size: 11px; }
+
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; }
+    </style>
 </head>
 <body>
 
-<div id="toast-container"></div>
-
 <nav>
-    <div class="nav-wrapper">
-        <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
-        <div id="auth-ui" class="user-status">
-            </div>
-    </div>
+    <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
+    <div id="auth-ui"></div>
 </nav>
 
-<header class="hero">
-    <h1 class="glitch">生存法则</h1>
-    <p>搜集物资 · 建立军团 · 自由交易 · 黄金鹿角</p>
-</header>
+<div class="container">
+    <h1>生存法则</h1>
+    <p class="subtitle">搜集物资 · 建立军团 · 自由交易 · 黄金鹿角</p>
 
-<main class="grid-container">
-    <div class="main-card chat-card" onclick="togglePanel('chat-panel')">
-        <div class="icon">💬</div>
-        <h3>组队大厅</h3>
-        <p>实时在线频道，寻找生存伙伴</p>
-        <span class="badge">ACTIVE</span>
-    </div>
-
-    <div class="main-card" onclick="togglePanel('wiki-modal')">
-        <div class="icon">📜</div>
-        <h3>玩法手册</h3>
-        <p>军团指令、道具技能全指南</p>
-    </div>
-
-    <div class="main-card" onclick="togglePanel('market-modal')">
-        <div class="icon">⚖️</div>
-        <h3>交易行</h3>
-        <p>自主上架/下架，物资自由贸易</p>
-    </div>
-
-    <div class="main-card disabled">
-        <div class="icon">👥</div>
-        <h3>成员名单</h3>
-        <p>全服顶尖生存军团公示</p>
-    </div>
-</main>
-
-<div id="auth-modal" class="modal-overlay">
-    <div class="glass-modal auth-box">
-        <div class="tab-header">
-            <span id="tab-login" class="active" onclick="switchAuth('login')">登录</span>
-            <span id="tab-reg" onclick="switchAuth('reg')">注册</span>
+    <div class="grid">
+        <div class="card" onclick="toggle('chat-panel')">
+            <div style="font-size: 40px;">💬</div>
+            <h3>组队大厅</h3>
+            <p>实时在线频道，寻找生存伙伴</p>
         </div>
-        <div class="input-area">
-            <div id="reg-nick-group" style="display:none">
-                <input type="text" id="a-nick" placeholder="游戏昵称 (Nickname)">
-            </div>
-            <input type="text" id="a-id" placeholder="生存 ID (Unique ID)">
-            <div class="pw-group">
-                <input type="password" id="a-pw" placeholder="访问密码">
-                <span onclick="togglePw()">👁️</span>
-            </div>
-            <button class="prime-btn" onclick="handleAuth()">进入社区</button>
+        <div class="card" onclick="toggle('wiki-modal')">
+            <div style="font-size: 40px;">📜</div>
+            <h3>玩法手册</h3>
+            <p>军团指令、道具技能全指南</p>
         </div>
-        <p class="close-link" onclick="togglePanel('auth-modal')">关闭</p>
+        <div class="card" onclick="toggle('market-modal')">
+            <div style="font-size: 40px;">⚖️</div>
+            <h3>交易行</h3>
+            <p>自主上架/下架，物资自由贸易</p>
+        </div>
     </div>
 </div>
 
-<div id="chat-panel" class="chat-glass">
-    <div class="panel-header">
-        <span>🌍 组队大厅实时频道</span>
-        <button onclick="togglePanel('chat-panel')">✕</button>
+<div id="auth-modal" class="modal">
+    <div class="modal-content">
+        <h2 id="auth-title">登录 / 注册</h2>
+        <input type="text" id="a-id" placeholder="生存 ID (Unique ID)">
+        <input type="text" id="a-nick" placeholder="昵称 (仅注册需要)">
+        <input type="password" id="a-pw" placeholder="访问密码">
+        <button class="btn" onclick="handleAuth()">同步身份</button>
+        <button class="btn" style="background:#333; color:#fff" onclick="toggle('auth-modal')">关闭</button>
+    </div>
+</div>
+
+<div id="wiki-modal" class="modal">
+    <div class="modal-content" style="max-width: 500px;">
+        <h2 style="color:var(--neon)">📜 幸存者指南</h2>
+        <div style="text-align: left; font-size: 14px; line-height: 1.8;">
+            <p><b>🛡️ 军团核心指令:</b><br>
+            !创建军团 [名] | !邀请 [名] | !回基地<br>
+            <i>*受伤后10秒内无法传送（战斗锁定）</i></p>
+            <p><b>✨ 特技道具:</b><br>
+            <b>黄金鹿角:</b> 爆发5秒 Lv.6 跳跃提升与极速加成。</p>
+        </div>
+        <button class="btn" onclick="toggle('wiki-modal')">知道了</button>
+    </div>
+</div>
+
+<div id="market-modal" class="modal">
+    <div class="modal-content">
+        <h2 style="color:var(--neon)">⚖️ 交易中心</h2>
+        <input type="text" id="m-name" placeholder="物品名称">
+        <input type="number" id="m-price" placeholder="价格 (绿宝石)">
+        <button class="btn" onclick="postItem()">立即上架</button>
+        <div id="market-list" style="margin-top:20px; max-height:200px; overflow-y:auto;"></div>
+        <button class="btn" style="background:#333; color:#fff" onclick="toggle('market-modal')">关闭</button>
+    </div>
+</div>
+
+<div id="chat-panel">
+    <div style="padding:15px; background:rgba(46, 204, 113, 0.1); display:flex; justify-content:space-between;">
+        <span>🌍 实时频道</span>
+        <button onclick="toggle('chat-panel')" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button>
     </div>
     <div id="chat-msgs"></div>
-    <div class="chat-input">
-        <input type="text" id="m-input" placeholder="输入战术消息..." onkeypress="if(event.keyCode==13) sendMsg()">
-        <button onclick="sendMsg()">发送</button>
+    <div style="padding:10px; display:flex; gap:5px;">
+        <input type="text" id="m-input" placeholder="输入消息..." style="margin:0;">
+        <button onclick="sendMsg()" style="padding:0 15px; background:var(--neon); border:none; border-radius:8px; cursor:pointer;">发</button>
     </div>
 </div>
 
-<div id="market-modal" class="modal-overlay">
-    <div class="glass-modal market-box">
-        <div class="panel-header">
-            <h2>⚖️ 物资交易中心</h2>
-            <button onclick="togglePanel('market-modal')">✕</button>
-        </div>
-        <div class="market-post">
-            <input type="text" id="item-name" placeholder="物品名 (如: 黄金鹿角)">
-            <input type="number" id="item-price" placeholder="价格 (绿宝石)">
-            <button onclick="postItem()">上架</button>
-        </div>
-        <div id="market-list"></div>
-    </div>
-</div>
+<div id="toast-container"></div>
 
-<div id="wiki-modal" class="modal-overlay">
-    <div class="glass-modal wiki-box">
-        <div class="panel-header">
-            <h2>📜 军团指令与特技</h2>
-            <button onclick="togglePanel('wiki-modal')">✕</button>
-        </div>
-        <div class="wiki-content">
-            <h3>🛡️ 军团系统 (!帮助)</h3>
-            <p><code>!创建军团 [名]</code> / <code>!邀请 [名]</code> / <code>!回基地</code></p>
-            <p class="tip">注意：受伤后10秒内无法回基地（战斗锁定）。</p>
-            <hr>
-            <h3>✨ 特技道具</h3>
-            <p><b>黄金鹿角:</b> 使用后爆发5秒 Lv.6 跳跃提升和速度加成。</p>
-        </div>
-    </div>
-</div>
+<script type="module">
+    // --- 2. 逻辑控制 (JS) ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-<script type="module" src="script.js"></script>
+    const firebaseConfig = {
+        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII",
+        authDomain: "bloxd-survival.firebaseapp.com",
+        projectId: "bloxd-survival",
+        storageBucket: "bloxd-survival.firebasestorage.app",
+        messagingSenderId: "60666065786",
+        appId: "1:60666065786:web:bdc3131accaceb0180dcc3"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    let user = JSON.parse(localStorage.getItem('SURVIVAL_USER_V1'));
+
+    // UI 初始化
+    window.toggle = (id) => {
+        const el = document.getElementById(id);
+        el.style.display = (el.style.display === 'flex' || el.style.display === 'block') ? 'none' : (id === 'chat-panel' ? 'flex' : 'block');
+    };
+
+    function updateAuthUI() {
+        const ui = document.getElementById('auth-ui');
+        if(user) {
+            ui.innerHTML = `<span>${user.nick}</span> <button onclick="localStorage.clear();location.reload()" style="background:none; color:var(--neon); border:1px solid var(--neon); padding:5px 10px; border-radius:5px; margin-left:10px; cursor:pointer;">登出</button>`;
+        } else {
+            ui.innerHTML = `<button onclick="toggle('auth-modal')" style="background:var(--neon); border:none; padding:8px 15px; border-radius:5px; cursor:pointer; font-weight:bold;">登录/注册</button>`;
+        }
+    }
+
+    // 登录注册逻辑
+    window.handleAuth = () => {
+        const id = document.getElementById('a-id').value;
+        const nick = document.getElementById('a-nick').value;
+        const pw = document.getElementById('a-pw').value;
+        
+        if(!id || !pw) return alert("请填写ID和密码");
+        
+        // 简单逻辑：如果本地没存过该ID，视为注册；存过则匹配密码
+        const saved = localStorage.getItem('DB_ID_' + id);
+        if(!saved) {
+            if(!nick) return alert("新用户请填写昵称");
+            const data = { id, nick, pw };
+            localStorage.setItem('DB_ID_' + id, JSON.stringify(data));
+            user = data;
+        } else {
+            const data = JSON.parse(saved);
+            if(data.pw !== pw) return alert("密码错误");
+            user = data;
+        }
+        localStorage.setItem('SURVIVAL_USER_V1', JSON.stringify(user));
+        location.reload();
+    };
+
+    // 交易行实时逻辑
+    window.postItem = async () => {
+        if(!user) return alert("请先登录");
+        const name = document.getElementById('m-name').value;
+        const price = document.getElementById('m-price').value;
+        if(!name || !price) return;
+        await addDoc(collection(db, "market"), { name, price, seller: user.nick, sellerId: user.id, createdAt: serverTimestamp() });
+        alert("上架成功");
+    };
+
+    onSnapshot(collection(db, "market"), (sn) => {
+        const list = document.getElementById('market-list');
+        list.innerHTML = '';
+        sn.forEach(d => {
+            const item = d.data();
+            const div = document.createElement('div');
+            div.style = "background:#161b22; padding:10px; border-radius:8px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center; border:1px solid #30363d";
+            div.innerHTML = `<div><b>${item.name}</b><br><small>💎 ${item.price}</small></div>
+                ${item.sellerId === user?.id ? `<button onclick="delItem('${d.id}')" style="background:#ff4757; border:none; color:#fff; border-radius:4px; padding:5px 10px; cursor:pointer">下架</button>` : `<small style="color:#666">${item.seller}</small>`}`;
+            list.appendChild(div);
+        });
+    });
+
+    window.delItem = async (id) => { await deleteDoc(doc(db, "market", id)); };
+
+    // 聊天逻辑
+    window.sendMsg = async () => {
+        if(!user) return alert("请先登录");
+        const input = document.getElementById('m-input');
+        if(!input.value) return;
+        await addDoc(collection(db, "messages"), { text: input.value, user: user.nick, createdAt: serverTimestamp() });
+        input.value = '';
+    };
+
+    onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "asc"), limit(50)), (sn) => {
+        const box = document.getElementById('chat-msgs');
+        box.innerHTML = '';
+        sn.forEach(d => {
+            const m = d.data();
+            const div = document.createElement('div'); div.className = 'msg';
+            div.innerHTML = `<b>${m.user}</b> ${m.text}`; box.appendChild(div);
+        });
+        box.scrollTop = box.scrollHeight;
+    });
+
+    updateAuthUI();
+</script>
 </body>
 </html>
