@@ -2,103 +2,39 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Survival Rules Relay // 生存法则中继站 v4.0</title>
-    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Survival Rules Relay v4.0</title>
     <style>
         :root {
-            --neon-blue: #00f2ff;
-            --neon-red: #ff0055;
-            --neon-green: #39ff14;
-            --gold: #ffcc00;
-            --bg-deep: #020509;
+            --neon-blue: #00f2ff; --neon-red: #ff0055; --neon-green: #39ff14;
+            --gold: #ffcc00; --bg: #020509;
             --glass: rgba(10, 20, 35, 0.85);
-            --glass-border: 1px solid rgba(0, 242, 255, 0.2);
             --font-tech: 'Orbitron', 'Segoe UI', sans-serif;
         }
-
-        body, html {
-            margin: 0; padding: 0;
-            background: var(--bg-deep);
+        body {
+            margin: 0; background: var(--bg); color: #fff;
+            font-family: 'Segoe UI', sans-serif; height: 100vh; overflow: hidden;
             background-image: radial-gradient(circle at 50% 50%, #0a1a2f 0%, #000 100%);
-            color: #fff;
-            font-family: 'Segoe UI', system-ui;
-            height: 100vh; overflow: hidden;
         }
-
-        /* 修复后的全屏滚动 Grid 容器 */
-        #app-root {
-            display: none; /* 初始隐藏，由 bootstrap 开启 */
-            height: 100vh;
-            overflow-y: auto;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-
-        /* 核心玻璃卡片样式 */
+        nav { padding: 20px 40px; display: flex; justify-content: space-between; border-bottom: 1px solid #111; }
+        #app-root { display: none; height: 90vh; overflow-y: auto; padding: 20px; }
+        .survival-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; padding: 20px; }
         .glass-card {
-            background: var(--glass);
-            backdrop-filter: blur(15px);
-            border: var(--glass-border);
-            border-radius: 4px;
-            padding: 25px;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
+            background: var(--glass); backdrop-filter: blur(15px);
+            border: 1px solid rgba(0, 242, 255, 0.2); padding: 25px;
+            transition: 0.3s; cursor: pointer;
         }
-
-        .glass-card:hover {
-            border-color: var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 242, 255, 0.15);
-            transform: translateY(-5px);
-        }
-
-        /* 之前你代码中提到的模块网格 */
-        .survival-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-
-        /* 模态框样式：用于 Wiki、排行和管理后台 */
-        .modal-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-            z-index: 1000; display: none;
-            align-items: center; justify-content: center;
-        }
-
-        .modal-content {
-            width: 90%; max-width: 800px;
-            max-height: 80vh; overflow-y: auto;
-            background: var(--glass);
-            border: 1px solid var(--neon-blue);
-            padding: 40px;
-        }
-
-        .btn-rule {
-            background: transparent; border: 1px solid var(--neon-blue);
-            color: var(--neon-blue); padding: 10px 20px;
-            cursor: pointer; transition: 0.3s;
-            font-family: var(--font-tech);
-        }
-
-        .btn-rule:hover { background: var(--neon-blue); color: #000; }
+        .glass-card:hover { border-color: var(--neon-blue); transform: translateY(-5px); box-shadow: 0 0 20px rgba(0,242,255,0.2); }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); z-index: 1000; display: none; align-items: center; justify-content: center; }
+        .modal-content { width: 90%; max-width: 800px; max-height: 80vh; overflow-y: auto; background: var(--glass); border: 1px solid var(--neon-blue); padding: 30px; }
+        .btn-rule { background: transparent; border: 1px solid var(--neon-blue); color: var(--neon-blue); padding: 10px 20px; cursor: pointer; }
         .btn-rule.danger { border-color: var(--neon-red); color: var(--neon-red); }
-        .btn-rule.danger:hover { background: var(--neon-red); color: #fff; }
-
-        /* 滚动条美化 */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--neon-blue); border-radius: 10px; }
+        .neon-text { text-shadow: 0 0 10px var(--neon-blue); }
     </style>
 </head>
 <body>
-
-    <nav style="padding: 20px 40px; display: flex; justify-content: space-between; border-bottom: 1px solid #111;">
-        <div class="neon-text" style="font-family: var(--font-tech); letter-spacing: 2px;">SURVIVAL_RULES_v4</div>
+    <nav>
+        <div class="neon-text" style="font-weight:bold; letter-spacing:2px;">SURVIVAL_RULES_v4</div>
         <div id="nav-auth-slot"></div>
     </nav>
 
@@ -111,320 +47,220 @@
             <div id="wiki-content"></div>
         </div>
     </div>
-
     <div id="rank-modal" class="modal-overlay" onclick="UI.close('rank-modal')">
         <div class="modal-content" onclick="event.stopPropagation()">
             <div id="rank-list-content"></div>
         </div>
     </div>
-    <script type="module">
-/* ============================================================
-   SECTION: 全局状态与基础工具 (State & Utils)
-   ============================================================ */
-// 模拟 Firebase 环境（请确保你页面上方已引入 Firebase SDK 并在 global 作用域定义了 db, doc, collection 等）
-const State = {
-    user: { id: "P-001", nick: "Peter_YT_Bilibili" }, // 示例数据，实际由 Auth 模块注入
-    isAdmin: true,  // 权限标记
-    isMod: false
-};
-
-window.UI = {
-    open: (id) => document.getElementById(id).style.display = 'flex',
-    close: (id) => document.getElementById(id).style.display = 'none',
-    render: (id, html) => {
-        const target = document.getElementById(id);
-        if (target) target.innerHTML = html;
-    }
-};
-
-window.Logger = {
-    log: async (uid, nick, action) => {
-        console.log(`[AUDIT] ${nick}(${uid}): ${action}`);
-        try {
-            await addDoc(collection(db, "action_logs"), {
-                uid, nick, action, time: serverTimestamp()
-            });
-        } catch(e) { console.error("日志上传失败", e); }
-    }
-};
-
-/* ============================================================
-   SECTION: 超级管理员控制台 (Admin - 修复闭合与逻辑)
-   ============================================================ */
-window.Admin = {
-    // 1. 全服停机维护模式切换
-    toggleMaintenance: async () => {
-        if (!State.isAdmin) return alert("ACCESS_DENIED // 权限不足");
-        try {
-            const ref = doc(db, "system", "config");
-            const snap = await getDoc(ref);
-            const current = snap.exists() ? snap.data().status : "ONLINE";
-            const next = current === "ONLINE" ? "MAINTENANCE" : "ONLINE";
-            
-            await setDoc(ref, { status: next, operator: State.user.nick }, { merge: true });
-            alert(`系统状态已切换至: ${next}`);
-            window.Logger.log(State.user.id, State.user.nick, `TOGGLE_MAINTENANCE_${next}`);
-        } catch(e) { alert("操作失败: " + e.message); }
-    },
-
-    // 2. 封禁指定玩家 UID
-    banPlayer: async () => {
-        if (!State.isAdmin && !State.isMod) return alert("权限拒绝");
-        const tid = prompt("请输入要封禁的目标 UID:");
-        if (!tid) return;
-        const reason = prompt("封禁原因:", "违反生存法则协议");
-        
-        try {
-            await updateDoc(doc(db, "users", tid), { 
-                banned: true, 
-                banReason: reason,
-                banBy: State.user.nick 
-            });
-            alert(`玩家 ${tid} 已被强制下线并封禁`);
-            window.Logger.log(State.user.id, State.user.nick, `BAN_PLAYER_${tid}`);
-        } catch(e) { alert("封禁执行出错"); }
-    },
-
-    // 3. 全服交易所一键清空
-    wipeMarket: async () => {
-        if (!State.isAdmin) return alert("仅限 ROOT 管理员操作");
-        if (!confirm("警告：此操作将抹除全服所有挂单，不可逆转！")) return;
-        
-        try {
-            const sn = await getDocs(collection(db, "market"));
-            const batchPromises = sn.docs.map(d => deleteDoc(doc(db, "market", d.id)));
-            await Promise.all(batchPromises);
-            alert("交易所协议已重置");
-            window.Logger.log(State.user.id, State.user.nick, "WIPE_MARKET_ALL");
-        } catch(e) { alert("清空失败"); }
-    },
-
-    // 4. 手动注能 XP (XP 修改)
-    modPlayerXP: async () => {
-        if (!State.isAdmin) return alert("权限不足");
-        const tid = prompt("请输入目标 UID:");
-        const amountStr = prompt("注能数值 (例如 1000 或 -1000):");
-        const amount = parseInt(amountStr);
-        if (!tid || isNaN(amount)) return;
-        
-        try {
-            await updateDoc(doc(db, "users", tid), { xp: increment(amount) });
-            alert(`XP 注能成功: ${amount}`);
-            window.Logger.log(State.user.id, State.user.nick, `MOD_XP_${tid}_${amount}`);
-        } catch(e) { alert("XP 修改失败"); }
-    },
-
-    // 5. 导出审计日志
-    exportAuditLog: async () => {
-        try {
-            const q = query(collection(db, "action_logs"), orderBy("time", "desc"), limit(1000));
-            const sn = await getDocs(q);
-            let text = "=== SURVIVAL RULE 核心审计日志 ===\n";
-            sn.forEach(d => {
-                const l = d.data();
-                const time = l.time ? l.time.toDate().toLocaleString() : "未知时间";
-                text += `[${time}] ${l.nick}(${l.uid}): ${l.action}\n`;
-            });
-            const blob = new Blob([text], { type: "text/plain" });
-            const a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
-            a.download = `SR_AUDIT_${Date.now()}.txt`;
-            a.click();
-        } catch(e) { alert("日志导出失败"); }
-    }
-};
-
-/* ============================================================
-   SECTION: 荣誉榜与百科 (Ranking & Wiki)
-   ============================================================ */
-window.SurvivalRank = {
-    load: () => {
-        UI.open('rank-modal');
-        const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(30));
-        onSnapshot(q, (sn) => {
-            let html = `<h2 style="color:var(--neon-blue); font-family:var(--font-tech);">🏆 全服贡献排行榜</h2>`;
-            let rank = 1;
-            sn.forEach(d => {
-                const u = d.data();
-                const isTop3 = rank <= 3;
-                html += `
-                    <div style="display:flex; justify-content:space-between; padding:15px; border-bottom:1px solid #111; background:${isTop3?'rgba(0,242,255,0.05)':'none'}">
-                        <span>
-                            <b style="color:${isTop3?'var(--neon-blue)':'#444'}; font-family:var(--font-tech);">#${rank++}</b>
-                            <span style="margin-left:15px; color:#fff;">${u.nick}</span>
-                        </span>
-                        <span style="color:var(--neon-green); font-family:monospace;">${(u.xp || 0).toLocaleString()} XP</span>
-                    </div>`;
-            });
-            UI.render('rank-list-content', html);
-        });
-    }
-};
-        /* ============================================================
-   SECTION: 私信协议 (Private Chat - 阅后即焚加密)
-   ============================================================ */
-window.SurvivalChat = {
-    // 启动私聊视窗
-    open: (targetId, targetNick) => {
-        const chatId = [State.user.id, targetId].sort().join("_");
-        UI.open('chat-modal'); // 确保 HTML 中有此 ID
-        UI.render('chat-header', `与 ${targetNick} 的加密连接`);
-
-        // 监听实时报文流
-        const q = query(collection(db, "private_messages"), 
-                        where("chatId", "==", chatId), 
-                        orderBy("time", "asc"), 
-                        limit(50));
-        
-        onSnapshot(q, (sn) => {
-            let html = "";
-            sn.forEach(d => {
-                const m = d.data();
-                const isMe = m.senderId === State.user.id;
-                html += `
-                    <div style="display:flex; justify-content:${isMe?'flex-end':'flex-start'}; margin-bottom:10px;">
-                        <div style="max-width:70%; padding:10px; background:${isMe?'var(--neon-blue)':'#111'}; color:${isMe?'#000':'#fff'}; border-radius:4px;">
-                            <div style="font-size:9px; opacity:0.6;">${m.senderNick}</div>
-                            <div style="word-break:break-all;">${m.text}</div>
-                        </div>
-                    </div>`;
-            });
-            UI.render('p-chat-content', html);
-            const box = document.getElementById('p-chat-content');
-            box.scrollTop = box.scrollHeight;
-        });
-
-        // 绑定发送按钮
-        document.getElementById('p-chat-send').onclick = async () => {
-            const inp = document.getElementById('p-chat-input');
-            if (!inp.value.trim()) return;
-            try {
-                await addDoc(collection(db, "private_messages"), {
-                    chatId, 
-                    senderId: State.user.id, 
-                    senderNick: State.user.nick,
-                    text: inp.value, 
-                    time: serverTimestamp()
-                });
-                inp.value = '';
-            } catch(e) { console.error("发送失败", e); }
-        };
-    }
-};
-
-/* ============================================================
-   SECTION: 每日补给 (Supply - 24H 冷却逻辑修复)
-   ============================================================ */
-window.Supply = {
-    claim: async () => {
-        try {
-            const ref = doc(db, "users", State.user.id);
-            const snap = await getDoc(ref);
-            if (!snap.exists()) return alert("未找到档案");
-            
-            const data = snap.data();
-            const now = Date.now();
-            const last = data.lastSupply || 0;
-            
-            if (now - last < 86400000) {
-                const remaining = Math.ceil((86400000 - (now - last)) / 3600000);
-                return alert(`协议冷却中：请在 ${remaining} 小时后再试`);
-            }
-
-            const day = (data.cycleDay || 0) % 7;
-            const isLuckyDay = day === 6; // 第七天大奖
-            
-            await updateDoc(ref, {
-                lastSupply: now,
-                cycleDay: increment(1),
-                xp: increment(isLuckyDay ? 1000 : 100)
-            });
-            
-            alert(`同步成功！已下发第 ${day + 1} 阶段补给：${isLuckyDay ? '1000' : '100'} XP 已入账。`);
-            window.Logger.log(State.user.id, State.user.nick, `CLAIM_SUPPLY_DAY_${day}`);
-        } catch(e) { alert("补给领取失败: " + e.message); }
-    }
-};
-
-/* ============================================================
-   SECTION: 百科档案 (Survival Wiki)
-   ============================================================ */
-window.SurvivalWiki = {
-    show: () => {
-        UI.open('wiki-modal');
-        UI.render('wiki-content', `
-            <div style="text-align:left; line-height:1.8;">
-                <h2 style="color:var(--neon-blue); font-family:var(--font-tech); border-bottom:2px solid var(--neon-blue); padding-bottom:10px;">档案库 // ARCHIVE</h2>
-                <h3 style="color:var(--neon-red); margin-top:30px;">[ROOT] 最高决策层</h3>
-                <p>● <b>IKUN5556</b> - 核心负责人 / 腐竹</p>
-                <p>● <b>Peter_YT_Bilibili</b> - 系统架构师 / 开发者</p>
-                <h3 style="color:var(--neon-blue); margin-top:30px;">[MOD] Discord 治安署</h3>
-                <p>● <b>CS||Steve</b> - 高级管理员</p>
-                <p>● <b>焦糖猫</b> - 秩序维护官</p>
-                <h3 style="color:var(--gold); margin-top:30px;">[LAW] 生存守则</h3>
-                <p>1. 本站为 Bloxd.io [生存法则] 唯一指定中继站。</p>
-                <p>2. 发布虚假挂单将永久封禁 UID。</p>
+    <div id="admin-modal" class="modal-overlay" onclick="UI.close('admin-modal')">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2 style="color:var(--neon-red)">ADMIN_TERMINAL</h2>
+            <div style="display:grid; gap:10px;">
+                <button class="btn-rule" onclick="Admin.toggleMaintenance()">切换维护模式</button>
+                <button class="btn-rule" onclick="Admin.banPlayer()">封禁玩家</button>
+                <button class="btn-rule" onclick="Admin.modPlayerXP()">注能 XP</button>
+                <button class="btn-rule" onclick="Admin.exportAuditLog()">导出审计日志</button>
             </div>
-        `);
-    }
-};
+        </div>
+    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, doc, getDoc, getDocs, setDoc, updateDoc, deleteDoc, query, orderBy, limit, onSnapshot, where, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-/* ============================================================
-   SECTION: 系统初始化启动 (Bootstrap - 修复维护检测)
-   ============================================================ */
-function bootstrap() {
-    if (State.user) {
-        // 渲染主界面
-        document.getElementById('app-root').style.display = 'block';
-        
-        // 渲染导航栏信息
-        UI.render('nav-auth-slot', `
-            <span style="color:var(--neon-blue); font-family:var(--font-tech); margin-right:15px; font-size:12px;">
-                CONNECTED::${State.user.nick}
-            </span>
-            <button class="btn-rule danger" style="padding:5px 10px; font-size:10px;" onclick="location.reload()">断开</button>
-        `);
+        // Firebase 配置 (请替换为你自己的配置，否则无法连接数据库)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-        // 实时停机维护检测逻辑
-        onSnapshot(doc(db, "system", "config"), (sn) => {
-            const sys = sn.data();
-            if (sys && sys.status === "MAINTENANCE" && !State.isAdmin && !State.isMod) {
-                document.body.innerHTML = `
-                    <div style="height:100vh; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; background:#000; font-family:var(--font-tech);">
-                        <div style="padding:40px; border:1px solid var(--neon-red); background:rgba(255,0,0,0.05); backdrop-filter:blur(10px);">
-                            <h1 style="color:var(--neon-red); font-size:3rem; margin:0;">SYSTEM_OFFLINE</h1>
-                            <p style="color:#666; letter-spacing:2px;">生存法则协议正在维护，请稍后再建立连接。</p>
-                            <p style="color:var(--neon-blue); font-size:12px; margin-top:20px;">操作员: ${sys.operator || 'ADMIN'}</p>
-                        </div>
-                    </div>`;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // 系统全局状态
+        window.State = {
+            user: { id: "Peter_YT_Bilibili", nick: "Peter" }, // 示例，实际应从登录获取
+            isAdmin: true, 
+            isMod: false
+        };
+
+        /* ============================================================
+           SECTION: 核心 UI 控制器 (UI Controller)
+           ============================================================ */
+        window.UI = {
+            open: (id) => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'flex';
+            },
+            close: (id) => {
+                const el = document.getElementById(id);
+                if(el) el.style.display = 'none';
+            },
+            render: (id, html) => {
+                const el = document.getElementById(id);
+                if(el) el.innerHTML = html;
             }
-        });
+        };
 
-        // 注入功能卡片（基于你的 initSurvivalGrid）
-        const grid = document.getElementById('survival-grid-main');
-        const mods = [
-            { n: "档案库", d: "Wiki & 管理员名单", c: "SurvivalWiki.show()", i: "📚" },
-            { n: "荣誉榜", d: "XP 全服排名", c: "SurvivalRank.load()", i: "🏆" },
-            { n: "补给站", d: "24H 每日物资包", c: "Supply.claim()", i: "📦" }
-        ];
-        
-        if(State.isAdmin) {
-            mods.push({ n: "管理终端", d: "维护/封禁/注能", c: "UI.open('admin-modal')", i: "⚡" });
+        window.Kernel = {
+            pushLog: (msg, type = "INFO") => {
+                console.log(`[${type}] ${msg}`);
+            }
+        };
+
+        /* ============================================================
+           SECTION: 超级管理员控制台逻辑 (Admin Console)
+           ============================================================ */
+        window.Admin = {
+            toggleMaintenance: async () => {
+                if (!State.isAdmin) return alert("权限拒绝");
+                const ref = doc(db, "system", "config");
+                const snap = await getDoc(ref);
+                const current = snap.exists() ? snap.data().status : "ONLINE";
+                const next = current === "ONLINE" ? "MAINTENANCE" : "ONLINE";
+                await setDoc(ref, { status: next, operator: State.user.nick }, { merge: true });
+                alert(`系统已切换至: ${next}`);
+            },
+            banPlayer: async () => {
+                const tid = prompt("目标 UID:");
+                if (!tid) return;
+                await updateDoc(doc(db, "users", tid), { banned: true, banBy: State.user.nick });
+                alert("封禁成功");
+            },
+            modPlayerXP: async () => {
+                const tid = prompt("目标 UID:");
+                const amt = parseInt(prompt("数值:"));
+                if (!tid || isNaN(amt)) return;
+                await updateDoc(doc(db, "users", tid), { xp: increment(amt) });
+                alert("XP 注入完成");
+            },
+            exportAuditLog: async () => {
+                const sn = await getDocs(collection(db, "action_logs"));
+                let txt = "AUDIT LOG\n";
+                sn.forEach(d => txt += JSON.stringify(d.data()) + "\n");
+                const blob = new Blob([txt], {type: "text/plain"});
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = "audit.txt";
+                a.click();
+            }
+        };
+
+        /* ============================================================
+           SECTION: 荣誉榜逻辑 (SurvivalRank)
+           ============================================================ */
+        window.SurvivalRank = {
+            load: () => {
+                UI.open('rank-modal');
+                const q = query(collection(db, "users"), orderBy("xp", "desc"), limit(30));
+                onSnapshot(q, (sn) => {
+                    let html = `<h2 class="neon-text">🏆 XP_LEADERBOARD</h2>`;
+                    sn.forEach(d => {
+                        const u = d.data();
+                        html += `<div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #222;">
+                                    <span>${u.nick}</span>
+                                    <span style="color:var(--neon-green)">${u.xp || 0} XP</span>
+                                 </div>`;
+                    });
+                    UI.render('rank-list-content', html);
+                });
+            }
+        };
+        /* ============================================================
+           SECTION: 每日补给 (Supply System)
+           ============================================================ */
+        window.Supply = {
+            claim: async () => {
+                try {
+                    const ref = doc(db, "users", State.user.id);
+                    const snap = await getDoc(ref);
+                    const data = snap.exists() ? snap.data() : { lastSupply: 0, cycleDay: 0 };
+                    
+                    const now = Date.now();
+                    if (now - (data.lastSupply || 0) < 86400000) {
+                        const hours = Math.ceil((86400000 - (now - data.lastSupply)) / 3600000);
+                        return alert(`协议冷却中：请在 ${hours} 小时后再来。`);
+                    }
+
+                    await updateDoc(ref, {
+                        lastSupply: now,
+                        cycleDay: increment(1),
+                        xp: increment(100)
+                    });
+                    alert("同步成功！100 XP 已下发至你的账户。");
+                } catch(e) { alert("补给领取失败，请检查网络。"); }
+            }
+        };
+
+        /* ============================================================
+           SECTION: 军团百科 (Survival Wiki)
+           ============================================================ */
+        window.SurvivalWiki = {
+            show: () => {
+                UI.open('wiki-modal');
+                UI.render('wiki-content', `
+                    <div style="line-height:1.8;">
+                        <h2 class="neon-text" style="border-bottom:1px solid var(--neon-blue); padding-bottom:10px;">ARCHIVE // 档案库</h2>
+                        <h3 style="color:var(--neon-red); margin-top:20px;">[ROOT] 管理层</h3>
+                        <p>● <b>IKUN5556</b> - 核心负责人</p>
+                        <p>● <b>Peter_YT_Bilibili</b> - 系统架构师</p>
+                        <h3 style="color:var(--gold); margin-top:20px;">[LAW] 生存守则</h3>
+                        <p>1. 严禁在交易所发布虚假挂单。</p>
+                        <p>2. 尊重所有中继站成员，禁止恶意刷屏。</p>
+                    </div>
+                `);
+            }
+        };
+
+        /* ============================================================
+           SECTION: 系统初始化启动 (Bootstrap - 核心修复)
+           ============================================================ */
+        function bootstrap() {
+            if (!State.user) return;
+
+            // 1. 显示主容器
+            document.getElementById('app-root').style.display = 'block';
+            
+            // 2. 渲染顶部导航状态
+            UI.render('nav-auth-slot', `
+                <span style="color:var(--neon-blue); font-size:12px; margin-right:15px;">
+                    CONNECTED::${State.user.id}
+                </span>
+                <button class="btn-rule danger" style="padding:5px 10px; font-size:10px;" onclick="location.reload()">断开</button>
+            `);
+
+            // 3. 动态注入功能卡片 (这是解决黑屏的关键)
+            const grid = document.getElementById('survival-grid-main');
+            const modules = [
+                { n: "档案库", d: "Wiki & 规则查询", c: "SurvivalWiki.show()", i: "📚" },
+                { n: "荣誉榜", d: "XP 全服排名", c: "SurvivalRank.load()", i: "🏆" },
+                { n: "补给站", d: "每日物资包领取", c: "Supply.claim()", i: "📦" }
+            ];
+
+            // 如果是 Peter 或 IKUN，额外注入管理卡片
+            if (State.isAdmin) {
+                modules.push({ n: "管理终端", d: "维护/封禁/控制台", c: "UI.open('admin-modal')", i: "⚡" });
+            }
+
+            grid.innerHTML = modules.map(m => `
+                <div class="glass-card" onclick="${m.c}">
+                    <div style="font-size:30px; margin-bottom:10px;">${m.i}</div>
+                    <div style="color:var(--neon-blue); font-weight:bold; letter-spacing:1px;">${m.n}</div>
+                    <div style="font-size:11px; color:#555; margin-top:5px;">${m.d}</div>
+                </div>
+            `).join('');
+
+            console.log("SURVIVAL_RULES_V4: 引擎启动成功。");
         }
 
-        grid.innerHTML = mods.map(m => `
-            <div class="glass-card" onclick="${m.c}">
-                <div style="font-size:30px; margin-bottom:10px;">${m.i}</div>
-                <div style="color:var(--neon-blue); font-weight:bold;">${m.n}</div>
-                <div style="font-size:12px; color:#555;">${m.d}</div>
-            </div>
-        `).join('');
-    }
-}
+        // 确保 DOM 和 Firebase 初始化完成后再启动
+        window.addEventListener('load', () => {
+            setTimeout(bootstrap, 1000);
+        });
 
-// 延迟启动确保 Firebase 加载
-setTimeout(bootstrap, 1000);
-
-</script>
+    </script>
 </body>
 </html>
