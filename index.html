@@ -3,85 +3,134 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生存法则 · SURVIVAL RULES</title>
+    <title>生存法则 | 核心指挥部</title>
     <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div id="toast-container"></div>
-
-<nav>
-    <div class="nav-container">
-        <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
-        <div id="auth-ui">
-            </div>
+<div class="scanner-line"></div> <div id="toast-container"></div> <nav class="glass-nav">
+    <div class="nav-wrapper">
+        <div class="logo-group">
+            <img src="https://img.icons8.com/nolan/64/shield.png" class="logo-img">
+            <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
+        </div>
+        <div id="auth-ui"></div>
     </div>
 </nav>
 
-<header class="hero">
-    <div class="hero-content">
-        <h1>生存法则</h1>
-        <p>搜集物资 · 建立营地 · 寻找队友 · 活到最后</p>
-    </div>
+<header class="main-hero">
+    <h1 class="glitch" data-text="生存法则">生存法则</h1>
+    <p class="hero-desc">核心玩法：军团争霸 · 自由交易 · 黄金鹿角</p>
 </header>
 
-<main class="grid-container">
-    <div class="card chat-card" onclick="openChat()">
-        <div class="icon">💬</div>
+<div class="dashboard-grid">
+    <div class="feature-card chat-trigger" onclick="openChat()">
+        <div class="card-glow"></div>
+        <img src="https://img.icons8.com/nolan/64/conference-call.png">
         <h3>组队大厅</h3>
-        <p>实时在线频道，寻找你的生存伙伴</p>
+        <p>实时战术连线，寻找生存伙伴</p>
+        <span class="status-tag">ACTIVE</span>
     </div>
-    <div class="card" onclick="showTip('📚 指令：/home (回家), /spawn (回出生点), /tpa (传送)')">
-        <div class="icon">📜</div>
-        <h3>玩法介绍</h3>
-        <p>查看服务器规则、指令及新手攻略</p>
-    </div>
-    <div class="card" onclick="showTip('⚖️ 交易行正在建设中，预计 1.5 版本上线')">
-        <div class="icon">🏛️</div>
-        <h3>交易行</h3>
-        <p>安全的物资互换中心，打造你的财富</p>
-    </div>
-    <div class="card" onclick="showTip('🎁 当前没有可领取的全球兑换码')">
-        <div class="icon">💎</div>
-        <h3>兑换码</h3>
-        <p>输入密令领取社区专属物资包</p>
-    </div>
-</main>
 
-<div id="chat-panel" class="glass">
-    <div class="chat-header">
-        <span>🌍 组队大厅</span>
-        <button onclick="closeChat()">✕</button>
+    <div class="feature-card" onclick="openWiki()">
+        <div class="card-glow"></div>
+        <img src="https://img.icons8.com/nolan/64/scroll.png">
+        <h3>玩法/指令</h3>
+        <p>军团系统、特技道具全指南</p>
     </div>
-    <div id="chat-msgs"></div>
-    <div class="chat-input-area">
-        <input type="text" id="m-input" placeholder="输入消息..." onkeypress="if(event.keyCode==13) sendMsg()">
-        <button class="send-btn" onclick="sendMsg()">发送</button>
+
+    <div class="feature-card" onclick="openMarket()">
+        <div class="card-glow"></div>
+        <img src="https://img.icons8.com/nolan/64/scales.png">
+        <h3>物资交易</h3>
+        <p>自由定价，玩家间物资流转</p>
+    </div>
+
+    <div class="feature-card disabled">
+        <div class="card-glow"></div>
+        <img src="https://img.icons8.com/nolan/64/crown.png">
+        <h3>人员名单</h3>
+        <p>查看全服顶尖军团排名</p>
     </div>
 </div>
 
-<div class="modal-overlay" id="modal-overlay">
-    <div class="modal glass">
-        <div class="tab-switcher">
-            <button id="t-login" class="active" onclick="setTab('login')">账户登录</button>
-            <button id="t-reg" onclick="setTab('reg')">新员注册</button>
+<div id="market-modal" class="modal-overlay">
+    <div class="market-box glass-card">
+        <div class="modal-header">
+            <h2>⚖️ 物资交易中心</h2>
+            <button onclick="closeModal('market-modal')">✕</button>
         </div>
-        
-        <div id="nick-field" class="input-group" style="display:none">
-            <input type="text" id="a-nick" placeholder="游戏昵称 (Nickname)">
+        <div class="market-controls">
+            <input type="text" id="item-name" placeholder="物品名称...">
+            <input type="number" id="item-price" placeholder="价格(绿宝石)">
+            <button class="action-btn" onclick="postItem()">立即上架</button>
         </div>
-        
-        <div class="input-group">
-            <input type="text" id="a-id" placeholder="登录 ID (Unique ID)">
+        <div id="market-list" class="market-grid">
+            </div>
+    </div>
+</div>
+
+<div id="wiki-modal" class="modal-overlay">
+    <div class="wiki-box glass-card">
+        <div class="modal-header">
+            <h2>📜 幸存者手册</h2>
+            <button onclick="closeModal('wiki-modal')">✕</button>
         </div>
-        
-        <div class="input-group">
-            <input type="password" id="a-pw" placeholder="访问密码 (Password)">
-            <span class="eye-toggle" onclick="togglePw()">👁️</span>
+        <div class="wiki-content">
+            <section>
+                <h4>🛡️ 军团核心指令</h4>
+                <code>!创建军团 [名字]</code> - 成立你的势力<br>
+                <code>!设置基地</code> / <code>!回基地</code> - 跨图传送(受战斗锁定限制)<br>
+                <code>!邀请 [名称]</code> / <code>!接受</code> - 招募队友
+            </section>
+            <section>
+                <h4>✨ 道具特技</h4>
+                <p><b>黄金鹿角 (Gold Antlers):</b> 爆发鹿角之力，获得 5 秒超级跳跃(Lv.6)与极速加速。</p>
+            </section>
+            <section>
+                <h4>⚠️ 战斗锁定机制</h4>
+                <p>受伤后将进入 10 秒“战斗中”状态，期间无法使用回基地指令。</p>
+            </section>
         </div>
-        
-        <button class="submit-btn" onclick="handleAuth()">确认进入</button>
-        <p class="cancel-link" onclick="closeModal()">返回首页</p>
+    </div>
+</div>
+
+<div id="chat-panel" class="modern-chat">
+    <div class="chat-header">
+        <div class="status-dot"></div>
+        <span>GLOBAL CHAT</span>
+        <button onclick="closeChat()">✕</button>
+    </div>
+    <div id="chat-messages"></div>
+    <div class="modern-input-group">
+        <input type="text" id="m-input" placeholder="输入战术消息..." onkeypress="if(event.keyCode==13) sendMsg()">
+        <button onclick="sendMsg()">发送</button>
+    </div>
+</div>
+
+<div class="modal-overlay" id="auth-modal">
+    <div class="auth-card glass-card">
+        <div class="auth-tabs">
+            <span id="tab-login" class="active" onclick="switchAuth('login')">登录</span>
+            <span id="tab-reg" onclick="switchAuth('reg')">注册</span>
+        </div>
+        <div class="auth-inputs">
+            <div id="reg-nick" class="cyber-input" style="display:none">
+                <input type="text" id="a-nick" placeholder=" ">
+                <label>游戏昵称</label>
+            </div>
+            <div class="cyber-input">
+                <input type="text" id="a-id" placeholder=" ">
+                <label>身份 ID</label>
+            </div>
+            <div class="cyber-input">
+                <input type="password" id="a-pw" placeholder=" ">
+                <label>访问密码</label>
+                <div class="pw-eye" onclick="togglePw()">👁️</div>
+            </div>
+            <button class="submit-btn" onclick="handleAuth()">同步身份</button>
+        </div>
     </div>
 </div>
 
