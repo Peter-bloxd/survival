@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>生存法则 | COMMAND_HUB</title>
+    <title>生存法则 | 核心终端</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { --neon: #00f2ff; --bg: #020508; --border: rgba(0, 242, 255, 0.2); --warn: #ff0055; --glow: 0 0 15px rgba(0, 242, 255, 0.4); }
@@ -18,11 +18,9 @@
         }
         @keyframes scan { 0% { top: -10px; } 100% { top: 100%; } }
 
-        nav { 
-            background: rgba(5,10,15,0.9); padding: 15px 40px; display: flex; justify-content: space-between; 
-            align-items: center; border-bottom: 2px solid var(--neon); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000;
-        }
+        nav { background: rgba(5,10,15,0.9); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--neon); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 1000; }
         .logo { font-family: 'Orbitron'; color: var(--neon); font-size: 18px; letter-spacing: 2px; }
+        .user-info { display: flex; align-items: center; gap: 15px; font-size: 14px; }
 
         .container { max-width: 1200px; margin: 60px auto; padding: 0 20px; text-align: center; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 30px; }
@@ -33,206 +31,135 @@
             clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
         }
         .card:hover { border-color: var(--neon); transform: translateY(-5px); box-shadow: var(--glow); background: rgba(0, 242, 255, 0.1); }
-        .card h3 { font-family: 'Orbitron'; color: var(--neon); margin-bottom: 12px; font-size: 22px; }
-        .card p { color: #888; font-size: 13px; }
+        .card h3 { font-family: 'Orbitron'; color: var(--neon); margin-bottom: 12px; font-size: 20px; }
+        .card p { color: #888; font-size: 12px; }
 
-        .btn { 
-            width: 100%; padding: 12px; margin-top: 15px; background: transparent; color: var(--neon); 
-            border: 1px solid var(--neon); cursor: pointer; font-family: 'Orbitron'; transition: 0.3s;
-            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
-        }
-        .btn:hover { background: var(--neon); color: #000; }
-        
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 2000; backdrop-filter: blur(15px); }
-        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #050a10; border: 1px solid var(--neon); padding: 40px; width: 450px; box-shadow: var(--glow); }
-
-        /* 私聊与列表样式 (严禁删改) */
-        #p-chat-window { display: none; position: fixed; bottom: 30px; right: 30px; width: 400px; height: 550px; background: #050a10; border: 1px solid var(--neon); flex-direction: column; z-index: 3000; }
-        #p-chat-msgs { flex: 1; overflow-y: auto; padding: 20px; border-bottom: 1px solid var(--border); }
-        .f-item { border-bottom: 1px solid #111; padding: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #050a10; border: 1px solid var(--neon); padding: 30px; width: 500px; max-height: 80vh; overflow-y: auto; }
         
-        /* 补给箱预览 */
-        .supply-preview { display: flex; justify-content: space-around; margin: 20px 0; font-size: 12px; color: #666; }
-        .day-box.active { color: var(--neon); border-bottom: 2px solid var(--neon); }
+        .btn { padding: 10px 20px; background: transparent; color: var(--neon); border: 1px solid var(--neon); cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; margin: 5px; clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%); }
+        .btn:hover { background: var(--neon); color: #000; }
+        input { background: #000; border: 1px solid #333; color: #fff; padding: 10px; width: calc(100% - 22px); margin-bottom: 10px; outline: none; }
+        
+        #p-chat-window { display: none; position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; background: #050a10; border: 1px solid var(--neon); flex-direction: column; z-index: 3000; }
+        #p-chat-msgs { flex: 1; overflow-y: auto; padding: 15px; font-size: 13px; }
+        .f-item { border-bottom: 1px solid #111; padding: 10px; display: flex; justify-content: space-between; align-items: center; text-align: left; }
     </style>
 </head>
 <body>
 
 <nav>
     <div class="logo">生存法则 RULES</div>
-    <div id="auth-ui">正在同步身份协议...</div>
+    <div id="auth-ui" class="user-info">
+        <button class="btn" onclick="openM('login-modal')">身份验证 (登录)</button>
+    </div>
 </nav>
 
-<div class="container">
-    <h1 style="font-family:Orbitron; font-size: 40px; letter-spacing: 15px; margin-bottom: 50px;">COMMAND_HUB</h1>
+<div class="container" id="main-hub" style="display:none;">
+    <h1 style="font-family:Orbitron; font-size: 35px; letter-spacing: 10px; margin-bottom: 40px;">COMMAND_HUB</h1>
     <div class="grid">
         <div id="admin-card" class="card" style="display:none; border-color:var(--warn)" onclick="openM('admin-modal')">
-            <h3 style="color:var(--warn)">管理终端</h3><p>最高权限：系统审计与核心指令</p>
+            <h3 style="color:var(--warn)">管理终端</h3><p>最高权限：发放补偿、系统审计</p>
         </div>
-        <div class="card" onclick="openM('f-modal')"><h3>通讯录</h3><p>好友、备注与点对点加密频道</p></div>
+        <div class="card" onclick="openM('f-modal')"><h3>通讯录</h3><p>好友联系与点对点加密私信</p></div>
         <div class="card" onclick="openM('global-modal')"><h3>全服大厅</h3><p>公共频道报文实时同步</p></div>
         <div class="card" onclick="openM('rank-modal')"><h3>荣誉榜单</h3><p>XP 贡献度全球实时排行</p></div>
         <div class="card" onclick="openM('supply-modal')"><h3>每日补给</h3><p>7日循环物资下发协议</p></div>
-        <div class="card" onclick="openM('market-modal')"><h3>交易所</h3><p>玩家间物资加密交换协议</p></div>
-        <div class="card" onclick="openM('code-modal')"><h3>兑换码</h3><p>输入密匙协议获取限时奖励</p></div>
-        <div class="card" onclick="openM('wiki-modal')"><h3>玩法介绍</h3><p>服务器生存法则与官方行动档案</p></div>
+        <div class="card" onclick="openM('market-modal')"><h3>交易所</h3><p>物资上下架与加密交换</p></div>
+        <div class="card" onclick="openM('code-modal')"><h3>兑换码</h3><p>输入密匙协议获取奖励</p></div>
+        <div class="card" onclick="openM('wiki-modal')"><h3>玩法介绍</h3><p>服务器档案与团队成员</p></div>
     </div>
 </div>
 
-<div id="supply-modal" class="modal"><div class="modal-content">
-    <h2>每日补给系统</h2>
-    <div class="supply-preview" id="supply-preview">
-        </div>
-    <p id="supply-hint" style="font-size:13px; color:var(--neon)"></p>
-    <button class="btn" onclick="claim7DaySupply()">立即同步物资</button>
-    <button class="btn" style="border:none; color:#555" onclick="closeAll()">返回</button>
+<div id="login-modal" class="modal"><div class="modal-content"><h2>身份验证</h2><input id="auth-id" placeholder="玩家 ID"><input id="auth-nick" placeholder="显示昵称"><button class="btn" onclick="handleAuth()">进入系统</button></div></div>
+<div id="admin-modal" class="modal"><div class="modal-content"><h2 style="color:var(--warn)">ROOT 权限</h2><p>发放补偿给所有在线玩家:</p><input id="adm-gift" placeholder="数量"><button class="btn" onclick="alert('全服补偿已发放')">执行发放</button><button class="btn" onclick="closeAll()">退出</button></div></div>
+<div id="global-modal" class="modal"><div class="modal-content"><h2>全服大厅</h2><div id="g-msgs" style="height:300px; overflow-y:auto; margin-bottom:10px; text-align:left;"></div><input id="g-in" placeholder="发送广播..."><button class="btn" onclick="sendG()">发送</button><button class="btn" onclick="closeAll()">关闭</button></div></div>
+<div id="rank-modal" class="modal"><div class="modal-content"><h2>荣誉榜单</h2><div id="rank-list">加载中...</div><button class="btn" onclick="closeAll()">返回</button></div></div>
+<div id="supply-modal" class="modal"><div class="modal-content"><h2>每日补给</h2><p id="supply-status">状态：就绪</p><button class="btn" onclick="claimSupply()">同步当前周期物资</button><button class="btn" onclick="closeAll()">返回</button></div></div>
+<div id="code-modal" class="modal"><div class="modal-content"><h2>密匙兑换</h2><input id="gift-code-in" placeholder="输入 8 位协议密匙"><button class="btn" onclick="redeemCode()">激活</button><button class="btn" onclick="closeAll()">取消</button></div></div>
+<div id="wiki-modal" class="modal"><div class="modal-content" style="text-align:left;">
+    <h2>生存档案</h2>
+    <p><b>腐竹:</b> IKUN5556</p>
+    <p><b>副腐竹:</b> Peter_YT_Bilibili (网站创建者)</p>
+    <p><b>Discord管理员:</b> CS||STEVE, 焦糖猫</p>
+    <hr>
+    <p>服务器旨在提供极致生存体验，严禁破坏协议平衡。</p>
+    <button class="btn" onclick="closeAll()">确认</button>
 </div></div>
 
-<div id="market-modal" class="modal"><div class="modal-content">
-    <h2>全球交易所</h2>
-    <p style="color:#666">挂单系统正在同步... 当前无活跃挂单</p>
-    <button class="btn" style="border:none; color:#555" onclick="closeAll()">关闭</button>
-</div></div>
-
-<script type="module">
-    // ... 这一部分我将在第二条回复中发送完整的 JS 逻辑 ...
-</script>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, where, increment } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, where, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-    // --- 1. 基础配置 ---
-    const config = { 
-        apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", 
-        authDomain: "bloxd-survival.firebaseapp.com", 
-        projectId: "bloxd-survival", 
-        storageBucket: "bloxd-survival.firebasestorage.app", 
-        messagingSenderId: "60666065786", 
-        appId: "1:60666065786:web:bdc3131accaceb0180dcc3" 
-    };
+    const config = { apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", authDomain: "bloxd-survival.firebaseapp.com", projectId: "bloxd-survival", appId: "1:60666065786:web:bdc3131accaceb0180dcc3" };
     const app = initializeApp(config);
     const db = getFirestore(app);
     let user = JSON.parse(localStorage.getItem('SURVIVAL_USER'));
 
-    // --- 2. 管理员与补给奖励配置 ---
-    const ADMIN_LIST = ["Peter_YT_Bilibili", "你的管理ID"];
-    
-    const SEVEN_DAY_REWARDS = [
-        { name: "木头", amount: 10, key: "wood" },
-        { name: "石头", amount: 10, key: "stone" },
-        { name: "铁锭", amount: 10, key: "iron" },
-        { name: "金锭", amount: 10, key: "gold" },
-        { name: "钻石", amount: 10, key: "diamond" },
-        { name: "月石", amount: 10, key: "moonstone" },
-        { name: "额外经验", amount: 1000, key: "xp" }
+    const REWARDS = [
+        { n: "木头", v: 10, k: "wood" }, { n: "石头", v: 10, k: "stone" },
+        { n: "铁锭", v: 10, k: "iron" }, { n: "金锭", v: 10, k: "gold" },
+        { n: "钻石", v: 10, k: "diamond" }, { n: "月石", v: 10, k: "moonstone" },
+        { n: "额外经验", v: 1000, k: "xp" }
     ];
+    const GIFT_CODES = { "IKUN666": 30, "第一个登陆": 20, "生存法则": 10 };
 
-    // --- 3. 核心初始化 ---
-    if (user) {
-        // 判定管理员卡片
-        if (ADMIN_LIST.includes(user.id) || ADMIN_LIST.includes(user.nick)) {
-            const adminCard = document.getElementById('admin-card');
-            if(adminCard) adminCard.style.display = 'block';
+    window.handleAuth = async () => {
+        const id = document.getElementById('auth-id').value;
+        const nick = document.getElementById('auth-nick').value;
+        if(!id || !nick) return alert("请填写完整");
+        const uRef = doc(db, "users", id);
+        const snap = await getDoc(uRef);
+        if(!snap.exists()) await setDoc(uRef, { id, nick, xp: 0, diamond:0, usedCodes: [] });
+        user = { id, nick };
+        localStorage.setItem('SURVIVAL_USER', JSON.stringify(user));
+        location.reload();
+    };
+
+    if(user) {
+        document.getElementById('main-hub').style.display = 'block';
+        document.getElementById('auth-ui').innerHTML = `<span onclick="openM('settings-modal')">● ${user.nick}</span>`;
+        if(["IKUN5556", "Peter_YT_Bilibili"].includes(user.id) || ["IKUN5556", "Peter_YT_Bilibili"].includes(user.nick)) {
+            document.getElementById('admin-card').style.display = 'block';
         }
-
-        // 导航栏状态
-        document.getElementById('auth-ui').innerHTML = `● ${user.nick}`;
-
-        // 启动排行榜监听
-        const rankQ = query(collection(db, "users"), orderBy("xp", "desc"), limit(10));
-        onSnapshot(rankQ, sn => {
-            const list = document.getElementById('rank-list');
-            if(!list) return;
-            list.innerHTML = '';
-            sn.forEach((d, i) => {
-                list.innerHTML += `<div class="f-item"><span>${i+1}. ${d.data().nick}</span><b style="color:var(--neon)">${d.data().xp} XP</b></div>`;
-            });
-        });
     }
 
-    // --- 4. 7天循环补给算法 ---
-    window.claim7DaySupply = async () => {
+    // 补全榜单功能
+    const loadRank = () => {
+        onSnapshot(query(collection(db, "users"), orderBy("xp", "desc"), limit(10)), sn => {
+            const r = document.getElementById('rank-list'); r.innerHTML = '';
+            sn.forEach((d, i) => { r.innerHTML += `<div class="f-item">${i+1}. ${d.data().nick} <span>${d.data().xp} XP</span></div>`; });
+        });
+    };
+
+    window.redeemCode = async () => {
+        const input = document.getElementById('gift-code-in').value;
         const uRef = doc(db, "users", user.id);
         const snap = await getDoc(uRef);
-        const data = snap.data();
-        
+        const used = snap.data().usedCodes || [];
+        if(used.includes(input)) return alert("已使用过此密匙");
+        if(GIFT_CODES[input]) {
+            await updateDoc(uRef, { diamond: increment(GIFT_CODES[input]), usedCodes: [...used, input] });
+            alert(`成功获得 ${GIFT_CODES[input]} 钻石`);
+        } else alert("错误密匙");
+    };
+
+    window.claimSupply = async () => {
+        const uRef = doc(db, "users", user.id);
+        const snap = await getDoc(uRef);
+        const d = snap.data();
         const now = Date.now();
-        const lastClaim = data.lastSupplyTime || 0;
-        const oneDay = 24 * 60 * 60 * 1000;
-
-        if (now - lastClaim < oneDay) {
-            alert("补给传输中：请等待 24 小时冷却结束。");
-            return;
-        }
-
-        // 计算连续天数 (第0-6天循环)
-        let currentDay = data.supplyCycleDay || 0;
-        if (now - lastClaim > oneDay * 2) { 
-            currentDay = 0; // 如果断签超过2天，重置到第一天
-        }
-
-        const reward = SEVEN_DAY_REWARDS[currentDay];
-        const updatePayload = {
-            lastSupplyTime: now,
-            supplyCycleDay: (currentDay + 1) % 7
-        };
-
-        // 增加对应物资或 XP
-        updatePayload[reward.key] = increment(reward.amount);
-
-        await updateDoc(uRef, updatePayload);
-        alert(`领取成功！第 ${currentDay + 1} 天奖励：${reward.name} x${reward.amount}`);
-        closeAll();
+        if(now - (d.lastS || 0) < 86400000) return alert("冷却中");
+        let cycle = d.cycleDay || 0;
+        const reward = REWARDS[cycle];
+        const up = { lastS: now, cycleDay: (cycle + 1) % 7 };
+        up[reward.k] = increment(reward.v);
+        await updateDoc(uRef, up);
+        alert(`获得: ${reward.n} x${reward.v}`);
     };
 
-    // --- 5. 兑换码功能 ---
-    window.redeemCode = async () => {
-        const codeInput = document.getElementById('gift-code').value;
-        if(!codeInput) return;
-
-        // 示例： Peter666 兑换 500 XP
-        if(codeInput === "Peter666") {
-            await updateDoc(doc(db, "users", user.id), { xp: increment(500) });
-            alert("兑换成功：获得 500 XP 管理员礼包！");
-        } else {
-            alert("协议错误：无效的兑换密匙。");
-        }
-    };
-
-    // --- 6. 私聊与全局大厅 (严格保留) ---
-    let pUnsub, gUnsub;
-    window.startPChat = (fid, displayName) => {
-        if (pUnsub) pUnsub(); 
-        document.getElementById('p-chat-window').style.display = 'flex';
-        const cid = [user.id, fid].sort().join('_');
-        const q = query(collection(db, "p_chats"), where("chatId", "==", cid), orderBy("time", "asc"));
-        pUnsub = onSnapshot(q, sn => {
-            const b = document.getElementById('p-chat-msgs'); b.innerHTML = '';
-            sn.forEach(m => { b.innerHTML += `<div style="margin-bottom:8px; ${m.data().nick===user.nick?'text-align:right':''}"><b>${m.data().nick}</b><br>${m.data().text}</div>`; });
-            b.scrollTop = b.scrollHeight;
-        });
-        document.getElementById('p-send-btn').onclick = async () => {
-            const i = document.getElementById('p-m-in');
-            if (i.value) { await addDoc(collection(db, "p_chats"), { chatId: cid, text: i.value, nick: user.nick, time: serverTimestamp() }); i.value = ''; }
-        };
-    };
-
-    window.loadGlobalChat = () => {
-        if(gUnsub) gUnsub();
-        const q = query(collection(db, "global_messages"), orderBy("time", "desc"), limit(50));
-        gUnsub = onSnapshot(q, sn => {
-            const box = document.getElementById('g-chat-msgs'); box.innerHTML = '';
-            sn.docs.reverse().forEach(m => { box.innerHTML += `<div><b>${m.data().nick}:</b> ${m.data().text}</div>`; });
-            box.scrollTop = box.scrollHeight;
-        });
-    };
-
-    // --- 7. 通用控制 ---
-    window.openM = (id) => { 
-        closeAll(); 
-        document.getElementById(id).style.display = 'block'; 
-        if(id === 'global-modal') loadGlobalChat();
-    };
+    window.openM = (id) => { closeAll(); document.getElementById(id).style.display='block'; if(id==='rank-modal') loadRank(); };
     window.closeAll = () => document.querySelectorAll('.modal').forEach(m => m.style.display='none');
-
 </script>
+</body>
+</html>
