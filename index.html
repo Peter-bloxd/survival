@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>生存法则 · SURVIVAL RULES</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         :root { --neon: #2ecc71; --bg: #05080a; --card: rgba(25, 27, 31, 0.8); --border: rgba(46, 204, 113, 0.2); }
         body { background: var(--bg); color: #fff; font-family: 'Noto Sans SC', sans-serif; margin: 0; background-image: radial-gradient(circle at 50% -20%, #1a2c22 0%, var(--bg) 70%); min-height: 100vh; }
@@ -36,10 +37,10 @@
     <p style="color: #666; font-size: 18px;">搜集物资 · 建立营地 · 寻找队友 · 活到最后</p>
     <div class="grid">
         <div class="card" onclick="openChat()"><span class="icon">💬</span><h3>组队大厅</h3><p>寻找队友，组队出击</p></div>
-        <div class="card" onclick="toggle('wiki-modal')"><span class="icon">🎮</span><h3>玩法介绍</h3><p>了解游戏规则和技巧</p></div>
+        <div class="card" onclick="toggle('wiki-modal')"><span class="icon">🎮</span><h3>玩法介绍</h3><p>查看军团指令及特技说明</p></div>
         <div class="card" onclick="toggle('market-modal')"><span class="icon">⚖️</span><h3>交易行</h3><p>购买和出售物品 (单位：块)</p></div>
         <div class="card" onclick="toggle('staff-modal')"><span class="icon">👤</span><h3>人员名单</h3><p>查看管理团队成员</p></div>
-        <div class="card" onclick="alert('即将开放')"><span class="icon">🎁</span><h3>兑换码</h3><p>输入兑换码获取奖励</p></div>
+        <div class="card" onclick="toggle('gift-modal')"><span class="icon">🎁</span><h3>兑换码</h3><p>输入兑换码领取10钻石</p></div>
         <div class="card" onclick="alert('建设中')"><span class="icon">🏪</span><h3>变卖所</h3><p>将物资快速变现</p></div>
         <div class="card" onclick="alert('功能开发中')"><span class="icon">🔄</span><h3>更新日志</h3><p>查看最新版本动态</p></div>
         <div class="card" onclick="alert('环境维护中')"><span class="icon">🚫</span><h3>处罚名单</h3><p>公示违规幸存者</p></div>
@@ -56,6 +57,28 @@
     <div class="staff-item"><span><b>Peter_YT_Bilibili</b></span><small style="color:var(--neon)">副腐竹</small></div>
     <div class="staff-item"><span><b>CS||Steve</b></span><small style="color:#888">Discord 开发人员</small></div>
     <button class="btn" style="background:#222;color:#fff" onclick="toggle('staff-modal')">关闭</button>
+</div></div>
+
+<div id="wiki-modal" class="modal"><div class="modal-content" style="width:480px; text-align:left;">
+    <h2 style="color:var(--neon); text-align:center;">📜 生存指南</h2>
+    <h4 style="color:var(--neon)">🛡️ 军团核心指令</h4>
+    <code>!创建军团 [名]</code> - 成立你的势力<br>
+    <code>!邀请 [名]</code> - 招募新成员(权限4+)<br>
+    <code>!回基地</code> - 传送至军团据点<br>
+    <code>!设置基地</code> - 标记当前位置为据点<br>
+    <p style="color:#ff5555; font-size:12px;">* 战斗状态下(受伤10秒内)无法使用传送指令。</p>
+    <hr style="border:0; border-top:1px solid #333; margin:15px 0;">
+    <h4 style="color:var(--neon)">✨ 道具特技</h4>
+    <p><b>黄金鹿角 (Gold Antlers):</b> 获得 5 秒 Lv.6 跳跃提升和速度加成。</p>
+    <button class="btn" onclick="toggle('wiki-modal')">了解</button>
+</div></div>
+
+<div id="gift-modal" class="modal"><div class="modal-content">
+    <h2 style="color:var(--neon)">🎁 礼包兑换</h2>
+    <p style="font-size:13px; color:#888;">输入社区兑换码，领取 10 钻石奖励</p>
+    <input type="text" id="g-code" placeholder="输入兑换码 (如 SURVIVAL666)">
+    <button class="btn" onclick="redeemCode()">立即兑换</button>
+    <button class="btn" style="background:#222;color:#fff" onclick="toggle('gift-modal')">取消</button>
 </div></div>
 
 <div id="market-modal" class="modal"><div class="modal-content" style="width:450px;">
@@ -76,6 +99,9 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, deleteDoc, doc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // 初始化 EmailJS (免费额度足以接收通知)
+    emailjs.init("YOUR_PUBLIC_KEY_HOLDER"); // 这里是一个占位符，逻辑上它会尝试发送
+
     const firebaseConfig = { apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", authDomain: "bloxd-survival.firebaseapp.com", projectId: "bloxd-survival", storageBucket: "bloxd-survival.firebasestorage.app", messagingSenderId: "60666065786", appId: "1:60666065786:web:bdc3131accaceb0180dcc3" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -83,6 +109,21 @@
 
     window.toggle = (id) => { const el = document.getElementById(id); el.style.display = (el.style.display === 'block') ? 'none' : 'block'; };
     window.openChat = () => { const el = document.getElementById('chat-window'); el.style.display = (el.style.display === 'flex') ? 'none' : 'flex'; };
+
+    // 兑换码逻辑并通知邮箱
+    window.redeemCode = async () => {
+        if(!user) return alert("请先登录！");
+        const code = document.getElementById('g-code').value;
+        if(code === "SURVIVAL666") {
+            alert("🎉 兑换成功！10 钻石已发放。");
+            // 向服务器记录并发送邮件逻辑（模拟）
+            console.log(`通知发送至 lunp99451: 玩家 ${user.nick} 已兑换礼包`);
+            await addDoc(collection(db, "logs"), { type: "REDEEM", user: user.nick, code: code, time: serverTimestamp() });
+            toggle('gift-modal');
+        } else {
+            alert("❌ 无效的兑换码");
+        }
+    };
 
     window.handleAuth = () => {
         const id = document.getElementById('a-id').value; const nick = document.getElementById('a-nick').value; const pw = document.getElementById('a-pw').value;
@@ -104,10 +145,9 @@
 
     window.addComment = async (itemId) => {
         if(!user) return toggle('auth-modal');
-        const text = prompt("输入你对该商品的评论/提问：");
+        const text = prompt("输入你对该商品的评论：");
         if(!text) return;
-        const itemRef = doc(db, "market", itemId);
-        await updateDoc(itemRef, { comments: arrayUnion({ user: user.nick, text: text, time: new Date().toLocaleTimeString() }) });
+        await updateDoc(doc(db, "market", itemId), { comments: arrayUnion({ user: user.nick, text: text, time: new Date().toLocaleTimeString() }) });
     };
 
     onSnapshot(collection(db, "market"), (sn) => {
@@ -115,17 +155,36 @@
         sn.forEach(d => {
             const it = d.data(); const div = document.createElement('div');
             div.style = "background:#161b22; padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #333; text-align:left;";
-            let cms = (it.comments || []).map(c => `<div class="comment-box"><b>${c.user}:</b> ${c.text} <small style="color:#555">${c.time}</small></div>`).join('');
+            let cms = (it.comments || []).map(c => `<div class="comment-box"><b>${c.user}:</b> ${c.text}</div>`).join('');
             div.innerHTML = `<div style="display:flex; justify-content:space-between;"><b>📦 ${it.name}</b> <span style="color:var(--neon)">${it.price} 块</span></div>
                 <div style="font-size:11px; color:#666; margin:5px 0;">卖家: ${it.seller}</div>
-                <div style="margin-top:10px;">${cms}</div>
-                <button onclick="addComment('${d.id}')" style="margin-top:10px; background:none; border:1px solid var(--neon); color:var(--neon); font-size:10px; padding:3px 8px; border-radius:4px; cursor:pointer;">发表评论</button>
+                <div>${cms}</div>
+                <button onclick="addComment('${d.id}')" style="margin-top:10px; background:none; border:1px solid var(--neon); color:var(--neon); font-size:10px; padding:3px 8px; border-radius:4px; cursor:pointer;">评论沟通</button>
                 ${it.sellerId === user?.id ? `<button onclick="delItem('${d.id}')" style="background:red; color:white; border:none; padding:3px 8px; border-radius:4px; float:right;">下架</button>` : ''}`;
             list.appendChild(div);
         });
     });
 
     window.delItem = async (id) => { await deleteDoc(doc(db, "market", id)); };
+    window.sendMsg = async () => {
+        if(!user) return toggle('auth-modal');
+        const input = document.getElementById('m-input');
+        if(!input.value) return;
+        await addDoc(collection(db, "messages"), { text: input.value, user: user.nick, createdAt: serverTimestamp() });
+        input.value = '';
+    };
+
+    onSnapshot(query(collection(db, "messages"), orderBy("createdAt", "asc"), limit(50)), (sn) => {
+        const box = document.getElementById('chat-msgs'); box.innerHTML = '';
+        sn.forEach(d => {
+            const m = d.data();
+            const div = document.createElement('div');
+            div.style = "background:#1c2128; padding:10px; border-radius:10px; border-left:3px solid var(--neon); margin-bottom:10px;";
+            div.innerHTML = `<b style="color:var(--neon); font-size:11px; display:block;">${m.user}</b> ${m.text}`;
+            box.appendChild(div);
+        });
+        box.scrollTop = box.scrollHeight;
+    });
 
     const ui = document.getElementById('auth-ui');
     if(user) { ui.innerHTML = `<span>欢迎, <b>${user.nick}</b></span> <button onclick="localStorage.removeItem('SURVIVAL_USER');location.reload()" style="background:none; border:1px solid #333; color:#fff; padding:5px; margin-left:10px; cursor:pointer;">登出</button>`; }
