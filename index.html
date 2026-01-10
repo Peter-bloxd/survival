@@ -47,7 +47,7 @@
 
 <nav>
     <a href="#" class="logo">
-        <img src="https://i.postimg.cc/cLBxwBqp/sheng-cun-fa-ze-tu-biao.jpg">
+        <img src="生存法则图标.jpg">
         生存法则 · <span>RULES</span>
     </a>
     <div id="auth-ui"></div>
@@ -111,7 +111,7 @@
 <div id="chat-window">
     <div style="padding:15px; border-bottom:1px solid var(--neon); display:flex; justify-content:space-between; align-items:center;">
         <div style="display:flex; align-items:center;">
-            <img src="https://i.postimg.cc/cLBxwBqp/sheng-cun-fa-ze-tu-biao.jpg" style="height:20px; margin-right:8px; border-radius:2px;">
+            <img src="生存法则图标.jpg" style="height:20px; margin-right:8px; border-radius:2px;">
             <span>全服战术频道</span>
         </div>
         <button onclick="openChat()" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
@@ -134,7 +134,7 @@
     window.openChat = () => { const c = document.getElementById('chat-window'); c.style.display = (c.style.display==='flex'?'none':'flex'); };
 
     // --- 登录/注册/登出系统 ---
-    window.handleAuth = () => {
+    window.handleAuth = async () => {
         const id = document.getElementById('a-id').value.trim();
         const nick = document.getElementById('a-nick').value.trim();
         const pw = document.getElementById('a-pw').value.trim();
@@ -145,16 +145,17 @@
         const savedData = localStorage.getItem(key);
 
         if(!savedData) {
-            // 注册逻辑
             if(!nick) return alert("新用户请填写昵称以完成注册");
             user = { id, nick, pw };
             localStorage.setItem(key, JSON.stringify(user));
+            // 记录到后台
+            await addDoc(collection(db, "logs"), { type: "REGISTER", userId: id, nick: nick, time: serverTimestamp() });
             alert("注册成功！身份已同步");
         } else {
-            // 登录逻辑
             const d = JSON.parse(savedData);
             if(d.pw !== pw) return alert("密码验证失败");
             user = d;
+            await addDoc(collection(db, "logs"), { type: "LOGIN", userId: id, nick: user.nick, time: serverTimestamp() });
             alert("欢迎回来, " + user.nick);
         }
         localStorage.setItem('SURVIVAL_USER', JSON.stringify(user));
