@@ -1,3 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生存法则 · SURVIVAL RULES</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon: #2ecc71;
+            --bg: #05080a;
+            --card-bg: rgba(25, 27, 31, 0.7);
+            --border: rgba(46, 204, 113, 0.15);
+        }
+
+        body {
+            background: var(--bg);
+            color: #ffffff;
+            font-family: 'Noto Sans SC', sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% -20%, #1a2c22 0%, var(--bg) 70%);
+        }
+
+        /* 顶部导航栏 - 恢复登录显示 */
+        nav {
+            background: rgba(10, 12, 16, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 15px 40px;
+            display: flex; justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo { font-family: 'Orbitron'; font-size: 22px; color: #fff; text-decoration: none; font-weight: bold; }
+        .logo span { color: var(--neon); text-shadow: 0 0 10px var(--neon); }
+        .auth-status { display: flex; align-items: center; gap: 15px; }
+
+        /* 主体内容 */
+        .hero { text-align: center; padding: 60px 20px; }
+        .hero h1 { font-size: 52px; margin: 0; letter-spacing: 2px; }
+        .hero p { color: #888; font-size: 18px; margin-top: 10px; }
+
+        /* 功能磁贴网格 - 严格对应你要求的 8 个板块 */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto 100px;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 30px 20px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            border-color: var(--neon);
+            transform: translateY(-5px);
+            background: rgba(46, 204, 113, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .card .icon-box { font-size: 32px; margin-bottom: 15px; display: block; }
+        .card h3 { color: var(--neon); font-size: 20px; margin: 10px 0; }
+        .card p { color: #888; font-size: 13px; line-height: 1.5; }
+
+        /* 弹窗及 UI 控件 */
+        .modal {
+            display: none; position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background: #0d1117; border: 1px solid var(--neon);
+            border-radius: 20px; padding: 35px; width: 380px;
+        }
+
+        input {
+            width: 100%; padding: 14px; margin: 10px 0; background: #05080a; 
+            border: 1px solid #333; border-radius: 10px; color: white; box-sizing: border-box;
+        }
+
+        .btn-prime {
+            width: 100%; padding: 14px; background: var(--neon); color: #000; border: none;
+            border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        /* 聊天窗口样式 */
+        #chat-window {
+            display: none; position: fixed; bottom: 30px; right: 30px; width: 350px; height: 550px;
+            background: rgba(13, 17, 23, 0.98); border: 1px solid var(--neon);
+            border-radius: 20px; flex-direction: column; z-index: 3000; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        }
+        
+        /* 这里的提示样式解决了你说的通知重叠问题 */
+        #toast-container { position: fixed; top: 80px; left: 20px; z-index: 9999; }
+        .toast { background: rgba(0,0,0,0.8); border-left: 4px solid var(--neon); padding: 15px 25px; margin-bottom: 10px; animation: slideIn 0.3s forwards; }
+
+        @keyframes slideIn { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+    </style>
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<nav>
+    <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
+    <div class="auth-status" id="auth-ui">
+        </div>
+</nav>
+
+<div class="hero">
+    <h1>生存法则</h1>
+    <p>搜集物资 · 建立营地 · 寻找队友 · 活到最后</p>
+</div>
+
+<div class="grid-container">
+    <div class="card" onclick="openChat()">
+        <span class="icon-box">💬</span>
+        <h3>组队大厅</h3>
+        <p>实时在线频道，寻找你的生存伙伴</p>
+    </div>
+    <div class="card" onclick="toggleModal('wiki-modal')">
+        <span class="icon-box">📜</span>
+        <h3>玩法介绍</h3>
+        <p>查看服务器规则、指令及新手攻略</p>
+    </div>
+    <div class="card" onclick="toggleModal('market-modal')">
+        <span class="icon-box">⚖️</span>
+        <h3>交易行</h3>
+        <p>安全物资互换中心，打造你的财富</p>
+    </div>
+    <div class="card" onclick="showTip('功能建设中...')">
+        <span class="icon-box">🎁</span>
+        <h3>兑换码</h3>
+        <p>输入密令领取社区专属物资包</p>
+    </div>
+    <div class="card" onclick="showTip('数据同步中...')">
+        <span class="icon-box">👤</span>
+        <h3>人员名单</h3>
+        <p>查看团战成员及全服顶尖生存者</p>
+    </div>
+    <div class="card" onclick="showTip('敬请期待')">
+        <span class="icon-box">🔄</span>
+        <h3>更新日志</h3>
+        <p>查看最新版本内容及修复记录</p>
+    </div>
+    <div class="card" onclick="showTip('即将开放')">
+        <span class="icon-box">💰</span>
+        <h3>变卖所</h3>
+        <p>将多余物资快速转换为货币</p>
+    </div>
+    <div class="card" onclick="showTip('保持公平')">
+        <span class="icon-box">🚫</span>
+        <h3>处罚名单</h3>
+        <p>查看违规名单，维护绿色环境</p>
+    </div>
+</div>
 <div id="auth-modal" class="modal">
     <div class="modal-content">
         <h2 style="color:var(--neon); margin-top:0;">同步生存 ID</h2>
