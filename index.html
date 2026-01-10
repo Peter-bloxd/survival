@@ -1,179 +1,286 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8"><title>生存法则 | SURVIVAL RULES</title>
+    <meta charset="UTF-8">
+    <title>生存法则 | TACTICAL TERMINAL</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        :root { --neon: #00f2ff; --bg: #020508; --card: rgba(10, 20, 30, 0.85); --border: rgba(0, 242, 255, 0.3); --warn: #ff0055; }
-        body { background: var(--bg); color: #fff; font-family: 'Noto Sans SC', sans-serif; margin: 0; background-image: radial-gradient(circle at 50% 50%, #0a1a1a 0%, var(--bg) 80%); min-height: 100vh; }
+        :root { 
+            --neon: #00f2ff; 
+            --bg: #020508; 
+            --border: rgba(0, 242, 255, 0.3); 
+            --warn: #ff0055; 
+            --glow: 0 0 15px rgba(0, 242, 255, 0.4); 
+        }
+
+        /* 深度还原图 3：网格背景与扫描线 */
+        body { 
+            background: var(--bg); 
+            color: #fff; 
+            font-family: 'Noto Sans SC', sans-serif; 
+            margin: 0; 
+            background-image: 
+                linear-gradient(var(--border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* 动态扫描线特效 */
+        body::before {
+            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: rgba(0, 242, 255, 0.15); z-index: 10000; pointer-events: none;
+            box-shadow: 0 0 10px var(--neon);
+            animation: scan 10s linear infinite;
+        }
+        @keyframes scan { 0% { top: -10px; } 100% { top: 100%; } }
+
+        /* 战术导航栏 */
+        nav { 
+            background: rgba(5, 10, 15, 0.9); padding: 15px 40px; 
+            display: flex; justify-content: space-between; align-items: center; 
+            border-bottom: 2px solid var(--neon); box-shadow: var(--glow); 
+            backdrop-filter: blur(10px); sticky; top: 0; z-index: 1000;
+        }
+        .logo { font-family: 'Orbitron'; color: var(--neon); font-size: 20px; letter-spacing: 3px; text-shadow: var(--glow); }
+
+        /* 核心卡片容器 */
+        .container { max-width: 1200px; margin: 60px auto; padding: 0 20px; text-align: center; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; }
         
-        /* 科技感导航 */
-        nav { background: rgba(5,10,15,0.9); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
-        .logo { font-family: 'Orbitron'; color: var(--neon); text-decoration: none; font-size: 20px; text-shadow: 0 0 10px var(--neon); }
-        
-        .container { max-width: 1200px; margin: 0 auto; padding: 60px 20px; text-align: center; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: var(--card); border: 1px solid var(--border); padding: 35px; cursor: pointer; transition: 0.4s; }
-        .card:hover { border-color: var(--neon); transform: translateY(-5px); box-shadow: 0 0 20px rgba(0, 242, 255, 0.2); }
-        
-        /* 按钮与输入框 */
-        .btn { padding: 10px; background: transparent; color: var(--neon); border: 1px solid var(--neon); cursor: pointer; font-family: 'Orbitron'; transition: 0.3s; }
-        .btn:hover { background: var(--neon); color: #000; box-shadow: 0 0 15px var(--neon); }
-        .btn-sm { padding: 2px 8px; font-size: 12px; margin-left: 5px; }
+        /* 科技感异形卡片 */
+        .card { 
+            background: rgba(5, 15, 25, 0.8); border: 1px solid var(--border); padding: 45px 20px;
+            cursor: pointer; transition: 0.4s; position: relative;
+            clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
+        }
+        .card:hover { 
+            border-color: var(--neon); transform: translateY(-5px); 
+            box-shadow: inset 0 0 25px rgba(0, 242, 255, 0.2), var(--glow);
+            background: rgba(0, 242, 255, 0.08);
+        }
+        .card h3 { font-family: 'Orbitron'; color: var(--neon); margin-bottom: 12px; font-size: 22px; }
+        .card p { color: #888; font-size: 14px; letter-spacing: 1.5px; }
+
+        /* 系统按钮 */
+        .btn { 
+            width: 100%; padding: 12px; margin-top: 15px; background: transparent; 
+            color: var(--neon); border: 1px solid var(--neon); cursor: pointer;
+            font-family: 'Orbitron'; transition: 0.3s;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+        .btn:hover { background: var(--neon); color: #000; box-shadow: var(--glow); }
         .btn-warn { border-color: var(--warn); color: var(--warn); }
         .btn-warn:hover { background: var(--warn); color: #fff; box-shadow: 0 0 15px var(--warn); }
 
-        /* 弹窗样式 */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(8px); }
-        .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); background: #0a1015; border: 1px solid var(--neon); padding: 30px; width: 450px; }
-
-        /* 聊天窗口 */
-        #chat-window, #p-chat-window { display: none; position: fixed; bottom: 20px; right: 20px; width: 350px; height: 500px; background: rgba(10,15,20,0.95); border: 1px solid var(--neon); flex-direction: column; z-index: 3000; }
-        .chat-header { padding: 15px; background: rgba(0,242,255,0.1); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; color: var(--neon); font-weight: bold; }
-        #chat-msgs, #p-chat-msgs { flex: 1; overflow-y: auto; padding: 15px; font-size: 14px; }
-        .msg { margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.03); border-left: 2px solid var(--neon); }
-        
-        input { width: 100%; padding: 12px; margin: 10px 0; background: rgba(0,0,0,0.5); border: 1px solid #333; color: #fff; box-sizing: border-box; }
-        
-        /* 好友条目 */
-        .f-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #111; }
-        .f-info { text-align: left; }
-        .f-note { font-size: 12px; color: #888; display: block; }
+        /* 弹窗与私聊 */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; backdrop-filter: blur(10px); }
+        .modal-content { 
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); 
+            background: #050a10; border: 1px solid var(--neon); padding: 40px; width: 420px;
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.15);
+        }
+        #p-chat-window { 
+            display: none; position: fixed; bottom: 30px; right: 30px; width: 380px; height: 550px; 
+            background: rgba(5,10,15,0.98); border: 1px solid var(--neon); flex-direction: column; 
+            z-index: 3000; box-shadow: var(--glow);
+        }
+        .f-item { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px; border-bottom: 1px solid #111; background: rgba(255,255,255,0.02);
+            margin-bottom: 8px;
+        }
     </style>
 </head>
 <body>
 
 <nav>
-    <a href="#" class="logo">SURVIVAL · RULES</a>
+    <div class="logo">SURVIVAL <span style="color:#fff">SYSTEM</span></div>
     <div id="auth-ui"></div>
 </nav>
 
 <div class="container">
-    <h1 style="font-family:Orbitron; letter-spacing:5px;">SURVIVAL HUB</h1>
+    <h1 style="font-family:Orbitron; font-size: 45px; letter-spacing: 12px; margin-bottom: 50px; text-shadow: var(--glow);">COMMAND_HUB</h1>
     <div class="grid">
-        <div class="card" onclick="openChat()"><h3>💬 全服大厅</h3><p>实时频道</p></div>
-        <div class="card" onclick="openM('f-modal')"><h3>🤝 通讯录</h3><p>好友、备注与私聊</p></div>
-        <div class="card" onclick="openM('lb-modal')"><h3>🏆 荣誉榜</h3><p>XP 排行</p></div>
-        <div class="card" onclick="openM('check-modal')"><h3>📅 每日补给</h3><p>领取 XP</p></div>
-        <div id="admin-card" class="card" style="display:none; border-color:var(--warn)" onclick="openM('admin-modal')"><h3>🛡️ 管理终端</h3><p>最高权限</p></div>
+        <div class="card" onclick="openM('f-modal')"><h3>FRIENDS</h3><p>通讯录、备注与私密频道</p></div>
+        <div class="card" onclick="openChat()"><h3>GLOBAL</h3><p>全服公共实时报文</p></div>
+        <div class="card" onclick="openM('lb-modal')"><h3>RANKS</h3><p>XP 贡献度全球排行</p></div>
+        <div class="card" onclick="openM('check-modal')"><h3>SUPPLY</h3><p>每日补给与资源同步</p></div>
+        <div class="card" style="opacity:0.4"><h3>MARKET</h3><p>交易行 (加密协议构建中)</p></div>
+        <div class="card" style="opacity:0.4"><h3>WIKI</h3><p>生存军团行动档案</p></div>
     </div>
 </div>
 
 <div id="f-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon)">CONTACTS</h2>
-    <input id="f-id-in" placeholder="搜索对方生存 ID">
-    <button class="btn" style="width:100%" onclick="sendF()">发送好友申请</button>
+    <h2 style="font-family:Orbitron; color:var(--neon)">CONTACTS_LIST</h2>
+    <input id="f-id-in" placeholder="输入玩家生存 ID..." style="width:100%; padding:10px; background:rgba(0,0,0,0.5); border:1px solid #333; color:#fff;">
+    <button class="btn" onclick="sendF()">发起联系请求</button>
     <div id="f-list" style="margin-top:20px; max-height:300px; overflow:auto;"></div>
-    <button class="btn" style="width:100%; margin-top:10px; border:none; color:#555" onclick="closeAll()">关闭</button>
+    <button class="btn" style="border:none; color:#555" onclick="closeAll()">退出终端</button>
 </div></div>
 
 <div id="settings-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon)">SYSTEM SETTINGS</h2>
-    <button class="btn" style="width:100%" onclick="changeMyNick()">修改我的代号 (昵称)</button>
-    <button class="btn btn-warn" style="width:100%; margin-top:20px;" onclick="deleteAccount()">注销当前账号 (永久删除)</button>
-    <button class="btn" style="width:100%; margin-top:10px; border:none; color:#555" onclick="closeAll()">返回</button>
+    <h2 style="font-family:Orbitron; color:var(--neon)">ID_SETTINGS</h2>
+    <button class="btn" onclick="changeMyNick()">重构个人代号 (改名)</button>
+    <button class="btn btn-warn" style="margin-top:30px" onclick="deleteAccount()">永久注销 (数据销毁)</button>
+    <button class="btn" style="border:none; color:#555" onclick="closeAll()">关闭</button>
 </div></div>
 
 <div id="p-chat-window">
-    <div class="chat-header"><span id="p-chat-title">PRIVATE</span><button onclick="document.getElementById('p-chat-window').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button></div>
-    <div id="p-chat-msgs"></div>
-    <div style="padding:10px; display:flex; gap:5px;"><input id="p-m-in" placeholder="输入加密消息..." style="margin:0;"><button id="p-send-btn" class="btn" style="width:60px;margin:0;">发送</button></div>
+    <div style="padding:15px; background:rgba(0,242,255,0.1); border-bottom:1px solid var(--border); color:var(--neon); font-family:Orbitron; display:flex; justify-content:space-between;">
+        <span id="p-chat-title">PRIVATE_LINK</span>
+        <button onclick="document.getElementById('p-chat-window').style.display='none'" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
+    </div>
+    <div id="p-chat-msgs" style="flex:1; overflow-y:auto; padding:20px;"></div>
+    <div style="padding:15px; display:flex; gap:10px; background:rgba(0,0,0,0.5);">
+        <input id="p-m-in" placeholder="输入加密报文..." style="flex:1; background:none; border:1px solid #333; color:#fff; padding:8px;">
+        <button id="p-send-btn" class="btn" style="width:80px; margin:0; padding:5px;">发送</button>
+    </div>
 </div>
-
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, updateDoc, deleteDoc, getDoc, increment, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+    // --- 核心配置 ---
     const config = { apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", authDomain: "bloxd-survival.firebaseapp.com", projectId: "bloxd-survival", storageBucket: "bloxd-survival.firebasestorage.app", messagingSenderId: "60666065786", appId: "1:60666065786:web:bdc3131accaceb0180dcc3" };
-    const app = initializeApp(config); const db = getFirestore(app);
+    const app = initializeApp(config); 
+    const db = getFirestore(app);
     let user = JSON.parse(localStorage.getItem('SURVIVAL_USER'));
 
+    // --- 基础控制 ---
     window.openM = (id) => { closeAll(); document.getElementById(id).style.display='block'; };
     window.closeAll = () => document.querySelectorAll('.modal').forEach(m => m.style.display='none');
 
-    // 1. 修改昵称
+    // --- 1. 账号注销系统 (双向清理) ---
+    window.deleteAccount = async () => {
+        if(!confirm("⚠️ 最终警告：注销将永久抹除你的 XP 和所有社交关系。对方好友列表中也将不再显示你。确定执行销毁程序？")) return;
+        
+        try {
+            const userRef = doc(db, "users", user.id);
+            const userSnap = await getDoc(userRef);
+            const myFriends = userSnap.data().friends || [];
+
+            // 遍历所有好友，从他们的列表中删除“我”
+            for (let f of myFriends) {
+                const fRef = doc(db, "users", f.id);
+                const fSnap = await getDoc(fRef);
+                if (fSnap.exists()) {
+                    const updatedFList = fSnap.data().friends.filter(item => item.id !== user.id);
+                    await updateDoc(fRef, { friends: updatedFList });
+                }
+            }
+
+            // 销毁自己的文档
+            await deleteDoc(userRef);
+            localStorage.clear();
+            alert("账号注销成功，所有物理痕迹已抹除。");
+            location.reload();
+        } catch (e) {
+            alert("注销失败: " + e.message);
+        }
+    };
+
+    // --- 2. 身份重构 (改名) ---
     window.changeMyNick = async () => {
-        const n = prompt("输入新代号:", user.nick);
-        if(n && n !== user.nick) {
-            await updateDoc(doc(db, "users", user.id), { nick: n });
-            user.nick = n; localStorage.setItem('SURVIVAL_USER', JSON.stringify(user));
+        const newNick = prompt("输入新的系统代号 (Nick):", user.nick);
+        if (newNick && newNick !== user.nick) {
+            await updateDoc(doc(db, "users", user.id), { nick: newNick });
+            user.nick = newNick;
+            localStorage.setItem('SURVIVAL_USER', JSON.stringify(user));
+            alert("代号已重写");
             location.reload();
         }
     };
 
-    // 2. 注销账号与双向清理
-    window.deleteAccount = async () => {
-        if(!confirm("危险操作：注销将永久抹除你的数据，且对方的好友列表中也将不再显示你。确定吗？")) return;
-        const s = await getDoc(doc(db, "users", user.id));
-        const fs = s.data().friends || [];
-        // 清理对方列表中的我
-        for(let f of fs) {
-            const fRef = doc(db, "users", f.id);
-            const fSnap = await getDoc(fRef);
-            if(fSnap.exists()){
-                const filtered = fSnap.data().friends.filter(item => item.id !== user.id);
-                await updateDoc(fRef, { friends: filtered });
-            }
-        }
-        await deleteDoc(doc(db, "users", user.id));
-        localStorage.clear(); location.reload();
-    };
-
-    // 3. 好友备注与双向删除
+    // --- 3. 好友系统 (双向删除 & 备注) ---
     window.setNote = async (fid) => {
-        const note = prompt("设置备注名称:");
-        const s = await getDoc(doc(db, "users", user.id));
-        const newList = s.data().friends.map(f => f.id === fid ? {...f, note: note || ""} : f);
-        await updateDoc(doc(db, "users", user.id), { friends: newList });
+        const note = prompt("设置该联系人的本地备注 (仅你自己可见):");
+        const myRef = doc(db, "users", user.id);
+        const s = await getDoc(myRef);
+        const newList = s.data().friends.map(f => f.id === fid ? { ...f, note: note || "" } : f);
+        await updateDoc(myRef, { friends: newList });
     };
 
     window.removeF = async (fid) => {
-        if(!confirm("确定断开连接？对方的名单中也将同步删除你。")) return;
+        if (!confirm("确定切断与该玩家的联系？此操作是双向的。")) return;
         // 删我的
-        const s1 = await getDoc(doc(db, "users", user.id));
-        await updateDoc(doc(db, "users", user.id), { friends: s1.data().friends.filter(f => f.id !== fid) });
+        const myRef = doc(db, "users", user.id);
+        const myS = await getDoc(myRef);
+        await updateDoc(myRef, { friends: myS.data().friends.filter(f => f.id !== fid) });
         // 删对方的
         const fRef = doc(db, "users", fid);
-        const s2 = await getDoc(fRef);
-        if(s2.exists()) await updateDoc(fRef, { friends: s2.data().friends.filter(f => f.id !== user.id) });
+        const fS = await getDoc(fRef);
+        if (fS.exists()) {
+            await updateDoc(fRef, { friends: fS.data().friends.filter(f => f.id !== user.id) });
+        }
     };
 
-    // 私聊 (支持备注显示)
+    // --- 4. 修复版私聊逻辑 (解决链接被遮挡问题) ---
     let pUnsub;
     window.startPChat = (fid, displayName) => {
-        if(pUnsub) pUnsub(); document.getElementById('p-chat-window').style.display='flex';
+        if (pUnsub) pUnsub(); 
+        document.getElementById('p-chat-window').style.display = 'flex';
         document.getElementById('p-chat-title').innerText = `🔐 ${displayName}`;
         const cid = [user.id, fid].sort().join('_');
-        pUnsub = onSnapshot(query(collection(db,"p_chats"), where("chatId","==",cid), orderBy("time","asc")), sn => {
-            const b = document.getElementById('p-chat-msgs'); b.innerHTML = '';
-            sn.forEach(m => b.innerHTML += `<div class="msg"><b>${m.data().nick}:</b> ${m.data().text}</div>`);
+        
+        const q = query(collection(db, "p_chats"), where("chatId", "==", cid), orderBy("time", "asc"));
+        
+        pUnsub = onSnapshot(q, (sn) => {
+            const b = document.getElementById('p-chat-msgs');
+            b.innerHTML = '';
+            sn.forEach(m => {
+                const isMe = m.data().nick === user.nick;
+                b.innerHTML += `<div class="msg" style="${isMe?'border-left:none;border-right:2px solid var(--neon);text-align:right':''}">
+                    <b style="color:var(--neon)">${m.data().nick}</b><br>${m.data().text}</div>`;
+            });
             b.scrollTop = b.scrollHeight;
+        }, (err) => {
+            // 这里现在会完整打印 Firebase 原始错误，包含创建索引的链接
+            console.error("Firebase 索引未就绪，请点击此报错中的链接:", err);
         });
+
         document.getElementById('p-send-btn').onclick = async () => {
-            const i = document.getElementById('p-m-in'); if(!i.value) return;
-            await addDoc(collection(db,"p_chats"), { chatId: cid, text: i.value, nick: user.nick, time: serverTimestamp() });
+            const i = document.getElementById('p-m-in');
+            if (!i.value) return;
+            await addDoc(collection(db, "p_chats"), { 
+                chatId: cid, 
+                text: i.value, 
+                nick: user.nick, 
+                time: serverTimestamp() 
+            });
             i.value = '';
         };
     };
 
-    // 初始化 UI
-    if(user) {
-        document.getElementById('auth-ui').innerHTML = `<span onclick="openM('settings-modal')" style="color:var(--neon); cursor:pointer">● ${user.nick} (设置)</span>`;
-        onSnapshot(doc(db,"users",user.id), s => {
-            const fl = document.getElementById('f-list'); fl.innerHTML = '';
+    // --- 5. 初始化加载 ---
+    if (user) {
+        document.getElementById('auth-ui').innerHTML = `
+            <span onclick="openM('settings-modal')" style="color:var(--neon); cursor:pointer; font-family:Orbitron;">
+                ● ${user.nick} <span style="font-size:10px; color:#555;">[SETTINGS]</span>
+            </span>`;
+
+        onSnapshot(doc(db, "users", user.id), s => {
+            const fl = document.getElementById('f-list');
+            if(!s.exists()) return;
+            fl.innerHTML = '';
             s.data().friends?.forEach(f => {
-                const name = f.note || f.nick;
-                fl.innerHTML += `<div class="f-item">
-                    <div class="f-info"><b>${name}</b>${f.note?`<span class="f-note">原名: ${f.nick}</span>`:''}</div>
-                    <div>
-                        <button class="btn btn-sm" onclick="startPChat('${f.id}','${name}')">聊</button>
-                        <button class="btn btn-sm" style="border-color:#555;color:#555" onclick="setNote('${f.id}')">注</button>
-                        <button class="btn btn-sm btn-warn" onclick="removeF('${f.id}')">删</button>
-                    </div>
-                </div>`;
+                const display = f.note || f.nick;
+                fl.innerHTML += `
+                    <div class="f-item">
+                        <div style="text-align:left">
+                            <b style="color:var(--neon)">${display}</b>
+                            ${f.note ? `<br><small style="color:#555">Real: ${f.nick}</small>` : ''}
+                        </div>
+                        <div>
+                            <button class="btn" style="width:auto; padding:2px 10px; font-size:10px;" onclick="startPChat('${f.id}','${display}')">私聊</button>
+                            <button class="btn" style="width:auto; padding:2px 10px; font-size:10px; border-color:#555; color:#555" onclick="setNote('${f.id}')">备注</button>
+                            <button class="btn btn-warn" style="width:auto; padding:2px 10px; font-size:10px;" onclick="removeF('${f.id}')">删除</button>
+                        </div>
+                    </div>`;
             });
         });
+    } else {
+        document.getElementById('auth-ui').innerHTML = `<button class="btn" style="width:auto; padding:5px 20px;" onclick="location.href='login.html'">LOGIN</button>`;
     }
 </script>
-</body>
-</html>
