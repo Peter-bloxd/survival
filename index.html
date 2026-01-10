@@ -2,135 +2,57 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生存法则 | 核心指挥部</title>
+    <title>生存法则 · SURVIVAL RULES</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;800&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<div class="scanner-line"></div> <div id="toast-container"></div> <nav class="glass-nav">
-    <div class="nav-wrapper">
-        <div class="logo-group">
-            <img src="https://img.icons8.com/nolan/64/shield.png" class="logo-img">
-            <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
-        </div>
-        <div id="auth-ui"></div>
-    </div>
+<nav>
+    <a href="#" class="logo">SURVIVAL<span>RULES</span></a>
+    <div id="auth-ui"></div>
 </nav>
 
-<header class="main-hero">
-    <h1 class="glitch" data-text="生存法则">生存法则</h1>
-    <p class="hero-desc">核心玩法：军团争霸 · 自由交易 · 黄金鹿角</p>
-</header>
-
-<div class="dashboard-grid">
-    <div class="feature-card chat-trigger" onclick="openChat()">
-        <div class="card-glow"></div>
-        <img src="https://img.icons8.com/nolan/64/conference-call.png">
-        <h3>组队大厅</h3>
-        <p>实时战术连线，寻找生存伙伴</p>
-        <span class="status-tag">ACTIVE</span>
+<div class="grid">
+    <div class="card" onclick="openChat()">
+        <h3>💬 组队大厅</h3>
+        <p>实时战术交流，寻找生存伙伴</p>
+    </div>
+    
+    <div class="card" onclick="openModal('wiki-modal')">
+        <h3>📜 玩法手册</h3>
+        <p>军团指令、道具技能全指南</p>
     </div>
 
-    <div class="feature-card" onclick="openWiki()">
-        <div class="card-glow"></div>
-        <img src="https://img.icons8.com/nolan/64/scroll.png">
-        <h3>玩法/指令</h3>
-        <p>军团系统、特技道具全指南</p>
-    </div>
-
-    <div class="feature-card" onclick="openMarket()">
-        <div class="card-glow"></div>
-        <img src="https://img.icons8.com/nolan/64/scales.png">
-        <h3>物资交易</h3>
-        <p>自由定价，玩家间物资流转</p>
-    </div>
-
-    <div class="feature-card disabled">
-        <div class="card-glow"></div>
-        <img src="https://img.icons8.com/nolan/64/crown.png">
-        <h3>人员名单</h3>
-        <p>查看全服顶尖军团排名</p>
-    </div>
-</div>
-
-<div id="market-modal" class="modal-overlay">
-    <div class="market-box glass-card">
-        <div class="modal-header">
-            <h2>⚖️ 物资交易中心</h2>
-            <button onclick="closeModal('market-modal')">✕</button>
-        </div>
-        <div class="market-controls">
-            <input type="text" id="item-name" placeholder="物品名称...">
-            <input type="number" id="item-price" placeholder="价格(绿宝石)">
-            <button class="action-btn" onclick="postItem()">立即上架</button>
-        </div>
-        <div id="market-list" class="market-grid">
-            </div>
+    <div class="card" onclick="openModal('market-modal')">
+        <h3>⚖️ 交易行</h3>
+        <p>自主上架/下架，物资自由贸易</p>
     </div>
 </div>
 
 <div id="wiki-modal" class="modal-overlay">
-    <div class="wiki-box glass-card">
-        <div class="modal-header">
-            <h2>📜 幸存者手册</h2>
-            <button onclick="closeModal('wiki-modal')">✕</button>
+    <div class="modal">
+        <h2 style="color:var(--neon)">幸存者指南</h2>
+        <div style="text-align:left; font-size:14px; max-height:300px; overflow-y:auto">
+            <p><b>🛡️ 军团系统:</b><br>
+            !创建军团 [名] | !邀请 [名] | !回基地<br>
+            (战斗锁定: 受伤后10秒内无法传送)</p>
+            <p><b>✨ 道具技能:</b><br>
+            黄金鹿角: 爆发5秒Lv.6跳跃与Lv.1加速</p>
         </div>
-        <div class="wiki-content">
-            <section>
-                <h4>🛡️ 军团核心指令</h4>
-                <code>!创建军团 [名字]</code> - 成立你的势力<br>
-                <code>!设置基地</code> / <code>!回基地</code> - 跨图传送(受战斗锁定限制)<br>
-                <code>!邀请 [名称]</code> / <code>!接受</code> - 招募队友
-            </section>
-            <section>
-                <h4>✨ 道具特技</h4>
-                <p><b>黄金鹿角 (Gold Antlers):</b> 爆发鹿角之力，获得 5 秒超级跳跃(Lv.6)与极速加速。</p>
-            </section>
-            <section>
-                <h4>⚠️ 战斗锁定机制</h4>
-                <p>受伤后将进入 10 秒“战斗中”状态，期间无法使用回基地指令。</p>
-            </section>
-        </div>
+        <button class="btn-prime" onclick="closeModal('wiki-modal')">关闭</button>
     </div>
 </div>
 
-<div id="chat-panel" class="modern-chat">
-    <div class="chat-header">
-        <div class="status-dot"></div>
-        <span>GLOBAL CHAT</span>
-        <button onclick="closeChat()">✕</button>
-    </div>
-    <div id="chat-messages"></div>
-    <div class="modern-input-group">
-        <input type="text" id="m-input" placeholder="输入战术消息..." onkeypress="if(event.keyCode==13) sendMsg()">
-        <button onclick="sendMsg()">发送</button>
-    </div>
-</div>
-
-<div class="modal-overlay" id="auth-modal">
-    <div class="auth-card glass-card">
-        <div class="auth-tabs">
-            <span id="tab-login" class="active" onclick="switchAuth('login')">登录</span>
-            <span id="tab-reg" onclick="switchAuth('reg')">注册</span>
+<div id="market-modal" class="modal-overlay">
+    <div class="modal">
+        <h2 style="color:var(--neon)">物资交易中心</h2>
+        <div class="input-group">
+            <input type="text" id="m-name" placeholder="物品名称 (如: 黄金鹿角)">
+            <input type="number" id="m-price" placeholder="价格 (绿宝石)">
+            <button class="btn-prime" onclick="postMarket()">确认上架</button>
         </div>
-        <div class="auth-inputs">
-            <div id="reg-nick" class="cyber-input" style="display:none">
-                <input type="text" id="a-nick" placeholder=" ">
-                <label>游戏昵称</label>
-            </div>
-            <div class="cyber-input">
-                <input type="text" id="a-id" placeholder=" ">
-                <label>身份 ID</label>
-            </div>
-            <div class="cyber-input">
-                <input type="password" id="a-pw" placeholder=" ">
-                <label>访问密码</label>
-                <div class="pw-eye" onclick="togglePw()">👁️</div>
-            </div>
-            <button class="submit-btn" onclick="handleAuth()">同步身份</button>
-        </div>
+        <div id="market-list" style="margin-top:20px; max-height:200px; overflow-y:auto"></div>
+        <button class="btn-prime" onclick="closeModal('market-modal')" style="background:#333; color:white; margin-top:10px">离开</button>
     </div>
 </div>
 
