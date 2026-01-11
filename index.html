@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>生存法则官网 | 实时战术终端 V26</title>
+    <title>生存法则官网 | 实时战术终端 V27</title>
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-L39F7GPMF4"></script>
     <script>
@@ -30,12 +30,12 @@
         .card h2 { font-size: 2.1rem; margin: 0; letter-spacing: 2px; }
         .card p { color: var(--neon-cyan); opacity: 0.7; margin-top: 10px; font-size: 1rem; }
         .admin-node { border-left: 6px solid var(--neon-red); }
-        /* 称号系统 */
+        /* 称号系统样式 */
         .tag { font-weight: bold; margin-right: 8px; padding: 1px 5px; border-radius: 2px; font-size: 0.85em; white-space: nowrap; }
         .tag-fz { color: #ff3c41; border: 1px solid #ff3c41; text-shadow: 0 0 8px #ff3c41; }
         .tag-ffz { color: #f1c40f; border: 1px solid #f1c40f; text-shadow: 0 0 8px #f1c40f; }
         .tag-mod { color: #00f2ff; border: 1px solid #00f2ff; text-shadow: 0 0 8px #00f2ff; }
-        /* UI 基础 */
+        /* 弹窗基础 */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.97); z-index: 5000; backdrop-filter: blur(25px); }
         .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 850px; max-width: 95vw; background: #03080f; border: 1px solid var(--neon-cyan); padding: 40px; max-height: 85vh; overflow-y: auto; }
         .btn-rule { background: transparent; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); padding: 10px 20px; font-family: 'Share Tech Mono'; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin: 4px; }
@@ -63,7 +63,7 @@
 
     <h1 style="font-size: 3.5rem; letter-spacing: 15px; margin-top: 50px; font-weight: 900;">生存法则</h1>
     <div style="color: var(--neon-cyan); opacity: 0.6; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px;">
-        > Bloxd服务器生存法则的官网 // DATA_SYNC_V26
+        > Bloxd服务器生存法则的官网 // DATA_SYNC_V27
     </div>
 
     <main class="terminal-grid" id="main-grid" style="display:none;"></main>
@@ -78,7 +78,7 @@
         <input id="p-chat-inp" placeholder="输入并回车发送..." autocomplete="off">
     </div>
 
-    <!-- 弹窗集 -->
+    <!-- 弹窗：身份识别 -->
     <div id="auth-modal" class="modal"><div class="modal-content">
         <h2 style="color:var(--neon-cyan);">身份验证 // IDENT</h2>
         <input type="text" id="auth-uid" placeholder="UID (识别码)">
@@ -100,10 +100,10 @@
     <div id="friend-modal" class="modal"><div class="modal-content">
         <h2 style="color:var(--neon-cyan);">好友中继 // FRIENDS</h2>
         <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <input id="friend-target-uid" placeholder="输入目标 UID 开启双向连接" style="margin:0;">
+            <input id="friend-target-uid" placeholder="输入目标 UID 建立连接" style="margin:0;">
             <button class="btn-rule" onclick="Social.initiateConnection()">建立连接</button>
         </div>
-        <h4 style="color:var(--neon-cyan); border-bottom:1px solid #333;">实时联通名单 (全同步)</h4>
+        <h4 style="color:var(--neon-cyan); border-bottom:1px solid #333;">实时联通名单</h4>
         <div id="friend-list"></div>
         <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">返回</button>
     </div></div>
@@ -113,7 +113,7 @@
         <div style="background:rgba(0,242,255,0.05); padding:15px; border:1px solid #1a3a4a; margin-bottom:15px;">
             <input id="m-item-name" placeholder="物资名称">
             <input id="m-item-price" placeholder="价格说明">
-            <textarea id="m-item-desc" placeholder="物资详细介绍 (由卖家撰写)"></textarea>
+            <textarea id="m-item-desc" placeholder="物资详细介绍..."></textarea>
             <button class="btn-rule" style="width:100%" onclick="SurvivalMarket.listItem()">上传挂单</button>
         </div>
         <div id="market-list"></div>
@@ -132,7 +132,7 @@
         <button class="btn-rule" style="width:100%" onclick="Settings.changeNick()">更新昵称</button>
         <input type="password" id="set-new-pw" placeholder="新访问密码">
         <button class="btn-rule" style="width:100%" onclick="Settings.changePw()">更新密码</button>
-        <button class="btn-rule danger" style="width:100%; margin-top:20px;" onclick="Settings.deleteAccount()">注销账户并彻底清除全数据</button>
+        <button class="btn-rule danger" style="width:100%; margin-top:20px;" onclick="Settings.deleteAccount()">注销账户并彻底清除数据</button>
         <button class="btn-rule" style="width:100%; margin-top:10px; border-color:#444;" onclick="UI.close()">返回主页</button>
     </div></div>
 
@@ -154,7 +154,7 @@
         <div style="line-height:1.7; color:#ccc; font-size:0.95rem;">
             <p>官网快捷网址: <a href="https://survshortcut-dqdfdiyi.manus.space/" target="_blank" style="color:var(--neon-yellow);">点击跳转</a></p>
             <p>Discord服务器: <a href="https://discord.gg/TjbXjc7twv" target="_blank" style="color:var(--neon-yellow);">加入社区</a></p>
-            <p>Boxim服务器: 添加 <b>Peter_YYDS</b> 备注加入</p>
+            <p>Boxim服务器: 添加 <b>Peter_YYDS</b> 加入 (备注生存法则)</p>
             <hr style="border-color:#222; margin:15px 0;">
             <p><span class="tag tag-fz">[腐竹]</span> IKUN5556</p>
             <p><span class="tag tag-ffz">[副腐竹]</span> Peter_YT_Bilibili</p>
@@ -216,6 +216,7 @@
             close: () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none')
         };
 
+        // 终极头衔引擎
         function getTag(uid, nick) {
             if (uid === "IKUN5556") return `<span class="tag tag-fz">[腐竹]</span>`;
             if (uid === "Peter_YT_Bilibili" || uid === "Peter") return `<span class="tag tag-ffz">[副腐竹]</span>`;
@@ -239,7 +240,7 @@
                 const p = document.getElementById('auth-pw').value;
                 const snap = await getDoc(doc(db, "users", u));
                 if(snap.exists() && snap.data().pw === p) {
-                    if(snap.data().banned) return alert("禁止接入：封禁中");
+                    if(snap.data().banned) return alert("账号封禁中");
                     State.user = { id: u, nick: snap.data().nick };
                     localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
                     location.reload();
@@ -248,7 +249,6 @@
             logout: () => { localStorage.clear(); location.reload(); }
         };
 
-        // 核心同步社交系统 (V26 强同步版)
         window.Social = {
             initiateConnection: async () => {
                 const tid = document.getElementById('friend-target-uid').value.trim();
@@ -256,14 +256,11 @@
                 const snap = await getDoc(doc(db, "users", tid));
                 if(!snap.exists()) return alert("目标 UID 未找到");
                 if(!snap.data().allowPM) return alert("对方已拒绝所有私聊请求");
-                
-                // 建立云端双向连接记录 (元数据)
                 const cid = [State.user.id, tid].sort().join("_");
                 await setDoc(doc(db, "p_chats_meta", cid), { members: [State.user.id, tid], lastUpdate: serverTimestamp() }, { merge: true });
                 SurvivalChat.start(tid, snap.data().nick);
             },
             startSync: () => {
-                // 监听包含我的所有双向对话
                 onSnapshot(query(collection(db, "p_chats_meta"), where("members", "array-contains", State.user.id)), (sn) => {
                     const list = document.getElementById('friend-list'); list.innerHTML = '';
                     sn.forEach(async (d) => {
@@ -274,20 +271,20 @@
                             list.innerHTML += `<div class="item-row">
                                 <span>${getTag(otherId, data.nick)}${data.nick} (${otherId})</span>
                                 <div><button class="btn-rule" onclick="SurvivalChat.start('${otherId}','${data.nick}')">私聊</button>
-                                <button class="btn-rule danger" onclick="Social.erase('${d.id}')">抹除信道</button></div>
+                                <button class="btn-rule danger" onclick="Social.erase('${d.id}')">抹除</button></div>
                             </div>`;
                         }
                     });
                 });
             },
-            erase: async (id) => { if(confirm("确定抹除该加密信道的所有记录？对方也将无法查看。")) await deleteDoc(doc(db, "p_chats_meta", id)); }
+            erase: async (id) => { if(confirm("确定抹除该信道？对方也将无法查看。")) await deleteDoc(doc(db, "p_chats_meta", id)); }
         };
 
         let curPrivUnsub = null;
         window.SurvivalChat = {
             start: (tid, tnick) => {
                 UI.close(); document.getElementById('p-chat-win').style.display = 'flex';
-                document.getElementById('p-chat-title').innerHTML = `加密私聊: ${getTag(tid, tnick)}${tnick}`;
+                document.getElementById('p-chat-title').innerHTML = `私聊: ${getTag(tid, tnick)}${tnick}`;
                 const cid = [State.user.id, tid].sort().join("_");
                 if(curPrivUnsub) curPrivUnsub();
                 curPrivUnsub = onSnapshot(query(collection(db, "p_chats"), where("chatId", "==", cid)), (sn) => {
@@ -323,7 +320,7 @@
             },
             send: async () => {
                 const uDoc = await getDoc(doc(db, "users", State.user.id));
-                if(uDoc.data().muted) return alert("你已被全局禁言");
+                if(uDoc.data().muted) return alert("你已被禁言");
                 const inp = document.getElementById('chat-input');
                 if(!inp.value.trim()) return;
                 await addDoc(collection(db, "global_messages"), { senderId: State.user.id, senderNick: State.user.nick, text: inp.value, time: serverTimestamp() });
@@ -345,7 +342,7 @@
                             <div style="width:100%; display:flex; justify-content:space-between; width:100%; margin-top:5px;">
                                 <span style="font-size:11px;">卖家: ${getTag(m.sellerId, m.sellerNick)}${m.sellerNick}</span>
                                 <div>${(isMine || State.isAdmin) ? `<button class="btn-rule danger" style="padding:4px 8px; font-size:10px;" onclick="SurvivalMarket.del('${d.id}')">下架</button>` : ''}
-                                <button class="btn-rule" style="padding:4px 8px; font-size:10px;" onclick="SurvivalChat.start('${m.sellerId}','${m.sellerNick}')">私信议价</button></div>
+                                <button class="btn-rule" style="padding:4px 8px; font-size:10px;" onclick="SurvivalChat.start('${m.sellerId}','${m.sellerNick}')">私信</button></div>
                             </div>
                         </div>`;
                     });
@@ -354,12 +351,11 @@
             listItem: async () => {
                 const n = document.getElementById('m-item-name').value;
                 const p = document.getElementById('m-item-price').value;
-                const d = document.getElementById('m-item-desc').value;
-                if(!n || !p) return alert("名称和价格必填");
-                await addDoc(collection(db, "market"), { sellerId: State.user.id, sellerNick: State.user.nick, itemName: n, price: p, desc: d, time: serverTimestamp() });
-                alert("已发布至广场");
+                if(!n || !p) return alert("必填");
+                await addDoc(collection(db, "market"), { sellerId: State.user.id, sellerNick: State.user.nick, itemName: n, price: p, desc: document.getElementById('m-item-desc').value, time: serverTimestamp() });
+                alert("已发布");
             },
-            del: async (id) => { if(confirm("确定强制下架？")) await deleteDoc(doc(db, "market", id)); }
+            del: async (id) => { if(confirm("强制下架？")) await deleteDoc(doc(db, "market", id)); }
         };
 
         window.Gifts = {
@@ -370,7 +366,7 @@
                 if(snap.data().usedCodes?.includes(code)) return alert("此密匙已激活过");
                 if(code === "IKUN666" || code === "STEVE") {
                     await updateDoc(ref, { xp: increment(1000), usedCodes: arrayUnion(code) });
-                    alert("激活成功：注入 1000 XP"); UI.close();
+                    alert("激活成功：+1000 XP"); UI.close();
                 } else alert("密匙无效");
             }
         };
@@ -388,9 +384,9 @@
                 const n = document.getElementById('set-new-nick').value.trim();
                 if(n) { await updateDoc(doc(db, "users", State.user.id), { nick: n }); State.user.nick = n; localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user)); location.reload(); }
             },
-            changePw: async () => { await updateDoc(doc(db, "users", State.user.id), { pw: document.getElementById('set-new-pw').value }); alert("密码同步成功"); },
+            changePw: async () => { await updateDoc(doc(db, "users", State.user.id), { pw: document.getElementById('set-new-pw').value }); alert("密码已更新"); },
             deleteAccount: async () => {
-                if(confirm("警告：将抹除全服数据（账号、XP排行、物资单、私聊）！确定注销？")) {
+                if(confirm("警告：抹除全服数据（账号、XP、挂单）！确定？")) {
                     const uid = State.user.id;
                     await deleteDoc(doc(db, "users", uid));
                     const mSn = await getDocs(query(collection(db, "market"), where("sellerId", "==", uid)));
@@ -401,19 +397,19 @@
         };
 
         window.Admin = {
-            postNotice: async () => { await setDoc(doc(db, "system", "notice"), { text: document.getElementById('admin-notice-input').value }); alert("公告已发布"); },
+            postNotice: async () => { await setDoc(doc(db, "system", "notice"), { text: document.getElementById('admin-notice-input').value }); alert("公告已同步"); },
             clearNotice: async () => { await setDoc(doc(db, "system", "notice"), { text: "" }); alert("公告已撤回"); },
             setUserStatus: async (f, v) => {
                 const u = document.getElementById('admin-target-uid').value;
-                let obj = {}; obj[f] = v; await updateDoc(doc(db, "users", u), obj); alert("操作成功");
+                let up = {}; up[f] = v; await updateDoc(doc(db, "users", u), up); alert("操作成功");
             },
             modXP: async () => {
                 const u = document.getElementById('admin-target-uid').value;
-                const v = parseInt(prompt("增加 XP 数值:"));
+                const v = parseInt(prompt("增加 XP:"));
                 await updateDoc(doc(db, "users", u), { xp: increment(v) });
             },
-            clearLobby: async () => { if(confirm("确定净空聊天大厅？")){ const sn = await getDocs(collection(db, "global_messages")); sn.forEach(async (d) => await deleteDoc(doc(db, "global_messages", d.id))); alert("已净空"); } },
-            wipeMarket: async () => { if(confirm("确定重置广场挂单？")){ const sn = await getDocs(collection(db, "market")); sn.forEach(async (d) => await deleteDoc(doc(db, "market", d.id))); alert("已重置"); } }
+            clearLobby: async () => { if(confirm("清空大厅？")){ const sn = await getDocs(collection(db, "global_messages")); sn.forEach(async (d) => await deleteDoc(doc(db, "global_messages", d.id))); alert("已清空"); } },
+            wipeMarket: async () => { if(confirm("重置广场？")){ const sn = await getDocs(collection(db, "market")); sn.forEach(async (d) => await deleteDoc(doc(db, "market", d.id))); alert("已重置"); } }
         };
 
         function bootstrap() {
@@ -431,14 +427,14 @@
                 document.getElementById('nav-auth-slot').innerHTML = `<span style="color:var(--neon-cyan); margin-right:15px; font-size:13px;">${getTag(State.user.id, d.nick)}${d.nick} // ${d.xp} XP</span><button class="btn-rule danger" onclick="SurvivalAuth.logout()">注销</button>`;
             });
             const features = [
-                { title: "全服大厅", desc: "大厅广播协议", action: "GlobalChat.init()" },
+                { title: "全服聊天", desc: "实时广播终端", action: "GlobalChat.init()" },
                 { title: "常用联通", desc: "双向同步私聊", action: "UI.open('friend-modal')" },
-                { title: "物资广场", desc: "物资单管理审计", action: "SurvivalMarket.load()" },
-                { title: "荣誉排行", desc: "贡献度全服排行", action: "SurvivalRankLoad()" },
-                { title: "个人配置", desc: "UID、改名与改密", action: "UI.open('settings-modal')" },
+                { title: "物资广场", desc: "挂单管理审计", action: "SurvivalMarket.load()" },
+                { title: "荣誉排行", desc: "全服 XP 排行榜", action: "SurvivalRankLoad()" },
+                { title: "个人配置", desc: "UID、改名改密", action: "UI.open('settings-modal')" },
                 { title: "协议激活", desc: "密匙激活特权", action: "UI.open('gift-modal')" },
                 { title: "生存档案", desc: "团队成员与指南", action: "UI.open('wiki-modal')" },
-                { title: "核心终端", desc: "ROOT 权限入口", action: "UI.open('admin-modal')", admin: true }
+                { title: "核心终端", desc: "ROOT 权限系统", action: "UI.open('admin-modal')", admin: true }
             ];
             document.getElementById('main-grid').innerHTML = features.map(f => {
                 if(f.admin && !State.isAdmin) return '';
