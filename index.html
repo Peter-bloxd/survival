@@ -2,259 +2,254 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>SECURE_ACCESS_NODE_09</title>
+    <title>S-LEVEL_COMMAND_TERMINAL</title>
     <style>
         :root {
-            --cyan: #00f2ff;
-            --cyan-dim: rgba(0, 242, 255, 0.1);
-            --bg: #01080b;
-            --glass: rgba(0, 20, 30, 0.6);
+            --militray-yellow: #f4d03f;
+            --cyber-cyan: #00f2ff;
+            --danger-red: #ff3c41;
+            --bg-deep: #02080a;
+            --glass: rgba(0, 20, 30, 0.7);
         }
 
         body, html {
             margin: 0; padding: 0;
-            background-color: var(--bg);
+            background-color: var(--bg-deep);
             color: #fff;
-            font-family: 'Consolas', 'Monaco', monospace;
+            font-family: 'Courier New', Courier, monospace;
             height: 100vh; overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* 1. 强化的双层网格系统 */
-        .grid-master {
+        /* 1. CRT 弧形感与噪点层 */
+        .screen-effect {
             position: fixed; inset: 0;
-            background-image: 
-                linear-gradient(var(--cyan-dim) 1.5px, transparent 1.5px),
-                linear-gradient(90deg, var(--cyan-dim) 1.5px, transparent 1.5px);
-            background-size: 80px 80px; /* 大网格 */
-            z-index: -2;
+            background: 
+                radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%),
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 100%, 100% 3px, 3px 100%;
+            pointer-events: none; z-index: 1000;
         }
-        .grid-sub {
+
+        /* 2. 背景网格 */
+        .military-grid {
             position: fixed; inset: 0;
             background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
-            background-size: 20px 20px; /* 小细格 */
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
             z-index: -1;
         }
 
-        /* 2. 极其明显的扫描线 (Radar Sweep) */
-        .high-vis-scanner {
-            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
-            background: var(--cyan);
-            box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
-            opacity: 0.6;
-            z-index: 100;
-            pointer-events: none;
-            animation: scanHorizontal 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-        }
-
-        @keyframes scanHorizontal {
-            0% { top: -5%; opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { top: 105%; opacity: 0; }
-        }
-
-        /* 3. 布局：特工监控台样式 */
-        .dashboard {
+        /* 3. 核心布局 */
+        .terminal-frame {
+            width: 95vw; height: 90vh;
             display: grid;
-            grid-template-columns: 250px 1fr 250px;
-            height: 100vh;
+            grid-template-columns: 300px 1fr 300px;
+            grid-template-rows: 1fr auto;
+            gap: 20px;
             padding: 20px;
-            gap: 20px;
             box-sizing: border-box;
-        }
-
-        /* 侧边监控栏 */
-        .side-monitor {
-            display: flex; flex-direction: column; gap: 15px;
-            font-size: 11px; color: var(--cyan);
-            text-transform: uppercase; letter-spacing: 1px;
-        }
-
-        .data-box {
-            border: 1px solid var(--cyan-dim);
-            padding: 15px; background: var(--glass);
-            backdrop-filter: blur(10px);
-        }
-
-        /* 中央磁贴 */
-        .main-hub {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .card {
-            background: var(--glass);
-            border: 1px solid var(--cyan-dim);
-            backdrop-filter: blur(15px);
-            padding: 30px;
+            border: 2px solid rgba(0, 242, 255, 0.1);
             position: relative;
-            cursor: pointer;
-            transition: 0.3s;
+        }
+
+        /* 中央 Logo 区域 */
+        .logo-center {
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            position: relative;
+        }
+
+        .main-logo {
+            width: 180px; height: 180px;
+            filter: drop-shadow(0 0 15px var(--militray-yellow));
+            animation: logo-glow 3s infinite alternate;
+        }
+
+        @keyframes logo-glow {
+            0% { filter: drop-shadow(0 0 10px var(--militray-yellow)) brightness(1); }
+            100% { filter: drop-shadow(0 0 30px var(--militray-yellow)) brightness(1.2); }
+        }
+
+        /* 磁贴卡片 - 军事化定制 */
+        .card-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .mil-card {
+            background: var(--glass);
+            border: 1px solid var(--cyber-cyan);
+            padding: 20px;
             clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%);
+            transition: 0.3s;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
         }
 
-        .card:hover {
-            border-color: var(--cyan);
-            box-shadow: inset 0 0 20px var(--cyan-dim);
-            transform: scale(1.02);
+        .mil-card:hover {
+            background: rgba(0, 242, 255, 0.15);
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.2);
+            transform: translateY(-3px);
         }
 
-        .card h2 { margin: 0; font-size: 1.6rem; letter-spacing: 4px; }
-        .card p { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 8px; }
+        .mil-card h3 { 
+            margin: 0; color: var(--cyber-cyan); 
+            font-size: 1.1rem; letter-spacing: 2px;
+        }
+        
+        .mil-card.danger { border-color: var(--danger-red); }
+        .mil-card.danger h3 { color: var(--danger-red); }
 
-        /* 特殊管理终端 */
-        .card.admin { border-left: 4px solid #ff3c41; }
-        .card.admin h2 { color: #ff3c41; }
-
-        /* 底部滚动流 */
-        .status-scroll {
-            position: fixed; bottom: 0; left: 0; width: 100%;
-            background: rgba(0,0,0,0.8);
-            font-size: 10px; color: var(--cyan);
-            padding: 5px 20px; border-top: 1px solid var(--cyan-dim);
-            white-space: nowrap;
-            overflow: hidden;
+        /* 左右面板 */
+        .side-panel {
+            display: flex; flex-direction: column; gap: 15px;
+            font-size: 12px; color: var(--cyber-cyan);
         }
 
-        /* 交互反馈动画 */
-        .pulse { animation: pulseAnim 2s infinite; }
-        @keyframes pulseAnim {
-            0% { opacity: 0.3; } 50% { opacity: 0.8; } 100% { opacity: 0.3; }
+        .module-box {
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            padding: 15px;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .status-bar {
+            height: 4px; background: #111; margin-top: 8px;
+            position: relative;
+        }
+        .status-fill {
+            height: 100%; background: var(--cyber-cyan);
+            box-shadow: 0 0 10px var(--cyber-cyan);
+        }
+
+        /* 底部信息流 */
+        .footer-info {
+            grid-column: 1 / 4;
+            border-top: 1px solid rgba(0, 242, 255, 0.2);
+            padding-top: 10px;
+            font-size: 10px;
+            display: flex; justify-content: space-between;
+            color: rgba(255,255,255,0.4);
         }
     </style>
 </head>
-<body onclick="startAudio()">
+<body onclick="initSystem()">
 
-    <div class="grid-master"></div>
-    <div class="grid-sub"></div>
-    <div class="high-vis-scanner"></div>
+    <div class="screen-effect"></div>
+    <div class="military-grid"></div>
 
-    <div class="dashboard">
-        <aside class="side-monitor">
-            <div class="data-box">
-                <div class="pulse" style="color:#ff3c41">● UPLINK_ACTIVE</div>
-                <div style="margin-top:10px">CPU_LOAD: <span id="cpu">00.0</span>%</div>
-                <div class="bar-container" style="width:100%; height:4px; background:#111; margin-top:5px;">
-                    <div id="cpu-bar" style="width:40%; height:100%; background:var(--cyan);"></div>
-                </div>
-                <div style="margin-top:10px">MEM_CORE: <span id="mem">0000</span> MB</div>
-                <div style="margin-top:10px">TEMP: 42°C [STABLE]</div>
+    <div class="terminal-frame">
+        <aside class="side-panel">
+            <div class="module-box">
+                <div>SYSTEM STATUS</div>
+                <div style="font-size: 20px; margin: 10px 0;">ONLINE 98%</div>
+                <div class="status-bar"><div class="status-fill" style="width: 98%;"></div></div>
             </div>
-            <div class="data-box" style="flex-grow: 1; overflow: hidden; opacity: 0.5;">
-                <div id="logs" style="line-height: 1.5;"></div>
+            <div class="module-box" style="flex-grow: 1;">
+                <div style="opacity: 0.5;">DECRYPTING_DATA_FLOW...</div>
+                <div id="logs" style="margin-top: 10px; color: #aaa;"></div>
             </div>
         </aside>
 
-        <main class="main-hub">
-            <div class="card" onmouseenter="playTick()">
-                <h2>全服聊天</h2>
-                <p>> COMMS_VOICE_STREAM_V4</p>
-            </div>
-            <div class="card" onmouseenter="playTick()">
-                <h2>物资交易</h2>
-                <p>> MARKET_DATA_ENCRYPTED</p>
-            </div>
-            <div class="card" onmouseenter="playTick()">
-                <h2>加密私聊</h2>
-                <p>> RSA_4096_SECURE_NODE</p>
-            </div>
-            <div class="card" onmouseenter="playTick()">
-                <h2>协议激活</h2>
-                <p>> CIPHER_INPUT_WAITING</p>
-            </div>
-            <div class="card" onmouseenter="playTick()">
-                <h2>生存指南</h2>
-                <p>> INTEL_ARCHIVE_STATIC</p>
-            </div>
-            <div class="card admin" onmouseenter="playWarn()">
-                <h2>管理终端</h2>
-                <p>> ROOT_AUTHORIZATION_REQUIRED</p>
+        <main class="logo-center">
+            <img src="https://via.placeholder.com/180/02080a/f4d03f?text=A" class="main-logo" alt="LOGO">
+            
+            <div class="card-container">
+                <div class="mil-card" onmouseenter="playBeep()">
+                    <h3>全服聊天</h3>
+                    <div style="font-size: 9px; opacity: 0.6; margin-top: 5px;">> GLOBAL_VOX_ACTIVE</div>
+                </div>
+                <div class="mil-card" onmouseenter="playBeep()">
+                    <h3>物资交易</h3>
+                    <div style="font-size: 9px; opacity: 0.6; margin-top: 5px;">> P2P_MARKET_NODE</div>
+                </div>
+                <div class="mil-card" onmouseenter="playBeep()">
+                    <h3>加密私聊</h3>
+                    <div style="font-size: 9px; opacity: 0.6; margin-top: 5px;">> RSA_4096_SECURE</div>
+                </div>
+                <div class="mil-card danger" onmouseenter="playWarn()">
+                    <h3>管理终端</h3>
+                    <div style="font-size: 9px; opacity: 0.8; margin-top: 5px;">> ROOT_OVERRIDE</div>
+                </div>
             </div>
         </main>
 
-        <aside class="side-monitor">
-            <div class="data-box">
-                <div>LOCATION: UNKNOWN</div>
-                <div id="coords" style="font-size: 14px; margin-top:5px;">40.7128 N, 74.0060 W</div>
+        <aside class="side-panel">
+            <div class="module-box">
+                <div>ENCRYPTION STATUS</div>
+                <div style="margin-top:10px;">AES-256: [ACTIVE]</div>
+                <div style="margin-top:5px;">KEY_STRENGTH: 99.2%</div>
             </div>
-            <div class="data-box" style="text-align: center;">
-                <div style="font-size: 24px;" id="timer">00:00:00</div>
-                <div style="font-size: 9px; opacity: 0.5;">SESSION_TIME</div>
-            </div>
-            <div class="data-box" style="flex-grow: 1; font-family: monospace; word-break: break-all; opacity: 0.3;">
-                HEX_DUMP: <br>
-                <span id="hex-stream"></span>
+            <div class="module-box" style="height: 150px; display: flex; align-items: center; justify-content: center;">
+                <div style="width: 100px; height: 100px; border: 1px solid var(--cyber-cyan); border-radius: 50%; position: relative;">
+                    <div style="position: absolute; width: 50%; height: 1px; background: var(--cyber-cyan); top: 50%; left: 50%; transform-origin: left center; animation: radar 4s linear infinite;"></div>
+                </div>
             </div>
         </aside>
-    </div>
 
-    <div class="status-scroll" id="scroller">
-        SYSTEM_READY... LINK_ESTABLISHED... ENCRYPTION_ON... NO_TRACE_DETECTED... 
+        <footer class="footer-info">
+            <div>NODE: TERMINAL_04 // LOC: 40.7128N 74.0060W</div>
+            <div>UNAUTHORIZED ACCESS IS PROHIBITED BY MILITARY LAW</div>
+        </footer>
     </div>
 
     <script>
         let audioCtx;
 
-        // 模拟数据更新
-        setInterval(() => {
-            const cpu = (Math.random() * 20 + 30).toFixed(1);
-            document.getElementById('cpu').innerText = cpu;
-            document.getElementById('cpu-bar').style.width = cpu + '%';
-            document.getElementById('mem').innerText = Math.floor(Math.random() * 500 + 4000);
-            document.getElementById('timer').innerText = new Date().toLocaleTimeString('en-GB');
-            
-            // 滚动日志
-            const log = document.getElementById('logs');
-            const newEntry = document.createElement('div');
-            newEntry.innerText = `[${new Date().getSeconds()}] PKT_RECV: ${Math.random().toString(16).substr(2, 8)}`;
-            log.prepend(newEntry);
-            if(log.childNodes.length > 15) log.lastChild.remove();
-
-            // 16进制流
-            document.getElementById('hex-stream').innerText += Math.random().toString(16).substr(2, 2) + " ";
-            if(document.getElementById('hex-stream').innerText.length > 200) document.getElementById('hex-stream').innerText = "";
-        }, 1000);
-
-        function startAudio() {
+        function initSystem() {
             if(!audioCtx) {
                 audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                // 极低频背景嗡嗡声
+                // 持续的低频背景声
                 const osc = audioCtx.createOscillator();
                 const g = audioCtx.createGain();
-                osc.type = 'sine'; osc.frequency.value = 45;
+                osc.type = 'sine'; osc.frequency.value = 50;
                 g.gain.value = 0.01;
                 osc.connect(g).connect(audioCtx.destination);
                 osc.start();
             }
         }
 
-        function playTick() {
+        function playBeep() {
             if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
+            const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-            osc.connect(g).connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+            o.frequency.value = 1000;
+            g.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.01);
+            g.gain.setTargetAtTime(0, audioCtx.currentTime + 0.05, 0.01);
+            o.connect(g).connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + 0.1);
         }
 
         function playWarn() {
             if(!audioCtx) return;
-            const osc = audioCtx.createOscillator();
+            const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            osc.type = 'sawtooth';
-            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            o.type = 'sawtooth'; o.frequency.value = 150;
             g.gain.setValueAtTime(0.1, audioCtx.currentTime);
             g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-            osc.connect(g).connect(audioCtx.destination);
-            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
+            o.connect(g).connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + 0.3);
         }
+
+        // 模拟滚动日志
+        setInterval(() => {
+            const logs = document.getElementById('logs');
+            const p = document.createElement('div');
+            p.innerText = `>> ${Math.random().toString(16).substr(2, 8).toUpperCase()}_RECEIVED`;
+            logs.prepend(p);
+            if(logs.childNodes.length > 20) logs.lastChild.remove();
+        }, 1500);
     </script>
+
+    <style>
+        @keyframes radar {
+            from { transform: translate(-50%, -50%) rotate(0deg); }
+            to { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+    </style>
 </body>
 </html>
