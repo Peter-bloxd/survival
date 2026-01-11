@@ -2,227 +2,193 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>NEST_OS_CLASSIC_REBORN</title>
+    <title>SURVIVAL_RULES_ULTIMATE</title>
     <style>
         :root {
-            --cyan: #00f2ff;
-            --yellow: #f1c40f;
-            --bg-deep: #020508;
-            --glass: rgba(6, 15, 20, 0.85);
-            --border: rgba(0, 242, 255, 0.15);
+            --neon-yellow: #ffdf00;
+            --deep-cyan: #00f2ff;
+            --panel-bg: rgba(4, 12, 18, 0.9);
+            --border-glow: rgba(0, 242, 255, 0.15);
         }
 
         body, html {
             margin: 0; padding: 0;
-            background-color: var(--bg-deep);
+            background-color: #010406;
             color: #fff;
-            font-family: 'Segoe UI', "Microsoft YaHei", sans-serif;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* 1. 经典背景：超细暗网格 + 纵深渐变 */
-        .background {
+        /* 1. 模拟 CRT 显示器质感 */
+        .crt-overlay {
             position: fixed; inset: 0;
-            background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.2) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.05), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.05));
+            background-size: 100% 2px, 2px 100%;
+            pointer-events: none; z-index: 1000;
+        }
+
+        /* 2. 背景超细网格 */
+        .grid-bg {
+            position: fixed; inset: 0;
+            background-image: linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+                              linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
             z-index: -1;
         }
-        .background::after {
-            content: ""; position: absolute; inset: 0;
-            background: radial-gradient(circle at center, transparent 0%, #000 95%);
+
+        /* 3. 真实感 Logo 区域 */
+        .logo-wrap {
+            position: relative; margin-top: 50px; margin-bottom: 20px;
+            width: 200px; height: 200px;
         }
 
-        /* 2. 顶部装饰：系统状态与坐标 */
-        .top-nav {
-            width: 100%; padding: 20px 40px;
-            display: flex; justify-content: space-between;
-            box-sizing: border-box; font-size: 10px; letter-spacing: 2px;
-            color: var(--cyan); opacity: 0.8;
+        /* SVG 核心：多层闪电滤镜 */
+        .cyber-logo {
+            width: 100%; height: 100%;
+            filter: drop-shadow(0 0 12px rgba(255, 223, 0, 0.6));
+            animation: flickering 0.15s infinite alternate;
         }
 
-        /* 3. 核心标题与黄色 Logo */
-        .header-section {
-            text-align: center; margin-bottom: 40px;
+        @keyframes flickering {
+            0% { opacity: 0.95; transform: skewX(0deg); }
+            100% { opacity: 1; transform: skewX(0.5deg); }
         }
 
-        .main-logo-svg {
-            width: 120px; height: 120px; margin-bottom: 20px;
-            filter: drop-shadow(0 0 15px var(--yellow));
-            animation: logo-pulse 3s infinite ease-in-out;
-        }
-
-        @keyframes logo-pulse {
-            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px var(--yellow)); }
-            50% { transform: scale(1.05); filter: drop-shadow(0 0 25px var(--yellow)); }
-        }
-
+        /* 4. 标题与文字流 */
         .main-title {
-            font-size: 4rem; font-weight: 900; letter-spacing: 15px;
-            text-shadow: 0 0 20px rgba(255,255,255,0.3);
-            margin: 0;
-        }
-        .sub-tag {
-            color: var(--cyan); font-size: 0.8rem; margin-top: 15px; opacity: 0.7;
+            font-size: 5rem; font-weight: 900; letter-spacing: 20px;
+            background: linear-gradient(to bottom, #fff 50%, #aaa 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin: 0; filter: drop-shadow(0 0 10px rgba(255,255,255,0.2));
         }
 
-        /* 4. 经典大方块网格布局 (回归第一次发的风格) */
-        .grid-container {
+        /* 5. 经典 3x2 布局卡片 */
+        .interface-grid {
             display: grid;
-            grid-template-columns: repeat(3, 380px);
-            gap: 20px;
-            z-index: 2;
+            grid-template-columns: repeat(3, 400px);
+            gap: 25px; margin-top: 40px;
         }
 
-        .nav-card {
-            background: var(--glass);
-            border: 1px solid var(--border);
-            padding: 40px 30px;
+        .action-card {
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            padding: 45px 35px;
             position: relative;
-            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            cursor: pointer;
-            backdrop-filter: blur(10px);
-            /* 底部切角装饰 */
-            clip-path: polygon(0 0, 100% 0, 100% 88%, 94% 100%, 0 100%);
-        }
-
-        .nav-card:hover {
-            border-color: var(--cyan);
-            background: rgba(0, 242, 255, 0.1);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .nav-card h2 {
-            font-size: 2.2rem; margin: 0; font-weight: bold;
-            letter-spacing: 2px;
-        }
-        .nav-card p {
-            margin: 15px 0 0; font-size: 1rem; color: var(--cyan);
-            opacity: 0.6; letter-spacing: 1px;
-        }
-        .nav-card p::before { content: "> "; }
-
-        /* 特殊：管理终端红色 */
-        .admin-card { border-left: 2px solid #ff3c41; }
-        .admin-card h2 { color: #ff3c41; }
-
-        /* 5. 装饰边角 */
-        .corner-deco {
-            position: absolute; width: 40px; height: 40px;
-            border: 1px solid var(--cyan); opacity: 0.5;
-        }
-        .bottom-right { bottom: 40px; right: 40px; border-top: none; border-left: none; }
-
-        /* 启动遮罩 */
-        #boot-up {
-            position: fixed; inset: 0; background: #000; z-index: 1000;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(15px);
+            clip-path: polygon(0 0, 100% 0, 100% 88%, 94% 100%, 0 100%); /* 经典切角 */
+            transition: all 0.3s;
             cursor: pointer;
         }
+
+        .action-card:hover {
+            border-color: var(--deep-cyan);
+            background: rgba(0, 242, 255, 0.08);
+            transform: scale(1.02);
+            box-shadow: inset 0 0 30px rgba(0, 242, 255, 0.1);
+        }
+
+        .action-card h2 { font-size: 2.4rem; margin: 0; letter-spacing: 4px; }
+        .action-card p { margin-top: 15px; color: var(--deep-cyan); opacity: 0.5; font-size: 1.1rem; }
+
+        /* 管理终端 - 红色警戒风格 */
+        .danger { border-left: 3px solid #ff3c41; }
+        .danger h2 { color: #ff3c41; }
     </style>
 </head>
-<body onclick="startSys()">
+<body onclick="initAudio()">
 
-    <div id="boot-up">
-        <p style="color:var(--yellow); letter-spacing: 5px;">[ 接入神经链路 ]</p>
-        <p style="font-size: 10px; color: #444;">ID_RECOGNITION_REQUIRED</p>
+    <div class="crt-overlay"></div>
+    <div class="grid-bg"></div>
+
+    <div class="logo-wrap">
+        <svg class="cyber-logo" viewBox="0 0 100 100">
+            <defs>
+                <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#fff95b;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#f1c40f;stop-opacity:1" />
+                </linearGradient>
+                <filter id="innerGlow">
+                    <feGaussianBlur in="SourceGraphic" stdDeviation="1.5" result="blur" />
+                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                </filter>
+            </defs>
+            
+            <path d="M50 5 L92 27 V73 L50 95 L8 73 V27 Z" fill="none" stroke="url(#goldGrad)" stroke-width="2.5" stroke-dasharray="160 10 30 5" />
+            
+            <g filter="url(#innerGlow)">
+                <path d="M56 18 L34 52 H50 L44 82 L66 48 H50 L56 18 Z" fill="url(#goldGrad)" />
+                <rect x="75" y="40" width="10" height="1.5" fill="#f1c40f" opacity="0.6" />
+                <rect x="15" y="55" width="6" height="1.5" fill="#f1c40f" opacity="0.4" />
+            </g>
+
+            <rect width="100" height="2" fill="#fff" opacity="0.1">
+                <animate attributeName="y" from="0" to="100" dur="2s" repeatCount="indefinite" />
+            </rect>
+        </svg>
     </div>
 
-    <div class="background"></div>
+    <h1 class="main-title">生存法则</h1>
+    <div style="color:var(--deep-cyan); opacity: 0.6; letter-spacing: 4px; font-size: 12px; margin-top: 10px;">
+        > STATUS: ENCRYPTED_SYNC_ACTIVE...
+    </div>
 
-    <header class="top-nav">
-        <div>系统状态 // 在线 // 已就绪</div>
-        <div id="coord-display">战术坐标: 2988-Z8601</div>
-    </header>
-
-    <section class="header-section">
-        <svg class="main-logo-svg" viewBox="0 0 100 100">
-            <path d="M50 5L90 25V75L50 95L10 75V25L50 5Z" stroke="var(--yellow)" fill="rgba(241, 196, 15, 0.05)" stroke-width="3"/>
-            <path d="M55 22L35 52H50L45 82L65 52H50L55 22Z" fill="var(--yellow)" />
-            <rect x="85" y="48" width="8" height="2" fill="var(--yellow)" />
-            <rect x="5" y="50" width="6" height="1" fill="var(--yellow)" />
-        </svg>
-        <h1 class="main-title">生存法则</h1>
-        <div class="sub-tag">> 正在同步安全网络数据流...</div>
-    </section>
-
-    <main class="grid-container">
-        <div class="nav-card" onmouseenter="beep()">
+    <div class="interface-grid">
+        <div class="action-card" onmouseenter="playTick()">
             <h2>全服聊天</h2>
-            <p>大厅实时广播频道</p>
+            <p>> 大厅实时广播频道</p>
         </div>
-        <div class="nav-card" onmouseenter="beep()">
+        <div class="action-card" onmouseenter="playTick()">
             <h2>物资交易</h2>
-            <p>发布、寻找各类资源</p>
+            <p>> 发布、寻找各类资源</p>
         </div>
-        <div class="nav-card" onmouseenter="beep()">
+        <div class="action-card" onmouseenter="playTick()">
             <h2>加密私聊</h2>
-            <p>点对点加密通讯协议</p>
+            <p>> 点对点加密通讯协议</p>
         </div>
-        <div class="nav-card" onmouseenter="beep()">
+        <div class="action-card" onmouseenter="playTick()">
             <h2>同步补给</h2>
-            <p>24小时周期资源同步</p>
+            <p>> 24小时周期资源同步</p>
         </div>
-        <div class="nav-card" onmouseenter="beep()">
+        <div class="action-card" onmouseenter="playTick()">
             <h2>荣誉排行</h2>
-            <p>全服 XP 贡献排名</p>
+            <p>> 全服 XP 贡献排名</p>
         </div>
-        <div class="nav-card admin-card" onmouseenter="warn()">
+        <div class="action-card danger" onmouseenter="playWarn()">
             <h2>管理终端</h2>
-            <p>ROOT 核心权限接口</p>
+            <p>> ROOT 核心权限接口</p>
         </div>
-    </main>
-
-    <div class="corner-deco bottom-right"></div>
+    </div>
 
     <script>
         let audioCtx;
-
-        function startSys() {
-            document.getElementById('boot-up').style.display = 'none';
-            initAudio();
-        }
-
         function initAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.frequency.value = 45; g.gain.value = 0.008;
-            osc.connect(g).connect(audioCtx.destination);
-            osc.start();
+            if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
 
-        function beep() {
+        function playTick() {
             if(!audioCtx) return;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.frequency.setValueAtTime(800, audioCtx.currentTime);
-            g.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.01);
+            o.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            o.frequency.exponentialRampToValueAtTime(400, audioCtx.currentTime + 0.05);
+            g.gain.setTargetAtTime(0.04, audioCtx.currentTime, 0.01);
             g.gain.setTargetAtTime(0, audioCtx.currentTime + 0.05, 0.01);
             o.connect(g).connect(audioCtx.destination);
             o.start(); o.stop(audioCtx.currentTime + 0.1);
         }
 
-        function warn() {
+        function playWarn() {
             if(!audioCtx) return;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.type = 'sawtooth'; o.frequency.value = 100;
-            g.gain.setTargetAtTime(0.08, audioCtx.currentTime, 0.01);
-            g.gain.setTargetAtTime(0, audioCtx.currentTime + 0.2, 0.05);
+            o.type = 'square'; o.frequency.value = 110;
+            g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
             o.connect(g).connect(audioCtx.destination);
             o.start(); o.stop(audioCtx.currentTime + 0.3);
         }
-
-        // 随机更新坐标增加真实感
-        setInterval(() => {
-            const x = Math.floor(Math.random() * 9000 + 1000);
-            const y = Math.floor(Math.random() * 9000 + 1000);
-            document.getElementById('coord-display').innerText = `战术坐标: ${x}-${y}`;
-        }, 3000);
     </script>
 </body>
 </html>
