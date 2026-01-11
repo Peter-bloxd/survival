@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <!-- Google tag (gtag.js) -->
+    <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-L39F7GPMF4"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -12,419 +12,504 @@
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>生存法则 | SURVIVAL RULE - Bloxd.io 官方中继站</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Noto+Sans+SC:wght@300;400;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>SURVIVAL RULES // TACTICAL TERMINAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --neon-blue: #00f2ff;
+            --neon-glow: rgba(0, 242, 255, 0.6);
             --neon-red: #ff0055;
-            --neon-green: #39ff14;
-            --gold: #ffcc00;
-            --bg-deep: #020508;
-            --glass-bg: rgba(10, 25, 41, 0.85);
-            --font-tech: 'Orbitron', sans-serif;
-            --font-body: 'Noto Sans SC', sans-serif;
+            --bg-black: #020508;
+            --panel-bg: rgba(0, 15, 25, 0.8);
+            --font-main: 'Orbitron', sans-serif;
+            --font-code: 'JetBrains Mono', monospace;
         }
 
         body {
-            background: var(--bg-deep);
+            background-color: var(--bg-black);
             color: #fff;
-            font-family: var(--font-body);
+            font-family: var(--font-main);
             margin: 0;
-            background-image: linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 30px 30px;
-            background-attachment: fixed;
+            overflow-x: hidden;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
         }
 
-        /* 扫描线动画 */
-        body::before {
-            content: ""; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
-            background-size: 100% 4px; z-index: 9999; pointer-events: none;
+        /* 战术装饰元素 */
+        .hud-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+            border: 20px solid transparent;
         }
 
+        .hud-corner {
+            position: absolute; width: 40px; height: 40px;
+            border: 2px solid var(--neon-blue);
+        }
+        .top-left { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+        .top-right { top: 20px; right: 20px; border-left: none; border-bottom: none; }
+        .bottom-left { bottom: 20px; left: 20px; border-right: none; border-top: none; }
+        .bottom-right { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+        .system-status {
+            position: fixed; top: 30px; left: 40px;
+            font-size: 10px; color: var(--neon-blue);
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+        .coordinates {
+            position: fixed; top: 30px; right: 40px;
+            font-size: 10px; color: var(--neon-blue);
+            font-family: var(--font-code);
+        }
+
+        /* 导航 */
         nav {
-            height: 80px; background: rgba(0,0,0,0.9); border-bottom: 2px solid var(--neon-blue);
-            display: flex; justify-content: space-between; align-items: center; padding: 0 40px;
-            position: sticky; top: 0; z-index: 5000;
+            height: 70px;
+            background: rgba(0,0,0,0.8);
+            border-bottom: 1px solid var(--neon-blue);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0 60px; position: relative; z-index: 2000;
         }
 
-        .brand-logo { font-family: var(--font-tech); font-size: 1.8rem; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-blue); font-weight: 900; }
+        .brand-logo { font-size: 1.2rem; font-weight: 900; letter-spacing: 5px; color: var(--neon-blue); text-shadow: 0 0 10px var(--neon-glow); }
 
-        .survival-wrapper { max-width: 1200px; margin: 40px auto; padding: 0 20px; }
+        /* 主界面 */
+        .survival-wrapper {
+            max-width: 1400px;
+            margin: 80px auto;
+            padding: 0 40px;
+            text-align: center;
+        }
 
-        .hero-section { text-align: center; margin-bottom: 50px; }
-        .hero-section h1 { font-family: var(--font-tech); font-size: 4rem; margin: 0; background: linear-gradient(to bottom, #fff, var(--neon-blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-section h1 {
+            font-size: 5rem;
+            letter-spacing: 15px;
+            margin: 0;
+            color: #fff;
+            text-shadow: 0 0 30px var(--neon-glow);
+            font-weight: 900;
+        }
+        .hero-section p {
+            font-size: 0.8rem; letter-spacing: 10px; color: var(--neon-blue); margin-top: 10px;
+        }
 
-        .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
+        /* 放大后的 Bar (Feature Card) */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 40px;
+            margin-top: 60px;
+        }
+
         .feature-card {
-            background: var(--glass-bg); border: 1px solid rgba(0, 242, 255, 0.2); padding: 30px;
-            cursor: pointer; transition: 0.3s; clip-path: polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
-        }
-        .feature-card:hover { border-color: var(--neon-blue); transform: translateY(-5px); background: rgba(0, 242, 255, 0.1); }
-        .feature-card.admin-card { border-color: var(--neon-red); }
-
-        /* 模态框 */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 6000; backdrop-filter: blur(10px); }
-        .modal-content {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            width: 700px; max-width: 90vw; background: #050a10; border: 1px solid var(--neon-blue);
-            padding: 40px; max-height: 80vh; overflow-y: auto;
+            background: var(--panel-bg);
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            padding: 60px 40px; /* 大幅增加内边距 */
+            text-align: left;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+            clip-path: polygon(40px 0, 100% 0, 100% calc(100% - 40px), calc(100% - 40px) 100%, 0 100%, 0 40px);
         }
 
+        .feature-card:hover {
+            background: rgba(0, 242, 255, 0.1);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 40px rgba(0, 242, 255, 0.2);
+            transform: scale(1.02);
+        }
+
+        .feature-card h3 {
+            font-size: 2.2rem; /* 字体加大 */
+            margin: 0 0 15px 0;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+
+        .feature-card p {
+            font-size: 1.1rem;
+            color: var(--neon-blue);
+            margin: 0;
+            opacity: 0.8;
+            letter-spacing: 2px;
+        }
+
+        .feature-card.admin-card { border-color: rgba(255, 0, 85, 0.4); }
+        .feature-card.admin-card:hover { border-color: var(--neon-red); box-shadow: 0 0 40px rgba(255, 0, 85, 0.2); }
+        .feature-card.admin-card h3 { color: var(--neon-red); }
+
+        /* 战术按钮 */
         .btn-rule {
-            background: transparent; color: var(--neon-blue); border: 1px solid var(--neon-blue);
-            padding: 10px 20px; font-family: var(--font-tech); cursor: pointer; transition: 0.3s;
+            background: transparent;
+            color: var(--neon-blue);
+            border: 1px solid var(--neon-blue);
+            padding: 15px 30px;
+            font-family: var(--font-main);
+            font-size: 1rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
         }
-        .btn-rule:hover { background: var(--neon-blue); color: #000; }
+        .btn-rule:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--neon-glow);
+        }
         .btn-rule.danger { color: var(--neon-red); border-color: var(--neon-red); }
         .btn-rule.danger:hover { background: var(--neon-red); color: #fff; }
 
-        input { width: 100%; background: #000; border: 1px solid #1a3a4a; color: #fff; padding: 12px; margin-bottom: 15px; box-sizing: border-box; }
+        /* 模态框样式 */
+        .modal {
+            display: none; position: fixed; inset: 0;
+            background: rgba(2, 5, 8, 0.95);
+            z-index: 5000; backdrop-filter: blur(10px);
+        }
+        .modal-content {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 800px; max-width: 90vw;
+            background: #050a10; border: 1px solid var(--neon-blue);
+            padding: 50px; max-height: 80vh; overflow-y: auto;
+            box-shadow: 0 0 100px rgba(0, 242, 255, 0.1);
+        }
 
-        .market-item { border: 1px solid #1a3a4a; padding: 20px; margin-bottom: 20px; background: rgba(255,255,255,0.02); }
-        .reply-box { margin-top: 15px; padding-top: 15px; border-top: 1px dashed #1a3a4a; }
-        .reply-msg { font-size: 0.9rem; margin-bottom: 8px; color: #ccc; }
+        input {
+            width: 100%; background: #000; border: 1px solid #1a3a4a;
+            color: #fff; padding: 15px; margin-bottom: 20px;
+            font-family: var(--font-code); box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: var(--neon-blue); }
+
+        .market-item { border-bottom: 1px solid #1a3a4a; padding: 25px 0; }
+        .reply-msg { font-size: 0.9rem; margin-top: 10px; color: #aaa; font-family: var(--font-code); }
         .reply-msg b { color: var(--neon-blue); }
+
     </style>
 </head>
 <body>
 
-<nav>
-    <div class="brand-logo">SURVIVAL RULE</div>
-    <div id="nav-auth-slot">
-        <button class="btn-rule" onclick="UI.open('auth-modal')">接入中继器</button>
+    <!-- HUD 装饰 -->
+    <div class="hud-overlay">
+        <div class="hud-corner top-left"></div>
+        <div class="hud-corner top-right"></div>
+        <div class="hud-corner bottom-left"></div>
+        <div class="hud-corner bottom-right"></div>
+        <div class="system-status">SYSTEM_STATUS // ONLINE // READY</div>
+        <div class="coordinates" id="coord-display">COORDINATES: 6963DDBC</div>
     </div>
-</nav>
 
-<div class="survival-wrapper" id="app-root" style="display:none;">
-    <div class="hero-section">
-        <h1>SURVIVAL RULE</h1>
-        <p style="color:var(--neon-blue); font-family:var(--font-tech);">DATA_STREAM::ONLINE</p>
-    </div>
-    <div class="feature-grid" id="main-feature-grid"></div>
-</div>
-
-<!-- 模态框集合 -->
-<div id="auth-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon-blue);">IDENT_VERIFY // 身份验证</h2>
-    <input type="text" id="auth-uid" placeholder="UID (数字识别码)">
-    <input type="text" id="auth-nick" placeholder="NICKNAME (昵称)">
-    <input type="password" id="auth-pw" placeholder="PASSWORD (密码)">
-    <div style="display:flex; gap:10px;">
-        <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.login()">连接</button>
-        <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.register()">注册</button>
-    </div>
-</div></div>
-
-<div id="market-modal" class="modal"><div class="modal-content" style="width:850px;">
-    <h2 style="color:var(--neon-blue);">MARKET // 物资广场</h2>
-    <div style="background:rgba(0,242,255,0.05); padding:15px; border:1px solid #1a3a4a; margin-bottom:20px;">
-        <div style="display:grid; grid-template-columns: 2fr 1fr; gap:10px;">
-            <input id="m-item-name" placeholder="物资名称 (例如: 满附魔钻剑)" style="margin:0;">
-            <button class="btn-rule" style="margin:0;" onclick="SurvivalMarket.listItem()">发布物资挂单</button>
+    <nav>
+        <div class="brand-logo">SURVIVAL_TERMINAL_v1.0</div>
+        <div id="nav-auth-slot">
+            <button class="btn-rule" onclick="UI.open('auth-modal')">CONNECT_PROTOCOL</button>
         </div>
-        <p style="font-size:12px; color:var(--gold); margin-top:10px;">* XP 仅用于排行榜荣誉，物资交易请在回复区自行协商。</p>
+    </nav>
+
+    <div class="survival-wrapper" id="app-root" style="display:none;">
+        <div class="hero-section">
+            <h1 id="main-title">SURVIVAL RULES</h1>
+            <p>> ACCESSING SECURE NETWORK...</p>
+        </div>
+
+        <div class="feature-grid" id="main-feature-grid">
+            <!-- 动态Bar将在此加载 -->
+        </div>
+        
+        <div style="margin-top: 80px; font-size: 10px; color: #444; letter-spacing: 5px;">
+            // WARNING: DIRECT NEURAL LINK REQUIRED // AUTHORIZED PERSONNEL ONLY
+        </div>
     </div>
-    <div id="market-list-area"></div>
-    <button class="btn-rule" style="width:100%" onclick="UI.close()">关闭广场</button>
-</div></div>
 
-<div id="rank-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon-blue);">HONOR // XP 荣誉榜</h2>
-    <div id="rank-list-content"></div>
-    <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">返回</button>
-</div></div>
+    <!-- 登录注册模态框 -->
+    <div id="auth-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-blue); text-shadow: 0 0 10px var(--neon-glow);">IDENT_VERIFY // 身份验证</h2>
+        <input type="text" id="auth-uid" placeholder="UID (识别码)">
+        <input type="text" id="auth-nick" placeholder="NICKNAME (昵称)">
+        <input type="password" id="auth-pw" placeholder="ACCESS_PASSWORD (访问密码)">
+        <div style="display:flex; gap:10px;">
+            <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.login()">INITIATE_LOGIN</button>
+            <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.register()">REGISTER_ID</button>
+        </div>
+    </div></div>
 
-<div id="gift-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon-blue);">GIFT // 激活协议</h2>
-    <input id="gift-code-input" placeholder="输入激活密匙">
-    <button class="btn-rule" style="width:100%" onclick="Gifts.redeem()">确认激活</button>
-    <button class="btn-rule" style="margin-top:20px; width:100%;" onclick="UI.close()">取消</button>
-</div></div>
+    <!-- 物资广场模态框 -->
+    <div id="market-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-blue);">MARKET_DATABASE // 物资广场</h2>
+        <div style="background:rgba(0,242,255,0.05); padding:20px; border:1px solid #1a3a4a; margin-bottom:20px;">
+            <input id="m-item-name" placeholder="物资产出名称 (如: 满附魔钻剑)">
+            <button class="btn-rule" style="width:100%" onclick="SurvivalMarket.listItem()">UPLOAD_LISTING</button>
+        </div>
+        <div id="market-list-area"></div>
+        <button class="btn-rule" style="width:100%; margin-top:20px; border-color:#333;" onclick="UI.close()">CLOSE_DATABASE</button>
+    </div></div>
 
-<div id="settings-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon-blue);">SETTINGS // 个人设置</h2>
-    <div style="margin-bottom:25px;">
-        <label>更改昵称</label>
-        <input id="set-new-nick" placeholder="新昵称">
-        <button class="btn-rule" onclick="Settings.changeNick()">更新昵称</button>
-    </div>
-    <div style="margin-bottom:25px;">
-        <label>更改密码</label>
-        <input type="password" id="set-new-pw" placeholder="新密码">
-        <button class="btn-rule" onclick="Settings.changePw()">更新密码</button>
-    </div>
-    <div style="border-top:1px solid #333; padding-top:20px;">
-        <button class="btn-rule danger" style="width:100%" onclick="Settings.deleteAccount()">永久注销账户</button>
-    </div>
-    <button class="btn-rule" style="width:100%; margin-top:20px; border-color:#333;" onclick="UI.close()">返回</button>
-</div></div>
+    <!-- 同步补给模态框 (已修复关闭逻辑) -->
+    <div id="supply-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-blue);">SUPPLY_DROP // 资源补给</h2>
+        <p style="color:#aaa; line-height:1.6;">24小时同步协议。成功同步后将为您的账户注入 100 XP 荣誉值。</p>
+        <button class="btn-rule" style="width:100%; padding:20px;" onclick="Supply.claim()">EXECUTE_SYNC</button>
+        <button class="btn-rule" style="width:100%; margin-top:15px; border-color:#333;" onclick="UI.close()">ABORT_SYNC</button>
+    </div></div>
 
-<div id="supply-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon-blue);">SUPPLY // 资源领取</h2>
-    <p>每 24 小时执行一次同步补给。</p>
-    <button class="btn-rule" style="width:100%; padding:20px;" onclick="Supply.claim()">执行同步</button>
-</div></div>
+    <!-- 设置中心 -->
+    <div id="settings-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-blue);">SYS_CONFIG // 系统设置</h2>
+        <input id="set-new-nick" placeholder="更改昵称">
+        <button class="btn-rule" style="width:100%; margin-bottom:20px;" onclick="Settings.changeNick()">UPDATE_NICKNAME</button>
+        <input type="password" id="set-new-pw" placeholder="更改密码">
+        <button class="btn-rule" style="width:100%; margin-bottom:20px;" onclick="Settings.changePw()">UPDATE_PASSWORD</button>
+        <button class="btn-rule danger" style="width:100%" onclick="Settings.deleteAccount()">PERMANENT_WIPE_ACCOUNT</button>
+        <button class="btn-rule" style="width:100%; margin-top:30px; border-color:#333;" onclick="UI.close()">EXIT_CONFIG</button>
+    </div></div>
 
-<div id="admin-modal" class="modal"><div class="modal-content">
-    <h2 style="color:var(--neon-red);">ROOT // 核心终端</h2>
-    <button class="btn-rule danger" style="width:100%" onclick="Admin.toggleMaintenance()">切换停机状态</button>
-    <button class="btn-rule" style="width:100%; margin-top:10px;" onclick="Admin.modPlayerXP()">手动注入 XP</button>
-    <button class="btn-rule" style="width:100%; margin-top:10px;" onclick="UI.close()">退出终端</button>
-</div></div>
+    <!-- 排行榜 -->
+    <div id="rank-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-blue);">HONOR_ROLL // 荣誉排行</h2>
+        <div id="rank-list-content"></div>
+        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">RETURN</button>
+    </div></div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getFirestore, doc, setDoc, getDoc, collection, addDoc, 
-    query, orderBy, limit, onSnapshot, serverTimestamp, 
-    updateDoc, deleteDoc, increment, getDocs, where, arrayUnion 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    <!-- 管理终端 -->
+    <div id="admin-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-red);">ROOT_TERMINAL // 管理终端</h2>
+        <button class="btn-rule danger" style="width:100%; margin-bottom:10px;" onclick="Admin.toggleMaintenance()">TOGGLE_MAINTENANCE</button>
+        <button class="btn-rule" style="width:100%" onclick="Admin.modPlayerXP()">MANUAL_XP_INJECTION</button>
+        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">DISCONNECT</button>
+    </div></div>
 
-const firebaseConfig = { 
-    apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", 
-    authDomain: "bloxd-survival.firebaseapp.com", 
-    projectId: "bloxd-survival", 
-    appId: "1:60666065786:web:bdc3131accaceb0180dcc3" 
-};
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { 
+            getFirestore, doc, setDoc, getDoc, collection, addDoc, 
+            query, orderBy, limit, onSnapshot, serverTimestamp, 
+            updateDoc, deleteDoc, increment, getDocs, where, arrayUnion 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+        // Firebase 配置
+        const firebaseConfig = { 
+            apiKey: "AIzaSyBC92jwiCLsfG6bE4k2Jo4KQSiI-A_gxII", 
+            authDomain: "bloxd-survival.firebaseapp.com", 
+            projectId: "bloxd-survival", 
+            appId: "1:60666065786:web:bdc3131accaceb0180dcc3" 
+        };
 
-// 全局状态
-window.State = {
-    user: JSON.parse(localStorage.getItem('SURVIVAL_USER')),
-    isAdmin: false,
-    ROOT_ADMINS: ["IKUN5556", "Peter_YT_Bilibili"]
-};
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-window.UI = {
-    open: (id) => { 
-        document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
-        document.getElementById(id).style.display = 'block'; 
-    },
-    close: () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none')
-};
+        // 全局状态
+        window.State = {
+            user: JSON.parse(localStorage.getItem('SURVIVAL_USER')),
+            isAdmin: false,
+            ROOT_ADMINS: ["IKUN5556", "Peter_YT_Bilibili"]
+        };
 
-// 身份验证逻辑
-window.SurvivalAuth = {
-    register: async () => {
-        const uid = document.getElementById('auth-uid').value.trim();
-        const nick = document.getElementById('auth-nick').value.trim();
-        const pw = document.getElementById('auth-pw').value;
-        if(!uid || !nick || !pw) return alert("字段不能为空");
-        const ref = doc(db, "users", uid);
-        const snap = await getDoc(ref);
-        if(snap.exists()) return alert("UID 已存在");
+        // UI 控制器
+        window.UI = {
+            open: (id) => {
+                document.querySelectorAll('.modal').forEach(m => m.style.display = 'none');
+                document.getElementById(id).style.display = 'block';
+            },
+            close: () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none')
+        };
 
-        await setDoc(ref, { uid, nick, pw, xp: 0, lastSupply: 0, usedCodes: [], banned: false });
-        alert("注册成功，请执行连接");
-    },
-    login: async () => {
-        const uid = document.getElementById('auth-uid').value.trim();
-        const pw = document.getElementById('auth-pw').value;
-        const snap = await getDoc(doc(db, "users", uid));
-        if(snap.exists() && snap.data().pw === pw) {
-            const data = snap.data();
-            State.user = { id: uid, nick: data.nick };
-            localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
-            location.reload();
-        } else {
-            alert("验证失败");
+        // 战术坐标随机化
+        setInterval(() => {
+            const chars = 'ABCDEF0123456789';
+            let res = '';
+            for(let i=0; i<8; i++) res += chars[Math.floor(Math.random()*chars.length)];
+            document.getElementById('coord-display').innerText = `COORDINATES: ${res}`;
+        }, 3000);
+
+        // 核心功能：身份验证
+        window.SurvivalAuth = {
+            register: async () => {
+                const uid = document.getElementById('auth-uid').value.trim();
+                const nick = document.getElementById('auth-nick').value.trim();
+                const pw = document.getElementById('auth-pw').value;
+                if(!uid || !nick || !pw) return alert("REQUIRED FIELDS EMPTY");
+                const ref = doc(db, "users", uid);
+                const snap = await getDoc(ref);
+                if(snap.exists()) return alert("UID ALREADY REGISTERED");
+                await setDoc(ref, { uid, nick, pw, xp: 0, lastSupply: 0, usedCodes: [], banned: false });
+                alert("REGISTRATION SUCCESSFUL // PROCEED TO LOGIN");
+            },
+            login: async () => {
+                const uid = document.getElementById('auth-uid').value.trim();
+                const pw = document.getElementById('auth-pw').value;
+                const snap = await getDoc(doc(db, "users", uid));
+                if(snap.exists() && snap.data().pw === pw) {
+                    State.user = { id: uid, nick: snap.data().nick };
+                    localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
+                    location.reload();
+                } else {
+                    alert("ACCESS DENIED // INVALID CREDENTIALS");
+                }
+            },
+            logout: () => { localStorage.removeItem('SURVIVAL_USER'); location.reload(); }
+        };
+
+        // 核心功能：物资广场
+        window.SurvivalMarket = {
+            load: () => {
+                UI.open('market-modal');
+                onSnapshot(query(collection(db, "market"), orderBy("time", "desc")), (sn) => {
+                    const list = document.getElementById('market-list-area');
+                    list.innerHTML = '';
+                    sn.forEach(d => {
+                        const item = d.data();
+                        const itemEl = document.createElement('div');
+                        itemEl.className = 'market-item';
+                        itemEl.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:1.2rem; color:white;">${item.itemName}</span>
+                                <span style="font-size:0.7rem; color:var(--neon-blue);">ID: ${item.sellerNick}</span>
+                            </div>
+                            <div id="replies-${d.id}" style="margin:15px 0; padding-left:10px; border-left:1px solid #222;"></div>
+                            <div style="display:flex; gap:10px;">
+                                <input id="inp-${d.id}" placeholder="REPLY_MESSAGE..." style="margin:0; padding:10px; font-size:12px;">
+                                <button class="btn-rule" style="padding:0 15px; font-size:10px;" onclick="SurvivalMarket.sendReply('${d.id}')">SEND</button>
+                            </div>
+                        `;
+                        list.appendChild(itemEl);
+                        SurvivalMarket.loadReplies(d.id);
+                    });
+                });
+            },
+            loadReplies: (itemId) => {
+                onSnapshot(query(collection(db, "market", itemId, "replies"), orderBy("time", "asc")), (sn) => {
+                    const box = document.getElementById(`replies-${itemId}`);
+                    if(!box) return; box.innerHTML = '';
+                    sn.forEach(rd => {
+                        const r = rd.data();
+                        box.innerHTML += `<div class="reply-msg"><b>${r.nick}:</b> ${r.text}</div>`;
+                    });
+                });
+            },
+            sendReply: async (itemId) => {
+                const inp = document.getElementById(`inp-${itemId}`);
+                if(!inp.value.trim()) return;
+                await addDoc(collection(db, "market", itemId, "replies"), {
+                    nick: State.user.nick, text: inp.value, time: serverTimestamp()
+                });
+                inp.value = '';
+            },
+            listItem: async () => {
+                const name = document.getElementById('m-item-name').value;
+                if(!name) return alert("ENTRY_NULL");
+                await addDoc(collection(db, "market"), {
+                    sellerNick: State.user.nick, itemName: name, time: serverTimestamp()
+                });
+                document.getElementById('m-item-name').value = '';
+            }
+        };
+
+        // 核心功能：设置中心
+        window.Settings = {
+            changeNick: async () => {
+                const n = document.getElementById('set-new-nick').value.trim();
+                if(!n) return;
+                await updateDoc(doc(db, "users", State.user.id), { nick: n });
+                State.user.nick = n;
+                localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
+                alert("NICKNAME_UPDATED"); location.reload();
+            },
+            changePw: async () => {
+                const p = document.getElementById('set-new-pw').value;
+                if(p.length < 6) return alert("WEAK_PROTOCOL");
+                await updateDoc(doc(db, "users", State.user.id), { pw: p });
+                alert("PASSWORD_ENCRYPTED");
+            },
+            deleteAccount: async () => {
+                if(confirm("DANGER: WIPE ALL ACCOUNT DATA?")) {
+                    await deleteDoc(doc(db, "users", State.user.id));
+                    localStorage.clear(); location.reload();
+                }
+            }
+        };
+
+        // 核心功能：补给与管理
+        window.Supply = {
+            claim: async () => {
+                const ref = doc(db, "users", State.user.id);
+                const snap = await getDoc(ref);
+                const last = snap.data().lastSupply || 0;
+                if(Date.now() - last < 86400000) return alert("COOLDOWN_ACTIVE");
+                await updateDoc(ref, { xp: increment(100), lastSupply: Date.now() });
+                alert("SYNC_COMPLETE // +100 XP");
+            }
+        };
+
+        window.Admin = {
+            toggleMaintenance: async () => {
+                if(!State.isAdmin) return alert("UNAUTHORIZED");
+                const ref = doc(db, "system", "config");
+                const s = await getDoc(ref);
+                const next = (s.data()?.status === "ONLINE") ? "MAINTENANCE" : "ONLINE";
+                await setDoc(ref, { status: next }, { merge: true });
+                alert("SYSTEM_STATE: " + next);
+            },
+            modPlayerXP: async () => {
+                const t = prompt("TARGET_UID:");
+                const v = parseInt(prompt("INJECTION_VALUE:"));
+                if(t && v) await updateDoc(doc(db, "users", t), { xp: increment(v) });
+            }
+        };
+
+        // 启动函数
+        function bootstrap() {
+            if (State.user) {
+                document.getElementById('app-root').style.display = 'block';
+                if(State.ROOT_ADMINS.includes(State.user.id)) State.isAdmin = true;
+
+                // 实时更新头部 XP
+                onSnapshot(doc(db, "users", State.user.id), (sn) => {
+                    const data = sn.data();
+                    document.getElementById('nav-auth-slot').innerHTML = `
+                        <span style="color:var(--neon-blue); font-size:12px; margin-right:20px; font-family:var(--font-code);">
+                            USER: ${data.nick} // XP: ${data.xp}
+                        </span>
+                        <button class="btn-rule" style="padding:5px 15px; font-size:10px;" onclick="UI.open('settings-modal')">SYS_CONFIG</button>
+                        <button class="btn-rule danger" style="padding:5px 15px; font-size:10px; margin-left:10px;" onclick="SurvivalAuth.logout()">EXIT</button>
+                    `;
+                });
+
+                // 渲染放大后的战术Bar
+                const features = [
+                    { title: "物资广场", desc: "MARKET_DATABASE", action: "SurvivalMarket.load()" },
+                    { title: "荣誉排行", desc: "HONOR_LEADERBOARD", action: "SurvivalRankLoad()" },
+                    { title: "同步补给", desc: "DAILY_RESOURCE_SYNC", action: "UI.open('supply-modal')" },
+                    { title: "管理终端", desc: "ROOT_ACCESS_ONLY", action: "UI.open('admin-modal')", admin: true }
+                ];
+
+                document.getElementById('main-feature-grid').innerHTML = features
+                    .map(f => (f.admin && !State.isAdmin) ? '' : `
+                        <div class="feature-card ${f.admin?'admin-card':''}" onclick="${f.action}">
+                            <h3>${f.title}</h3>
+                            <p>> ${f.desc}</p>
+                        </div>
+                    `).join('');
+            }
         }
-    },
-    logout: () => { localStorage.removeItem('SURVIVAL_USER'); location.reload(); }
-};
 
-// 物资广场逻辑 (回复制)
-window.SurvivalMarket = {
-    load: () => {
-        UI.open('market-modal');
-        onSnapshot(query(collection(db, "market"), orderBy("time", "desc")), (sn) => {
-            const list = document.getElementById('market-list-area');
-            list.innerHTML = '';
-            sn.forEach(d => {
-                const item = d.data();
-                const itemEl = document.createElement('div');
-                itemEl.className = 'market-item';
-                itemEl.innerHTML = `
-                    <div style="display:flex; justify-content:space-between;">
-                        <b>物资: ${item.itemName}</b>
-                        <span style="color:#666; font-size:12px;">发布者: ${item.sellerNick}</span>
-                    </div>
-                    <div class="reply-box" id="replies-${d.id}">正在加载回复...</div>
-                    <div style="display:flex; gap:5px; margin-top:10px;">
-                        <input id="inp-${d.id}" placeholder="对此物资留言议价..." style="margin:0; padding:8px;">
-                        <button class="btn-rule" style="padding:5px 15px;" onclick="SurvivalMarket.sendReply('${d.id}')">回复</button>
-                    </div>
-                `;
-                list.appendChild(itemEl);
-                SurvivalMarket.loadReplies(d.id);
+        window.SurvivalRankLoad = () => {
+            UI.open('rank-modal');
+            onSnapshot(query(collection(db, "users"), orderBy("xp", "desc"), limit(20)), (sn) => {
+                let h = '';
+                sn.forEach(d => { h += `<div style="padding:15px; border-bottom:1px solid #1a3a4a; font-family:var(--font-code);">${d.data().nick} <span style="float:right; color:var(--neon-blue);">${d.data().xp} XP</span></div>`; });
+                document.getElementById('rank-list-content').innerHTML = h;
             });
-        });
-    },
-    loadReplies: (itemId) => {
-        onSnapshot(query(collection(db, "market", itemId, "replies"), orderBy("time", "asc")), (sn) => {
-            const box = document.getElementById(`replies-${itemId}`);
-            if(!box) return;
-            box.innerHTML = '';
-            sn.forEach(rd => {
-                const r = rd.data();
-                box.innerHTML += `<div class="reply-msg"><b>${r.nick}:</b> ${r.text}</div>`;
-            });
-            if(sn.empty) box.innerHTML = '<span style="color:#444; font-size:12px;">暂无回复</span>';
-        });
-    },
-    sendReply: async (itemId) => {
-        const inp = document.getElementById(`inp-${itemId}`);
-        if(!inp.value.trim()) return;
-        await addDoc(collection(db, "market", itemId, "replies"), {
-            uid: State.user.id, nick: State.user.nick, text: inp.value, time: serverTimestamp()
-        });
-        inp.value = '';
-    },
-    listItem: async () => {
-        const name = document.getElementById('m-item-name').value;
-        if(!name) return alert("物资名称不能为空");
-        await addDoc(collection(db, "market"), {
-            sellerId: State.user.id, sellerNick: State.user.nick, itemName: name, time: serverTimestamp()
-        });
-        document.getElementById('m-item-name').value = '';
-        alert("挂载成功");
-    }
-};
+        };
 
-// 激活码逻辑 (单次使用)
-window.Gifts = {
-    redeem: async () => {
-        const code = document.getElementById('gift-code-input').value.trim();
-        if(!code) return;
-        const ref = doc(db, "users", State.user.id);
-        const snap = await getDoc(ref);
-        const data = snap.data();
-
-        if(data.usedCodes && data.usedCodes.includes(code)) {
-            return alert("协议冲突：该账户已激活过此密匙");
-        }
-
-        // 示例代码逻辑
-        if(code === "IKUN666" || code === "STEVE") {
-            const bonus = code === "IKUN666" ? 666 : 1000;
-            await updateDoc(ref, { 
-                xp: increment(bonus),
-                usedCodes: arrayUnion(code) 
-            });
-            alert(`激活成功！已注入 ${bonus} XP 荣誉值`);
-            UI.close();
-        } else {
-            alert("无效的密匙");
-        }
-    }
-};
-
-// 设置逻辑
-window.Settings = {
-    changeNick: async () => {
-        const newNick = document.getElementById('set-new-nick').value.trim();
-        if(!newNick) return;
-        await updateDoc(doc(db, "users", State.user.id), { nick: newNick });
-        State.user.nick = newNick;
-        localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
-        alert("昵称更新成功，即将刷新");
-        location.reload();
-    },
-    changePw: async () => {
-        const newPw = document.getElementById('set-new-pw').value;
-        if(newPw.length < 6) return alert("密码过短");
-        await updateDoc(doc(db, "users", State.user.id), { pw: newPw });
-        alert("密码已更新");
-    },
-    deleteAccount: async () => {
-        if(confirm("警告：此操作将永久抹除您的账户数据！无法撤销！确定执行？")) {
-            await deleteDoc(doc(db, "users", State.user.id));
-            localStorage.removeItem('SURVIVAL_USER');
-            alert("账户已注销");
-            location.reload();
-        }
-    }
-};
-
-// 补给
-window.Supply = {
-    claim: async () => {
-        const ref = doc(db, "users", State.user.id);
-        const snap = await getDoc(ref);
-        const last = snap.data().lastSupply || 0;
-        if(Date.now() - last < 86400000) return alert("同步冷却中");
-        await updateDoc(ref, { xp: increment(100), lastSupply: Date.now() });
-        alert("补给成功：获得 100 荣誉 XP");
-    }
-};
-
-// 管理
-window.Admin = {
-    toggleMaintenance: async () => {
-        if(!State.isAdmin) return alert("权限不足");
-        const ref = doc(db, "system", "config");
-        const s = await getDoc(ref);
-        const next = (s.data()?.status === "ONLINE") ? "MAINTENANCE" : "ONLINE";
-        await setDoc(ref, { status: next }, { merge: true });
-        alert("系统状态已切换为: " + next);
-    },
-    modPlayerXP: async () => {
-        const tid = prompt("目标 UID:");
-        const val = parseInt(prompt("增加数值:"));
-        if(tid && val) await updateDoc(doc(db, "users", tid), { xp: increment(val) });
-    }
-};
-
-function bootstrap() {
-    if (State.user) {
-        document.getElementById('app-root').style.display = 'block';
-        if(State.ROOT_ADMINS.includes(State.user.id)) State.isAdmin = true;
-
-        onSnapshot(doc(db, "users", State.user.id), (sn) => {
-            const data = sn.data();
-            document.getElementById('nav-auth-slot').innerHTML = `
-                <span style="color:var(--neon-blue); font-size:12px; margin-right:15px;">
-                    ${data.nick} | ${data.xp} XP
-                </span>
-                <button class="btn-rule" style="padding:5px 10px;" onclick="UI.open('settings-modal')">设置</button>
-                <button class="btn-rule danger" style="padding:5px 10px;" onclick="SurvivalAuth.logout()">退出</button>
-            `;
-        });
-
-        const features = [
-            { title: "物资广场", action: "SurvivalMarket.load()" },
-            { title: "荣誉排行", action: "SurvivalRankLoad()" },
-            { title: "同步补给", action: "UI.open('supply-modal')" },
-            { title: "激活协议", action: "UI.open('gift-modal')" },
-            { title: "管理终端", action: "UI.open('admin-modal')", admin: true }
-        ];
-
-        document.getElementById('main-feature-grid').innerHTML = features
-            .map(f => (f.admin && !State.isAdmin) ? '' : `
-                <div class="feature-card ${f.admin?'admin-card':''}" onclick="${f.action}">
-                    <h3>${f.title}</h3>
-                    <p>进入 ${f.title} 子系统</p>
-                </div>
-            `).join('');
-    }
-}
-
-// 排行榜单独渲染函数
-window.SurvivalRankLoad = () => {
-    UI.open('rank-modal');
-    onSnapshot(query(collection(db, "users"), orderBy("xp", "desc"), limit(20)), (sn) => {
-        let h = '';
-        sn.forEach(d => { h += `<div style="padding:10px; border-bottom:1px solid #222;">${d.data().nick} -- ${d.data().xp} XP</div>`; });
-        document.getElementById('rank-list-content').innerHTML = h;
-    });
-};
-
-bootstrap();
-</script>
+        bootstrap();
+    </script>
 </body>
 </html>
