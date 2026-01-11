@@ -2,264 +2,268 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>TERMINAL_OVERRIDE_V4</title>
+    <title>ZEN_TERMINAL_V5</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
-
         :root {
-            --cyan: #00f2ff;
-            --cyan-glow: rgba(0, 242, 255, 0.5);
-            --red: #ff3c41;
-            --dark-deep: #020406;
-            --panel-border: rgba(0, 242, 255, 0.15);
+            --glow-cyan: #00f2ff;
+            --dim-cyan: rgba(0, 242, 255, 0.15);
+            --bg-black: #020608;
+            --accent-red: #ff3c41;
+            --font-mono: 'Share Tech Mono', 'Courier New', monospace;
         }
 
         body, html {
             margin: 0; padding: 0;
-            background: var(--dark-deep);
-            color: var(--cyan);
-            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--bg-black);
+            color: white;
+            font-family: var(--font-mono);
             overflow: hidden;
             height: 100vh;
+            cursor: none; /* 隐藏默认鼠标，使用自定义准心 */
         }
 
-        /* 1. 扫描线与噪点：模拟老式 CRT */
-        .crt-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none; z-index: 999;
-            opacity: 0.6;
+        /* 1. 动态网格底层 */
+        .grid-layer {
+            position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(var(--dim-cyan) 1px, transparent 1px),
+                linear-gradient(90deg, var(--dim-cyan) 1px, transparent 1px);
+            background-size: 60px 60px;
+            background-position: center center;
+            opacity: 0.2;
+            z-index: -2;
         }
 
-        /* 2. 背景 Canvas 粒子层 */
-        #canvas-bg {
-            position: fixed; top: 0; left: 0; z-index: -1;
+        /* 2. 自动循环的高级扫描线 */
+        .scanline-v2 {
+            position: fixed;
+            top: -100px; left: 0; width: 100%; height: 100px;
+            background: linear-gradient(to bottom, transparent, rgba(0, 242, 255, 0.1), transparent);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.3);
+            z-index: 10;
+            pointer-events: none;
+            animation: scan 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
-        /* 3. 主界面 3D 浮动 */
-        .wrapper {
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; perspective: 2000px;
+        @keyframes scan {
+            0% { top: -100px; opacity: 0; }
+            5% { opacity: 1; }
+            95% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
 
-        .terminal-container {
-            width: 95vw; height: 85vh;
-            background: rgba(5, 12, 18, 0.7);
-            border: 1px solid var(--panel-border);
-            position: relative;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 0 100px rgba(0,0,0,0.8);
-            transform: rotateX(2deg) rotateY(-1deg);
-            display: flex; flex-direction: column;
-            padding: 20px;
+        /* 3. 自定义准心鼠标 */
+        #cursor {
+            position: fixed; width: 40px; height: 40px;
+            border: 1px solid var(--glow-cyan);
+            border-radius: 50%;
+            pointer-events: none; z-index: 10000;
+            transform: translate(-50%, -50%);
+            transition: transform 0.1s ease-out, width 0.3s, height 0.3s;
+        }
+        #cursor::after {
+            content: ""; position: absolute; top: 50%; left: 50%;
+            width: 4px; height: 4px; background: var(--glow-cyan);
+            transform: translate(-50%, -50%);
         }
 
-        /* 顶部装饰细节 */
-        .top-deco {
-            display: flex; justify-content: space-between;
-            font-size: 10px; letter-spacing: 2px;
-            border-bottom: 1px solid var(--panel-border);
-            padding-bottom: 10px; margin-bottom: 30px;
-        }
-
-        /* 核心卡片设计 */
-        .grid-menu {
+        /* 4. 松弛感布局容器 */
+        .interface-wrapper {
+            height: 100vh;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px; flex-grow: 1;
+            grid-template-columns: 1fr 2fr 1fr; /* 三栏布局，核心内容居中 */
+            align-items: center;
+            padding: 0 5vw;
+            box-sizing: border-box;
         }
 
-        .item-card {
-            border: 1px solid var(--panel-border);
+        .side-panel {
+            font-size: 10px; color: var(--glow-cyan); opacity: 0.4;
+            display: flex; flex-direction: column; gap: 20px;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 40px;
+        }
+
+        /* 高级磁贴：极简线条 */
+        .nav-item {
             position: relative;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(0,242,255,0.02) 0%, transparent 100%);
-            transition: 0.3s;
-            overflow: hidden;
-            display: flex; flex-direction: column; justify-content: flex-end;
+            padding: 40px 20px;
+            border-left: 1px solid var(--dim-cyan);
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            background: rgba(255, 255, 255, 0.02);
         }
 
-        .item-card::before {
-            content: ""; position: absolute; top: 0; left: 0;
-            width: 100%; height: 2px;
-            background: linear-gradient(90deg, var(--cyan), transparent);
-            transform: translateX(-100%);
-            transition: 0.5s;
+        .nav-item:hover {
+            border-left: 4px solid var(--glow-cyan);
+            background: rgba(0, 242, 255, 0.05);
+            transform: translateX(10px);
+            cursor: none;
         }
 
-        .item-card:hover::before { transform: translateX(0); }
-
-        .item-card:hover {
-            background: rgba(0, 242, 255, 0.08);
-            border-color: var(--cyan);
-            box-shadow: inset 0 0 20px rgba(0, 242, 255, 0.1);
+        .nav-item h2 {
+            margin: 0; font-size: 1.8rem; font-weight: 300;
+            letter-spacing: 4px; text-transform: uppercase;
         }
 
-        .item-card .label { font-size: 1.5rem; text-shadow: 0 0 8px var(--cyan-glow); }
-        .item-card .code { font-size: 9px; opacity: 0.5; margin-top: 5px; }
-
-        /* 特殊：红色警报区 */
-        .danger-zone { border-color: rgba(255, 60, 65, 0.3); }
-        .danger-zone:hover { border-color: var(--red); box-shadow: inset 0 0 20px rgba(255, 60, 65, 0.2); }
-        .danger-zone .label { color: var(--red); text-shadow: 0 0 8px var(--red); }
-
-        /* 底部状态栏细节 */
-        .bottom-bar {
-            margin-top: 20px; font-size: 10px;
-            display: flex; justify-content: space-between;
-            border-top: 1px solid var(--panel-border);
-            padding-top: 10px;
+        .nav-item p {
+            margin: 10px 0 0; font-size: 0.8rem;
+            color: var(--glow-cyan); opacity: 0.6;
+            letter-spacing: 1px;
         }
 
-        /* 启动遮罩 */
-        #boot-screen {
-            position: fixed; inset: 0; background: #000; z-index: 10000;
-            display: flex; justify-content: center; align-items: center;
-            color: var(--cyan); cursor: pointer;
+        /* 5. 启动覆盖层 */
+        #splash {
+            position: fixed; inset: 0; background: var(--bg-black);
+            z-index: 9999; display: flex; justify-content: center; align-items: center;
+            transition: opacity 1s;
         }
+        .loader {
+            width: 200px; height: 1px; background: #111; position: relative;
+        }
+        .loader-bar {
+            position: absolute; width: 0%; height: 100%; background: var(--glow-cyan);
+            box-shadow: 0 0 10px var(--glow-cyan);
+            animation: load 2s forwards;
+        }
+        @keyframes load { to { width: 100%; } }
     </style>
 </head>
 <body>
 
-    <div id="boot-screen" onclick="initSystem()">
-        <div id="boot-text">[ 点击初始化神经链路 ]</div>
+    <div id="splash" onclick="entry()">
+        <div class="loader"><div class="loader-bar"></div></div>
+        <div style="position:absolute; bottom: 40%; font-size: 12px; letter-spacing: 5px;">点击以接入神经链路</div>
     </div>
 
-    <div class="crt-overlay"></div>
-    <canvas id="canvas-bg"></canvas>
+    <div id="cursor"></div>
+    <div class="grid-layer"></div>
+    <div class="scanline-v2"></div>
 
-    <div class="wrapper">
-        <main class="terminal-container">
-            <div class="top-deco">
-                <div>SYS_REF: 00-X92 // LOCALHOST</div>
-                <div id="real-time">00:00:00</div>
-                <div>ENCRYPTION: AES-256-GCM</div>
+    <div class="interface-wrapper">
+        <aside class="side-panel">
+            <div>[ DECRYPTING_PACKETS... ]</div>
+            <div>CORE_TEMP: 32°C</div>
+            <div>UPTIME: 124:09:22</div>
+            <div style="margin-top: 100px;">
+                01010110 01101111 01101001 01100100
             </div>
+        </aside>
 
-            <div class="grid-menu">
-                <div class="item-card" onmouseenter="beep()">
-                    <div class="label">全服聊天</div>
-                    <div class="code">CHANNEL_ID: 882.global</div>
-                </div>
-                <div class="item-card" onmouseenter="beep()">
-                    <div class="label">物资交易</div>
-                    <div class="code">MARKET_P2P_ACTIVE</div>
-                </div>
-                <div class="item-card" onmouseenter="beep()">
-                    <div class="label">加密私聊</div>
-                    <div class="code">SECURE_TUNNEL_ESTABLISHED</div>
-                </div>
-                <div class="item-card danger-zone" onmouseenter="warn()">
-                    <div class="label">管理终端</div>
-                    <div class="code">ROOT_OVERRIDE_REQUIRED</div>
-                </div>
-                <div class="item-card" onmouseenter="beep()">
-                    <div class="label">补给同步</div>
-                    <div class="code">LAST_SYNC: 4m AGO</div>
-                </div>
-                <div class="item-card" onmouseenter="beep()">
-                    <div class="label">荣誉排行</div>
-                    <div class="code">CALCULATING_RANK...</div>
-                </div>
-                <div class="item-card" onmouseenter="beep()">
-                    <div class="label">协议激活</div>
-                    <div class="code">KEY_WAITING...</div>
-                </div>
-                <div class="item-card" onmouseenter="beep()">
-                    <div class="label">生存指南</div>
-                    <div class="code">DOC_REV_4.2</div>
-                </div>
+        <main class="main-content">
+            <div class="nav-item" onmouseenter="playSynth(440)" onmouseleave="stopSynth()">
+                <h2>全服聊天</h2>
+                <p>GLOBAL_VOX_STREAM</p>
             </div>
-
-            <div class="bottom-bar">
-                <div>CPU_LOAD: <span id="cpu-load">0</span>%</div>
-                <div>MEM_USAGE: <span id="mem-usage">0</span>MB</div>
-                <div>CONNECTION: STABLE</div>
-                <div style="color: var(--red);">[ WARNING: NO TRACE DETECTED ]</div>
+            <div class="nav-item" onmouseenter="playSynth(523)" onmouseleave="stopSynth()">
+                <h2>物资交易</h2>
+                <p>RESOURCE_MARKET_NODE</p>
+            </div>
+            <div class="nav-item" onmouseenter="playSynth(587)" onmouseleave="stopSynth()">
+                <h2>加密通道</h2>
+                <p>P2P_TUNNEL_ACTIVE</p>
+            </div>
+            <div class="nav-item" style="border-left-color: var(--accent-red);" onmouseenter="playWarn()" onmouseleave="stopSynth()">
+                <h2 style="color: var(--accent-red);">管理后台</h2>
+                <p style="color: var(--accent-red);">ROOT_ACCESS_REQUIRED</p>
             </div>
         </main>
+
+        <aside class="side-panel" style="text-align: right;">
+            <div>LOCATION: [40.71, -74.00]</div>
+            <div>SIGNAL: EXCELLENT</div>
+            <div>USER: UNKNOWN_ENTITY</div>
+        </aside>
     </div>
 
     <script>
-        // --- 1. Canvas 粒子背景系统 ---
-        const canvas = document.getElementById('canvas-bg');
-        const ctx = canvas.getContext('2d');
-        let particles = [];
+        // 鼠标随动
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
 
-        function initCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-            for(let i=0; i<100; i++) {
-                particles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 2,
-                    speed: Math.random() * 0.5 + 0.1
-                });
-            }
-        }
-
-        function drawParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = "rgba(0, 242, 255, 0.3)";
-            particles.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                ctx.fill();
-                p.y -= p.speed;
-                if(p.y < 0) p.y = canvas.height;
-            });
-            requestAnimationFrame(drawParticles);
-        }
-
-        // --- 2. 动态数据模拟 ---
-        setInterval(() => {
-            document.getElementById('real-time').innerText = new Date().toLocaleTimeString();
-            document.getElementById('cpu-load').innerText = (Math.random()*10 + 20).toFixed(1);
-            document.getElementById('mem-usage').innerText = Math.floor(Math.random()*200 + 800);
-        }, 1000);
-
-        // --- 3. 音频引擎 ---
+        // 声音引擎 (高级合成器)
         let audioCtx;
+        let mainOsc, subOsc, masterGain;
+
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            // 环境底噪
-            const osc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            osc.type = 'triangle'; osc.frequency.value = 50;
-            g.gain.value = 0.005; 
-            osc.connect(g).connect(audioCtx.destination);
-            osc.start();
+            masterGain = audioCtx.createGain();
+            masterGain.connect(audioCtx.destination);
+            
+            // 背景风声底噪
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.value = 100;
+            const noise = audioCtx.createOscillator();
+            noise.type = 'brown'; // 模拟低频
+            // 简单模拟背景流沙声
+            const noiseOsc = audioCtx.createOscillator();
+            const noiseGain = audioCtx.createGain();
+            noiseOsc.type = 'sine'; noiseOsc.frequency.value = 40;
+            noiseGain.gain.value = 0.005;
+            noiseOsc.connect(noiseGain).connect(audioCtx.destination);
+            noiseOsc.start();
         }
 
-        function beep() {
+        function playSynth(freq) {
             if(!audioCtx) return;
-            const o = audioCtx.createOscillator();
+            // 每一个音符都是由两个频率叠加，产生和声高级感
+            mainOsc = audioCtx.createOscillator();
+            subOsc = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.type = 'square'; o.frequency.value = 1000;
-            g.gain.setTargetAtTime(0.05, audioCtx.currentTime, 0.01);
-            g.gain.setTargetAtTime(0, audioCtx.currentTime + 0.05, 0.01);
-            o.connect(g).connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + 0.1);
+
+            mainOsc.type = 'sine';
+            mainOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+            
+            subOsc.type = 'triangle';
+            subOsc.frequency.setValueAtTime(freq / 2, audioCtx.currentTime);
+
+            g.gain.setValueAtTime(0, audioCtx.currentTime);
+            g.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.2); // 缓慢淡入，松弛感
+
+            mainOsc.connect(g);
+            subOsc.connect(g);
+            g.connect(masterGain);
+
+            mainOsc.start();
+            subOsc.start();
+            
+            cursor.style.width = '60px';
+            cursor.style.height = '60px';
         }
 
-        function warn() {
+        function playWarn() {
             if(!audioCtx) return;
-            const o = audioCtx.createOscillator();
+            mainOsc = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.type = 'sawtooth'; o.frequency.value = 120;
-            g.gain.setTargetAtTime(0.1, audioCtx.currentTime, 0.01);
-            g.gain.setTargetAtTime(0, audioCtx.currentTime + 0.2, 0.05);
-            o.connect(g).connect(audioCtx.destination);
-            o.start(); o.stop(audioCtx.currentTime + 0.3);
+            mainOsc.type = 'sawtooth';
+            mainOsc.frequency.setValueAtTime(110, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            mainOsc.connect(g).connect(masterGain);
+            mainOsc.start();
         }
 
-        function initSystem() {
-            document.getElementById('boot-screen').style.opacity = '0';
-            setTimeout(() => document.getElementById('boot-screen').remove(), 500);
-            initCanvas(); drawParticles(); initAudio();
+        function stopSynth() {
+            if(mainOsc) {
+                mainOsc.stop();
+                subOsc.stop();
+            }
+            cursor.style.width = '40px';
+            cursor.style.height = '40px';
+        }
+
+        function entry() {
+            document.getElementById('splash').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('splash').remove();
+                initAudio();
+            }, 1000);
         }
     </script>
 </body>
