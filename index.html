@@ -2,188 +2,258 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>NEST_OS_TRANSLUCENT</title>
+    <title>SECURE_ACCESS_NODE_09</title>
     <style>
         :root {
-            --cyan-bright: #00f2ff;
-            --glass-bg: rgba(10, 25, 30, 0.4);
-            --glass-border: rgba(0, 242, 255, 0.15);
-            --grid-line: rgba(0, 242, 255, 0.05);
+            --cyan: #00f2ff;
+            --cyan-dim: rgba(0, 242, 255, 0.1);
+            --bg: #01080b;
+            --glass: rgba(0, 20, 30, 0.6);
         }
 
         body, html {
             margin: 0; padding: 0;
-            background-color: #02060a;
+            background-color: var(--bg);
             color: #fff;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            height: 100vh;
-            overflow: hidden;
-            display: flex; justify-content: center; align-items: center;
+            font-family: 'Consolas', 'Monaco', monospace;
+            height: 100vh; overflow: hidden;
         }
 
-        /* 1. 还原原图的高级网格 */
-        .grid-background {
+        /* 1. 强化的双层网格系统 */
+        .grid-master {
             position: fixed; inset: 0;
             background-image: 
-                linear-gradient(var(--grid-line) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
-            background-size: 50px 50px;
+                linear-gradient(var(--cyan-dim) 1.5px, transparent 1.5px),
+                linear-gradient(90deg, var(--cyan-dim) 1.5px, transparent 1.5px);
+            background-size: 80px 80px; /* 大网格 */
+            z-index: -2;
+        }
+        .grid-sub {
+            position: fixed; inset: 0;
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+            background-size: 20px 20px; /* 小细格 */
             z-index: -1;
         }
-        .grid-background::after {
-            content: ""; position: absolute; inset: 0;
-            background: radial-gradient(circle at center, transparent 0%, #02060a 80%);
-        }
 
-        /* 2. 柔和扫描线 */
-        .scanner {
-            position: fixed; inset: 0;
-            background: linear-gradient(to bottom, transparent, rgba(0, 242, 255, 0.03), transparent);
-            height: 20%; width: 100%;
+        /* 2. 极其明显的扫描线 (Radar Sweep) */
+        .high-vis-scanner {
+            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--cyan);
+            box-shadow: 0 0 20px var(--cyan), 0 0 40px var(--cyan);
+            opacity: 0.6;
+            z-index: 100;
             pointer-events: none;
-            animation: scanMove 8s linear infinite;
-            z-index: 1;
-        }
-        @keyframes scanMove {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(500%); }
+            animation: scanHorizontal 4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
         }
 
-        /* 3. 玻璃质感容器 */
-        .container {
-            width: 90vw; max-width: 1200px;
+        @keyframes scanHorizontal {
+            0% { top: -5%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 105%; opacity: 0; }
+        }
+
+        /* 3. 布局：特工监控台样式 */
+        .dashboard {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-            z-index: 2;
+            grid-template-columns: 250px 1fr 250px;
+            height: 100vh;
+            padding: 20px;
+            gap: 20px;
+            box-sizing: border-box;
         }
 
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px); /* 核心玻璃质感 */
-            border: 1px solid var(--glass-border);
-            padding: 40px 30px;
+        /* 侧边监控栏 */
+        .side-monitor {
+            display: flex; flex-direction: column; gap: 15px;
+            font-size: 11px; color: var(--cyan);
+            text-transform: uppercase; letter-spacing: 1px;
+        }
+
+        .data-box {
+            border: 1px solid var(--cyan-dim);
+            padding: 15px; background: var(--glass);
+            backdrop-filter: blur(10px);
+        }
+
+        /* 中央磁贴 */
+        .main-hub {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--glass);
+            border: 1px solid var(--cyan-dim);
+            backdrop-filter: blur(15px);
+            padding: 30px;
             position: relative;
-            clip-path: polygon(0 0, 100% 0, 100% 88%, 92% 100%, 0 100%); /* 切角设计 */
-            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
+            cursor: pointer;
+            transition: 0.3s;
+            clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%);
         }
 
-        .glass-card:hover {
-            border-color: var(--cyan-bright);
-            background: rgba(0, 242, 255, 0.08);
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
+        .card:hover {
+            border-color: var(--cyan);
+            box-shadow: inset 0 0 20px var(--cyan-dim);
+            transform: scale(1.02);
         }
 
-        .title {
-            font-size: 1.8rem; letter-spacing: 3px; font-weight: bold;
-            margin-bottom: 12px; display: block;
+        .card h2 { margin: 0; font-size: 1.6rem; letter-spacing: 4px; }
+        .card p { color: rgba(255,255,255,0.4); font-size: 0.8rem; margin-top: 8px; }
+
+        /* 特殊管理终端 */
+        .card.admin { border-left: 4px solid #ff3c41; }
+        .card.admin h2 { color: #ff3c41; }
+
+        /* 底部滚动流 */
+        .status-scroll {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: rgba(0,0,0,0.8);
+            font-size: 10px; color: var(--cyan);
+            padding: 5px 20px; border-top: 1px solid var(--cyan-dim);
+            white-space: nowrap;
+            overflow: hidden;
         }
 
-        .desc {
-            font-size: 0.9rem; color: rgba(255, 255, 255, 0.5);
-            letter-spacing: 1px;
-        }
-        .desc::before { content: "> "; color: var(--cyan-bright); }
-
-        /* 启动遮罩 */
-        #init-gate {
-            position: fixed; inset: 0; background: #000;
-            z-index: 999; display: flex; justify-content: center; align-items: center;
-            cursor: pointer; transition: 0.8s ease;
+        /* 交互反馈动画 */
+        .pulse { animation: pulseAnim 2s infinite; }
+        @keyframes pulseAnim {
+            0% { opacity: 0.3; } 50% { opacity: 0.8; } 100% { opacity: 0.3; }
         }
     </style>
 </head>
-<body>
+<body onclick="startAudio()">
 
-    <div id="init-gate" onclick="unlock()">
-        <div style="text-align: center;">
-            <p style="letter-spacing: 8px; color: var(--cyan-bright); font-size: 12px;">SYSTEM_AUTHENTICATION</p>
-            <p style="color: #444; font-size: 10px;">[ CLICK TO INITIATE ]</p>
-        </div>
+    <div class="grid-master"></div>
+    <div class="grid-sub"></div>
+    <div class="high-vis-scanner"></div>
+
+    <div class="dashboard">
+        <aside class="side-monitor">
+            <div class="data-box">
+                <div class="pulse" style="color:#ff3c41">● UPLINK_ACTIVE</div>
+                <div style="margin-top:10px">CPU_LOAD: <span id="cpu">00.0</span>%</div>
+                <div class="bar-container" style="width:100%; height:4px; background:#111; margin-top:5px;">
+                    <div id="cpu-bar" style="width:40%; height:100%; background:var(--cyan);"></div>
+                </div>
+                <div style="margin-top:10px">MEM_CORE: <span id="mem">0000</span> MB</div>
+                <div style="margin-top:10px">TEMP: 42°C [STABLE]</div>
+            </div>
+            <div class="data-box" style="flex-grow: 1; overflow: hidden; opacity: 0.5;">
+                <div id="logs" style="line-height: 1.5;"></div>
+            </div>
+        </aside>
+
+        <main class="main-hub">
+            <div class="card" onmouseenter="playTick()">
+                <h2>全服聊天</h2>
+                <p>> COMMS_VOICE_STREAM_V4</p>
+            </div>
+            <div class="card" onmouseenter="playTick()">
+                <h2>物资交易</h2>
+                <p>> MARKET_DATA_ENCRYPTED</p>
+            </div>
+            <div class="card" onmouseenter="playTick()">
+                <h2>加密私聊</h2>
+                <p>> RSA_4096_SECURE_NODE</p>
+            </div>
+            <div class="card" onmouseenter="playTick()">
+                <h2>协议激活</h2>
+                <p>> CIPHER_INPUT_WAITING</p>
+            </div>
+            <div class="card" onmouseenter="playTick()">
+                <h2>生存指南</h2>
+                <p>> INTEL_ARCHIVE_STATIC</p>
+            </div>
+            <div class="card admin" onmouseenter="playWarn()">
+                <h2>管理终端</h2>
+                <p>> ROOT_AUTHORIZATION_REQUIRED</p>
+            </div>
+        </main>
+
+        <aside class="side-monitor">
+            <div class="data-box">
+                <div>LOCATION: UNKNOWN</div>
+                <div id="coords" style="font-size: 14px; margin-top:5px;">40.7128 N, 74.0060 W</div>
+            </div>
+            <div class="data-box" style="text-align: center;">
+                <div style="font-size: 24px;" id="timer">00:00:00</div>
+                <div style="font-size: 9px; opacity: 0.5;">SESSION_TIME</div>
+            </div>
+            <div class="data-box" style="flex-grow: 1; font-family: monospace; word-break: break-all; opacity: 0.3;">
+                HEX_DUMP: <br>
+                <span id="hex-stream"></span>
+            </div>
+        </aside>
     </div>
 
-    <div class="grid-background"></div>
-    <div class="scanner"></div>
-
-    <div class="container">
-        <div class="glass-card" onmouseenter="triggerSound('enter')" onmouseleave="triggerSound('exit')">
-            <span class="title">全服聊天</span>
-            <span class="desc">大厅实时广播频道</span>
-        </div>
-        <div class="glass-card" onmouseenter="triggerSound('enter')">
-            <span class="title">物资交易</span>
-            <span class="desc">发布、寻找各类资源</span>
-        </div>
-        <div class="glass-card" onmouseenter="triggerSound('enter')">
-            <span class="title">加密私聊</span>
-            <span class="desc">点对点加密通讯协议</span>
-        </div>
-        <div class="glass-card" onmouseenter="triggerSound('enter')">
-            <span class="title">同步补给</span>
-            <span class="desc">24小时周期资源同步</span>
-        </div>
-        <div class="glass-card" onmouseenter="triggerSound('enter')">
-            <span class="title">荣誉排行</span>
-            <span class="desc">全服 XP 贡献排名</span>
-        </div>
-        <div class="glass-card" onmouseenter="triggerSound('enter')">
-            <span class="title">协议激活</span>
-            <span class="desc">输入密钥激活特权</span>
-        </div>
+    <div class="status-scroll" id="scroller">
+        SYSTEM_READY... LINK_ESTABLISHED... ENCRYPTION_ON... NO_TRACE_DETECTED... 
     </div>
 
     <script>
         let audioCtx;
-        let ambientNode;
 
-        function unlock() {
-            document.getElementById('init-gate').style.opacity = '0';
-            setTimeout(() => document.getElementById('init-gate').remove(), 800);
-            initAudio();
-        }
-
-        function initAudio() {
-            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // 模拟数据更新
+        setInterval(() => {
+            const cpu = (Math.random() * 20 + 30).toFixed(1);
+            document.getElementById('cpu').innerText = cpu;
+            document.getElementById('cpu-bar').style.width = cpu + '%';
+            document.getElementById('mem').innerText = Math.floor(Math.random() * 500 + 4000);
+            document.getElementById('timer').innerText = new Date().toLocaleTimeString('en-GB');
             
-            // 恒定的超低频“松弛感”背景音 (Deep Sea Hum)
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.type = 'sine';
-            osc.frequency.setValueAtTime(40, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
-            osc.connect(gain).connect(audioCtx.destination);
-            osc.start();
-        }
+            // 滚动日志
+            const log = document.getElementById('logs');
+            const newEntry = document.createElement('div');
+            newEntry.innerText = `[${new Date().getSeconds()}] PKT_RECV: ${Math.random().toString(16).substr(2, 8)}`;
+            log.prepend(newEntry);
+            if(log.childNodes.length > 15) log.lastChild.remove();
 
-        function triggerSound(type) {
-            if (!audioCtx) return;
+            // 16进制流
+            document.getElementById('hex-stream').innerText += Math.random().toString(16).substr(2, 2) + " ";
+            if(document.getElementById('hex-stream').innerText.length > 200) document.getElementById('hex-stream').innerText = "";
+        }, 1000);
 
-            if (type === 'enter') {
-                // 进入时：轻微的机械卡哒声 (Short Metallic Click)
+        function startAudio() {
+            if(!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                // 极低频背景嗡嗡声
                 const osc = audioCtx.createOscillator();
                 const g = audioCtx.createGain();
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
-                g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.type = 'sine'; osc.frequency.value = 45;
+                g.gain.value = 0.01;
                 osc.connect(g).connect(audioCtx.destination);
                 osc.start();
-                osc.stop(audioCtx.currentTime + 0.1);
-
-                // 产生一个微弱的谐波，只响一次，不会一直吵
-                const pulse = audioCtx.createOscillator();
-                const pg = audioCtx.createGain();
-                pulse.type = 'sine';
-                pulse.frequency.setValueAtTime(220, audioCtx.currentTime);
-                pg.gain.setValueAtTime(0, audioCtx.currentTime);
-                pg.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.05);
-                pg.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
-                pulse.connect(pg).connect(audioCtx.destination);
-                pulse.start();
-                pulse.stop(audioCtx.currentTime + 0.6);
             }
+        }
+
+        function playTick() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.connect(g).connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
+        }
+
+        function playWarn() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            osc.connect(g).connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.3);
         }
     </script>
 </body>
