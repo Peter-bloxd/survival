@@ -2,268 +2,188 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>ZEN_TERMINAL_V5</title>
+    <title>NEST_OS_TRANSLUCENT</title>
     <style>
         :root {
-            --glow-cyan: #00f2ff;
-            --dim-cyan: rgba(0, 242, 255, 0.15);
-            --bg-black: #020608;
-            --accent-red: #ff3c41;
-            --font-mono: 'Share Tech Mono', 'Courier New', monospace;
+            --cyan-bright: #00f2ff;
+            --glass-bg: rgba(10, 25, 30, 0.4);
+            --glass-border: rgba(0, 242, 255, 0.15);
+            --grid-line: rgba(0, 242, 255, 0.05);
         }
 
         body, html {
             margin: 0; padding: 0;
-            background-color: var(--bg-black);
-            color: white;
-            font-family: var(--font-mono);
-            overflow: hidden;
+            background-color: #02060a;
+            color: #fff;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             height: 100vh;
-            cursor: none; /* 隐藏默认鼠标，使用自定义准心 */
+            overflow: hidden;
+            display: flex; justify-content: center; align-items: center;
         }
 
-        /* 1. 动态网格底层 */
-        .grid-layer {
+        /* 1. 还原原图的高级网格 */
+        .grid-background {
             position: fixed; inset: 0;
             background-image: 
-                linear-gradient(var(--dim-cyan) 1px, transparent 1px),
-                linear-gradient(90deg, var(--dim-cyan) 1px, transparent 1px);
-            background-size: 60px 60px;
-            background-position: center center;
-            opacity: 0.2;
-            z-index: -2;
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+        }
+        .grid-background::after {
+            content: ""; position: absolute; inset: 0;
+            background: radial-gradient(circle at center, transparent 0%, #02060a 80%);
         }
 
-        /* 2. 自动循环的高级扫描线 */
-        .scanline-v2 {
-            position: fixed;
-            top: -100px; left: 0; width: 100%; height: 100px;
-            background: linear-gradient(to bottom, transparent, rgba(0, 242, 255, 0.1), transparent);
-            border-bottom: 1px solid rgba(0, 242, 255, 0.3);
-            z-index: 10;
+        /* 2. 柔和扫描线 */
+        .scanner {
+            position: fixed; inset: 0;
+            background: linear-gradient(to bottom, transparent, rgba(0, 242, 255, 0.03), transparent);
+            height: 20%; width: 100%;
             pointer-events: none;
-            animation: scan 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            animation: scanMove 8s linear infinite;
+            z-index: 1;
+        }
+        @keyframes scanMove {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(500%); }
         }
 
-        @keyframes scan {
-            0% { top: -100px; opacity: 0; }
-            5% { opacity: 1; }
-            95% { opacity: 1; }
-            100% { top: 100%; opacity: 0; }
-        }
-
-        /* 3. 自定义准心鼠标 */
-        #cursor {
-            position: fixed; width: 40px; height: 40px;
-            border: 1px solid var(--glow-cyan);
-            border-radius: 50%;
-            pointer-events: none; z-index: 10000;
-            transform: translate(-50%, -50%);
-            transition: transform 0.1s ease-out, width 0.3s, height 0.3s;
-        }
-        #cursor::after {
-            content: ""; position: absolute; top: 50%; left: 50%;
-            width: 4px; height: 4px; background: var(--glow-cyan);
-            transform: translate(-50%, -50%);
-        }
-
-        /* 4. 松弛感布局容器 */
-        .interface-wrapper {
-            height: 100vh;
+        /* 3. 玻璃质感容器 */
+        .container {
+            width: 90vw; max-width: 1200px;
             display: grid;
-            grid-template-columns: 1fr 2fr 1fr; /* 三栏布局，核心内容居中 */
-            align-items: center;
-            padding: 0 5vw;
-            box-sizing: border-box;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+            z-index: 2;
         }
 
-        .side-panel {
-            font-size: 10px; color: var(--glow-cyan); opacity: 0.4;
-            display: flex; flex-direction: column; gap: 20px;
-        }
-
-        .main-content {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 40px;
-        }
-
-        /* 高级磁贴：极简线条 */
-        .nav-item {
+        .glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(12px); /* 核心玻璃质感 */
+            border: 1px solid var(--glass-border);
+            padding: 40px 30px;
             position: relative;
-            padding: 40px 20px;
-            border-left: 1px solid var(--dim-cyan);
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-            background: rgba(255, 255, 255, 0.02);
+            clip-path: polygon(0 0, 100% 0, 100% 88%, 92% 100%, 0 100%); /* 切角设计 */
+            transition: all 0.4s cubic-bezier(0.19, 1, 0.22, 1);
         }
 
-        .nav-item:hover {
-            border-left: 4px solid var(--glow-cyan);
-            background: rgba(0, 242, 255, 0.05);
-            transform: translateX(10px);
-            cursor: none;
+        .glass-card:hover {
+            border-color: var(--cyan-bright);
+            background: rgba(0, 242, 255, 0.08);
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
         }
 
-        .nav-item h2 {
-            margin: 0; font-size: 1.8rem; font-weight: 300;
-            letter-spacing: 4px; text-transform: uppercase;
+        .title {
+            font-size: 1.8rem; letter-spacing: 3px; font-weight: bold;
+            margin-bottom: 12px; display: block;
         }
 
-        .nav-item p {
-            margin: 10px 0 0; font-size: 0.8rem;
-            color: var(--glow-cyan); opacity: 0.6;
+        .desc {
+            font-size: 0.9rem; color: rgba(255, 255, 255, 0.5);
             letter-spacing: 1px;
         }
+        .desc::before { content: "> "; color: var(--cyan-bright); }
 
-        /* 5. 启动覆盖层 */
-        #splash {
-            position: fixed; inset: 0; background: var(--bg-black);
-            z-index: 9999; display: flex; justify-content: center; align-items: center;
-            transition: opacity 1s;
+        /* 启动遮罩 */
+        #init-gate {
+            position: fixed; inset: 0; background: #000;
+            z-index: 999; display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: 0.8s ease;
         }
-        .loader {
-            width: 200px; height: 1px; background: #111; position: relative;
-        }
-        .loader-bar {
-            position: absolute; width: 0%; height: 100%; background: var(--glow-cyan);
-            box-shadow: 0 0 10px var(--glow-cyan);
-            animation: load 2s forwards;
-        }
-        @keyframes load { to { width: 100%; } }
     </style>
 </head>
 <body>
 
-    <div id="splash" onclick="entry()">
-        <div class="loader"><div class="loader-bar"></div></div>
-        <div style="position:absolute; bottom: 40%; font-size: 12px; letter-spacing: 5px;">点击以接入神经链路</div>
+    <div id="init-gate" onclick="unlock()">
+        <div style="text-align: center;">
+            <p style="letter-spacing: 8px; color: var(--cyan-bright); font-size: 12px;">SYSTEM_AUTHENTICATION</p>
+            <p style="color: #444; font-size: 10px;">[ CLICK TO INITIATE ]</p>
+        </div>
     </div>
 
-    <div id="cursor"></div>
-    <div class="grid-layer"></div>
-    <div class="scanline-v2"></div>
+    <div class="grid-background"></div>
+    <div class="scanner"></div>
 
-    <div class="interface-wrapper">
-        <aside class="side-panel">
-            <div>[ DECRYPTING_PACKETS... ]</div>
-            <div>CORE_TEMP: 32°C</div>
-            <div>UPTIME: 124:09:22</div>
-            <div style="margin-top: 100px;">
-                01010110 01101111 01101001 01100100
-            </div>
-        </aside>
-
-        <main class="main-content">
-            <div class="nav-item" onmouseenter="playSynth(440)" onmouseleave="stopSynth()">
-                <h2>全服聊天</h2>
-                <p>GLOBAL_VOX_STREAM</p>
-            </div>
-            <div class="nav-item" onmouseenter="playSynth(523)" onmouseleave="stopSynth()">
-                <h2>物资交易</h2>
-                <p>RESOURCE_MARKET_NODE</p>
-            </div>
-            <div class="nav-item" onmouseenter="playSynth(587)" onmouseleave="stopSynth()">
-                <h2>加密通道</h2>
-                <p>P2P_TUNNEL_ACTIVE</p>
-            </div>
-            <div class="nav-item" style="border-left-color: var(--accent-red);" onmouseenter="playWarn()" onmouseleave="stopSynth()">
-                <h2 style="color: var(--accent-red);">管理后台</h2>
-                <p style="color: var(--accent-red);">ROOT_ACCESS_REQUIRED</p>
-            </div>
-        </main>
-
-        <aside class="side-panel" style="text-align: right;">
-            <div>LOCATION: [40.71, -74.00]</div>
-            <div>SIGNAL: EXCELLENT</div>
-            <div>USER: UNKNOWN_ENTITY</div>
-        </aside>
+    <div class="container">
+        <div class="glass-card" onmouseenter="triggerSound('enter')" onmouseleave="triggerSound('exit')">
+            <span class="title">全服聊天</span>
+            <span class="desc">大厅实时广播频道</span>
+        </div>
+        <div class="glass-card" onmouseenter="triggerSound('enter')">
+            <span class="title">物资交易</span>
+            <span class="desc">发布、寻找各类资源</span>
+        </div>
+        <div class="glass-card" onmouseenter="triggerSound('enter')">
+            <span class="title">加密私聊</span>
+            <span class="desc">点对点加密通讯协议</span>
+        </div>
+        <div class="glass-card" onmouseenter="triggerSound('enter')">
+            <span class="title">同步补给</span>
+            <span class="desc">24小时周期资源同步</span>
+        </div>
+        <div class="glass-card" onmouseenter="triggerSound('enter')">
+            <span class="title">荣誉排行</span>
+            <span class="desc">全服 XP 贡献排名</span>
+        </div>
+        <div class="glass-card" onmouseenter="triggerSound('enter')">
+            <span class="title">协议激活</span>
+            <span class="desc">输入密钥激活特权</span>
+        </div>
     </div>
 
     <script>
-        // 鼠标随动
-        const cursor = document.getElementById('cursor');
-        document.addEventListener('mousemove', (e) => {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-
-        // 声音引擎 (高级合成器)
         let audioCtx;
-        let mainOsc, subOsc, masterGain;
+        let ambientNode;
+
+        function unlock() {
+            document.getElementById('init-gate').style.opacity = '0';
+            setTimeout(() => document.getElementById('init-gate').remove(), 800);
+            initAudio();
+        }
 
         function initAudio() {
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            masterGain = audioCtx.createGain();
-            masterGain.connect(audioCtx.destination);
             
-            // 背景风声底噪
-            const filter = audioCtx.createBiquadFilter();
-            filter.type = 'lowpass';
-            filter.frequency.value = 100;
-            const noise = audioCtx.createOscillator();
-            noise.type = 'brown'; // 模拟低频
-            // 简单模拟背景流沙声
-            const noiseOsc = audioCtx.createOscillator();
-            const noiseGain = audioCtx.createGain();
-            noiseOsc.type = 'sine'; noiseOsc.frequency.value = 40;
-            noiseGain.gain.value = 0.005;
-            noiseOsc.connect(noiseGain).connect(audioCtx.destination);
-            noiseOsc.start();
+            // 恒定的超低频“松弛感”背景音 (Deep Sea Hum)
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(40, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.01, audioCtx.currentTime);
+            osc.connect(gain).connect(audioCtx.destination);
+            osc.start();
         }
 
-        function playSynth(freq) {
-            if(!audioCtx) return;
-            // 每一个音符都是由两个频率叠加，产生和声高级感
-            mainOsc = audioCtx.createOscillator();
-            subOsc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
+        function triggerSound(type) {
+            if (!audioCtx) return;
 
-            mainOsc.type = 'sine';
-            mainOsc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-            
-            subOsc.type = 'triangle';
-            subOsc.frequency.setValueAtTime(freq / 2, audioCtx.currentTime);
+            if (type === 'enter') {
+                // 进入时：轻微的机械卡哒声 (Short Metallic Click)
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.1);
+                g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.connect(g).connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
 
-            g.gain.setValueAtTime(0, audioCtx.currentTime);
-            g.gain.linearRampToValueAtTime(0.1, audioCtx.currentTime + 0.2); // 缓慢淡入，松弛感
-
-            mainOsc.connect(g);
-            subOsc.connect(g);
-            g.connect(masterGain);
-
-            mainOsc.start();
-            subOsc.start();
-            
-            cursor.style.width = '60px';
-            cursor.style.height = '60px';
-        }
-
-        function playWarn() {
-            if(!audioCtx) return;
-            mainOsc = audioCtx.createOscillator();
-            const g = audioCtx.createGain();
-            mainOsc.type = 'sawtooth';
-            mainOsc.frequency.setValueAtTime(110, audioCtx.currentTime);
-            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            mainOsc.connect(g).connect(masterGain);
-            mainOsc.start();
-        }
-
-        function stopSynth() {
-            if(mainOsc) {
-                mainOsc.stop();
-                subOsc.stop();
+                // 产生一个微弱的谐波，只响一次，不会一直吵
+                const pulse = audioCtx.createOscillator();
+                const pg = audioCtx.createGain();
+                pulse.type = 'sine';
+                pulse.frequency.setValueAtTime(220, audioCtx.currentTime);
+                pg.gain.setValueAtTime(0, audioCtx.currentTime);
+                pg.gain.linearRampToValueAtTime(0.02, audioCtx.currentTime + 0.05);
+                pg.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.5);
+                pulse.connect(pg).connect(audioCtx.destination);
+                pulse.start();
+                pulse.stop(audioCtx.currentTime + 0.6);
             }
-            cursor.style.width = '40px';
-            cursor.style.height = '40px';
-        }
-
-        function entry() {
-            document.getElementById('splash').style.opacity = '0';
-            setTimeout(() => {
-                document.getElementById('splash').remove();
-                initAudio();
-            }, 1000);
         }
     </script>
 </body>
