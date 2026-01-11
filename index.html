@@ -2,197 +2,243 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>生存法则 - 生存终端</title>
+    <title>NEST-OS | 终端接入</title>
     <style>
         :root {
-            --primary-cyan: #00f2ff;
-            --accent-red: #ff3c41;
-            --bg-dark: #050a0f;
-            --grid-color: rgba(0, 242, 255, 0.05);
+            --cyan: #00f2ff;
+            --red: #ff3c41;
+            --dark: #020508;
+            --panel-bg: rgba(0, 242, 255, 0.05);
+            --font-main: 'Share Tech Mono', monospace;
         }
 
+        * { cursor: crosshair; }
+
         body {
-            background-color: var(--bg-dark);
-            color: white;
-            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background-color: var(--dark);
+            color: var(--cyan);
+            font-family: var(--font-main), "Microsoft YaHei";
             margin: 0;
+            height: 100vh;
             overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            /* 背景网格 */
-            background-image: 
-                linear-gradient(var(--grid-color) 1px, transparent 1px),
-                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 40px 40px;
+            perspective: 1000px; /* 3D 透视 */
         }
 
-        /* 扫描线效果 */
-        body::after {
-            content: " ";
-            position: absolute;
+        /* 动态背景网格 */
+        .bg-overlay {
+            position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            background-size: 100% 4px, 3px 100%;
+            background: 
+                linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+            background-size: 100% 2px, 3px 100%;
             pointer-events: none;
-            z-index: 10;
+            z-index: 100;
         }
 
-        .container {
-            width: 90%;
-            max-width: 1200px;
+        .grid-bg {
+            position: fixed;
+            width: 200%; height: 200%;
+            background-image: 
+                linear-gradient(var(--panel-bg) 1px, transparent 1px),
+                linear-gradient(90deg, var(--panel-bg) 1px, transparent 1px);
+            background-size: 50px 50px;
+            transform: rotateX(60deg) translateY(-50%);
+            animation: grid-move 20s linear infinite;
+            z-index: -1;
+            opacity: 0.5;
+        }
+
+        @keyframes grid-move {
+            0% { background-position: 0 0; }
+            100% { background-position: 0 500px; }
+        }
+
+        /* 核心容器 3D 倾斜 */
+        .main-terminal {
+            width: 90vw;
+            max-width: 1300px;
+            transform: rotateY(-5deg) rotateX(5deg);
+            padding: 40px;
+            border: 1px solid rgba(0, 242, 255, 0.1);
+            background: rgba(5, 10, 15, 0.8);
+            box-shadow: 0 0 50px rgba(0, 0, 0, 1);
             position: relative;
         }
 
-        /* 顶部装饰 */
-        .header {
+        /* 标题 Glitch 效果 */
+        .glitch-title {
+            font-size: 5rem;
             text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .header h1 {
-            font-size: 4rem;
-            letter-spacing: 15px;
-            margin: 0;
-            text-shadow: 0 0 20px var(--primary-cyan);
-            font-weight: 900;
-        }
-
-        .status-bar {
-            position: absolute;
-            top: -100px;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.8rem;
-            color: var(--primary-cyan);
-            opacity: 0.7;
             text-transform: uppercase;
-        }
-
-        /* 磁贴卡片 */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .card {
-            background: rgba(0, 242, 255, 0.03);
-            border: 1px solid rgba(0, 242, 255, 0.2);
-            padding: 30px;
+            letter-spacing: 20px;
             position: relative;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            clip-path: polygon(0 0, 100% 0, 100% 85%, 90% 100%, 0 100%);
+            margin-bottom: 60px;
+            text-shadow: 0.05em 0 0 var(--red), -0.025em -0.05em 0 var(--cyan);
+            animation: glitch 2s infinite;
         }
 
-        .card:hover {
-            background: rgba(0, 242, 255, 0.1);
-            border-color: var(--primary-cyan);
-            box-shadow: 0 0 15px rgba(0, 242, 255, 0.3);
-            transform: translateY(-5px);
+        @keyframes glitch {
+            0% { text-shadow: 0.05em 0 0 var(--red), -0.025em -0.05em 0 var(--cyan); }
+            14% { text-shadow: 0.05em 0 0 var(--red), -0.025em -0.05em 0 var(--cyan); }
+            15% { text-shadow: -0.05em -0.025em 0 var(--red), 0.025em 0.05em 0 var(--cyan); }
+            49% { text-shadow: -0.05em -0.025em 0 var(--red), 0.025em 0.05em 0 var(--cyan); }
+            50% { text-shadow: 0.025em 0.05em 0 var(--red), 0.05em 0 0 var(--cyan); }
+            100% { text-shadow: -0.025em 0 0 var(--red), -0.025em -0.025em 0 var(--cyan); }
         }
 
-        .card::before {
-            content: "";
+        /* 交互按钮 */
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+
+        .btn {
+            background: rgba(0, 242, 255, 0.05);
+            border: 1px solid var(--cyan);
+            padding: 25px 15px;
+            text-align: left;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--cyan);
+            color: var(--dark);
+            box-shadow: 0 0 30px var(--cyan);
+            transform: scale(1.05);
+        }
+
+        .btn .label { font-size: 1.4rem; font-weight: bold; display: block; }
+        .btn .sub { font-size: 0.7rem; opacity: 0.7; text-transform: uppercase; }
+
+        /* 右下角装饰 */
+        .system-info {
             position: absolute;
-            top: 0; left: 0;
-            width: 4px; height: 30%;
-            background: var(--primary-cyan);
+            bottom: -50px; right: 0;
+            font-size: 0.7rem;
+            text-align: right;
+            opacity: 0.5;
         }
 
-        .card.admin {
-            border-color: rgba(255, 60, 65, 0.3);
+        /* 启动遮罩 */
+        #overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+            flex-direction: column;
         }
-        .card.admin:hover {
-            border-color: var(--accent-red);
-            box-shadow: 0 0 15px rgba(255, 60, 65, 0.3);
-        }
-        .card.admin .title { color: var(--accent-red); }
-
-        .title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: block;
-        }
-
-        .desc {
-            font-size: 0.9rem;
-            color: rgba(255, 255, 255, 0.6);
-            display: block;
-        }
-
-        .desc::before {
-            content: "> ";
-            color: var(--primary-cyan);
-        }
-
-        /* 装饰角标 */
-        .corner {
-            position: absolute;
-            width: 20px; height: 20px;
-            border: 2px solid var(--primary-cyan);
-        }
-        .tl { top: -10px; left: -10px; border-right: none; border-bottom: none; }
-        .br { bottom: -10px; right: -10px; border-left: none; border-top: none; }
-
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="status-bar">
-        <span>系统状态 // 在线 // 已就绪</span>
-        <span>战术坐标: 2988-Z8601</span>
+    <div id="overlay">
+        <button onclick="startSystem()" style="background:none; border: 1px solid var(--cyan); color: var(--cyan); padding: 20px 40px; font-size: 1.5rem; cursor: pointer;">
+            初始化系统 (INIT_SESSION)
+        </button>
+        <p style="margin-top: 20px; font-size: 0.8rem; letter-spacing: 2px;">检测到未授权接入...</p>
     </div>
 
-    <div class="header">
-        <h1>生存法则</h1>
-        <p style="color: var(--primary-cyan); letter-spacing: 5px;">> 正在同步安全网络数据流...</p>
+    <div class="bg-overlay"></div>
+    <div class="grid-bg"></div>
+
+    <div class="main-terminal">
+        <div class="glitch-title">生存法则</div>
+
+        <div class="menu-grid">
+            <div class="btn" onmouseover="playHover()">
+                <span class="label">全服聊天</span>
+                <span class="sub">Comm_Channel_Active</span>
+            </div>
+            <div class="btn" onmouseover="playHover()">
+                <span class="label">物资交易</span>
+                <span class="sub">Resource_Exchange_V2</span>
+            </div>
+            <div class="btn" onmouseover="playHover()">
+                <span class="label">加密私聊</span>
+                <span class="sub">End-to-End_Protocol</span>
+            </div>
+            <div class="btn" onmouseover="playHover()">
+                <span class="label">同步补给</span>
+                <span class="sub">Cycle_Sync_4Hz</span>
+            </div>
+            <div class="btn" onmouseover="playHover()">
+                <span class="label">荣誉排行</span>
+                <span class="sub">Top_Tier_Ranking</span>
+            </div>
+            <div class="btn" onmouseover="playHover()">
+                <span class="label">协议激活</span>
+                <span class="sub">Cipher_Key_Input</span>
+            </div>
+            <div class="btn" onmouseover="playHover()">
+                <span class="label">指南档案</span>
+                <span class="sub">Database_Static</span>
+            </div>
+            <div class="btn admin" onmouseover="playHover()" style="border-color: var(--red);">
+                <span class="label" style="color: var(--red);">管理终端</span>
+                <span class="sub">Root_Access_Only</span>
+            </div>
+        </div>
+
+        <div class="system-info">
+            LATENCY: 12ms | CPU: 42% | MEM: 1.2GB/16GB<br>
+            LOCATION: UNKNOWN_GRID_77
+        </div>
     </div>
 
-    <div class="grid">
-        <div class="card">
-            <span class="title">全服聊天</span>
-            <span class="desc">大厅实时广播频道</span>
-        </div>
-        <div class="card">
-            <span class="title">物资交易</span>
-            <span class="desc">发布、寻找各类资源</span>
-        </div>
-        <div class="card">
-            <span class="title">加密私聊</span>
-            <span class="desc">点对点加密通讯协议</span>
-        </div>
-        <div class="card">
-            <span class="title">同步补给</span>
-            <span class="desc">24小时周期资源同步</span>
-        </div>
-        <div class="card">
-            <span class="title">荣誉排行</span>
-            <span class="desc">全服 XP 贡献排名</span>
-        </div>
-        <div class="card">
-            <span class="title">协议激活</span>
-            <span class="desc">输入密钥激活特权</span>
-        </div>
-        <div class="card">
-            <span class="title">生存指南</span>
-            <span class="desc">官方规则与管理档案</span>
-        </div>
-        <div class="card admin">
-            <span class="title">管理终端</span>
-            <span class="desc" style="color: var(--accent-red);">ROOT 核心权限接口</span>
-        </div>
-    </div>
+    <script>
+        // Web Audio 系统
+        let audioCtx;
+        
+        function initAudio() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            // 背景低频噪音
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            oscillator.type = 'sawtooth';
+            oscillator.frequency.setValueAtTime(40, audioCtx.currentTime); 
+            gainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            oscillator.start();
+        }
 
-    <div class="corner tl"></div>
-    <div class="corner br" style="border-color: #fff;"></div>
-</div>
+        function playHover() {
+            if(!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.1);
+            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.1);
+        }
 
+        function startSystem() {
+            document.getElementById('overlay').style.display = 'none';
+            initAudio();
+            // 播放一个启动音
+            const osc = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            osc.frequency.setValueAtTime(100, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(1000, audioCtx.currentTime + 1);
+            g.gain.setTargetAtTime(0.2, audioCtx.currentTime, 0.1);
+            g.gain.setTargetAtTime(0, audioCtx.currentTime + 0.8, 0.2);
+            osc.connect(g);
+            g.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 1.2);
+        }
+    </script>
 </body>
 </html>
