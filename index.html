@@ -2,191 +2,238 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>SURVIVAL_LAW_ULTRA</title>
+    <title>SURVIVAL_LAW_TERMINAL_V8</title>
     <style>
         :root {
             --neon-yellow: #f1c40f;
             --neon-cyan: #00f2ff;
-            --bg-color: #010608;
-            --glass-bg: rgba(6, 18, 24, 0.85);
+            --bg-deep: #010608;
+            --glass: rgba(6, 18, 24, 0.85);
+            --grid-line: rgba(0, 242, 255, 0.04);
         }
 
         body, html {
             margin: 0; padding: 0;
-            background-color: var(--bg-color);
+            background-color: var(--bg-deep);
             color: white;
             font-family: 'Share Tech Mono', 'Segoe UI', sans-serif;
             height: 100vh; overflow: hidden;
             display: flex; flex-direction: column; align-items: center;
         }
 
-        /* 1. 深度网格底层 - 增加丝滑渐变 */
+        /* 1. 深度网格背景 */
         .grid-layer {
             position: fixed; inset: 0;
             background-image: 
-                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
+                linear-gradient(var(--grid-line) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 45px 45px;
             z-index: -2;
-            mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
+            mask-image: radial-gradient(circle at center, black 40%, transparent 95%);
         }
 
-        /* 2. 动态鼠标追踪光晕 - 增加丝滑感 */
+        /* 2. 丝滑鼠标追踪光晕 */
         #light-tracker {
-            position: fixed; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%);
+            position: fixed; width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(0, 242, 255, 0.07) 0%, transparent 70%);
             pointer-events: none; z-index: -1;
             transform: translate(-50%, -50%);
-            transition: transform 0.15s cubic-bezier(0.2, 0, 0.2, 1);
+            transition: transform 0.2s cubic-bezier(0.1, 0, 0.1, 1);
         }
 
-        /* 3. 极细动态扫描线 */
-        .scanline {
-            position: fixed; inset: 0;
-            background: linear-gradient(to bottom, transparent, rgba(0, 242, 255, 0.05) 50%, transparent);
-            height: 10%; width: 100%;
-            pointer-events: none; z-index: 10;
-            animation: scan 8s linear infinite;
-        }
-        @keyframes scan { from { top: -10%; } to { top: 110%; } }
-
-        /* 4. 高精 Logo：模拟“生存法则图标.jpg”中的破碎与能量 */
-        .logo-box {
-            margin-top: 40px; position: relative;
-            filter: drop-shadow(0 0 15px rgba(241, 196, 15, 0.5));
-            animation: energy-pulse 4s infinite alternate;
+        /* 3. Logo 震动与干扰动画 */
+        @keyframes glitch-vibration {
+            0% { transform: translate(0); }
+            25% { transform: translate(-1.5px, 1.5px) skewX(1deg); }
+            50% { transform: translate(1.5px, -1.5px); }
+            75% { transform: translate(-1.5px, -0.5px) skewX(-1deg); }
+            100% { transform: translate(0); }
         }
 
         @keyframes energy-pulse {
-            0% { transform: scale(1); filter: brightness(1) drop-shadow(0 0 10px var(--neon-yellow)); }
-            100% { transform: scale(1.05); filter: brightness(1.2) drop-shadow(0 0 25px var(--neon-yellow)); }
+            0% { filter: drop-shadow(0 0 8px var(--neon-yellow)) brightness(1); }
+            100% { filter: drop-shadow(0 0 25px var(--neon-yellow)) brightness(1.3); }
         }
 
-        /* 5. 经典 3x2 布局容器 */
+        .logo-box {
+            margin-top: 50px; 
+            position: relative;
+            cursor: pointer;
+            /* 联合动画：呼吸感 + 高频震动 */
+            animation: 
+                energy-pulse 3s infinite alternate ease-in-out,
+                glitch-vibration 0.08s infinite linear;
+        }
+
+        /* 4. 标题样式 */
+        .main-title {
+            font-size: 4.5rem; letter-spacing: 20px; font-weight: 900;
+            margin: 15px 0 5px 0;
+            text-shadow: 0 0 25px rgba(255, 255, 255, 0.2);
+        }
+
+        .sub-status {
+            color: var(--neon-cyan); opacity: 0.5; 
+            font-size: 11px; letter-spacing: 6px; margin-bottom: 30px;
+        }
+
+        /* 5. 经典 3x2 磁贴布局 */
         .terminal-grid {
             display: grid;
-            grid-template-columns: repeat(3, 400px);
-            gap: 20px; margin-top: 30px;
+            grid-template-columns: repeat(3, 420px);
+            gap: 20px;
             z-index: 5;
         }
 
-        .mil-card {
-            background: var(--glass-bg);
+        .card {
+            background: var(--glass);
             border: 1px solid rgba(0, 242, 255, 0.1);
-            padding: 40px 30px;
-            backdrop-filter: blur(15px);
-            clip-path: polygon(0 0, 100% 0, 100% 88%, 92% 100%, 0 100%);
+            padding: 45px 35px;
+            backdrop-filter: blur(20px);
+            /* 还原截图中的斜切角 */
+            clip-path: polygon(0 0, 100% 0, 100% 86%, 93% 100%, 0 100%);
             transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
             cursor: pointer;
             position: relative;
+            overflow: hidden;
         }
 
-        .mil-card::before {
-            content: ""; position: absolute; inset: 0;
-            background: linear-gradient(135deg, transparent, rgba(0, 242, 255, 0.05));
-            opacity: 0; transition: 0.4s;
+        .card::after {
+            content: ""; position: absolute; top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent);
+            transition: 0.5s;
         }
 
-        .mil-card:hover {
+        .card:hover {
             border-color: var(--neon-cyan);
-            transform: translateY(-8px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), inset 0 0 15px rgba(0, 242, 255, 0.1);
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(0, 242, 255, 0.08);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
         }
-        .mil-card:hover::before { opacity: 1; }
 
-        .mil-card h2 { font-size: 2.2rem; margin: 0; letter-spacing: 4px; font-weight: bold; }
-        .mil-card p { margin-top: 15px; color: var(--neon-cyan); opacity: 0.6; font-size: 1rem; }
+        .card:hover::after { left: 100%; }
 
-        .admin-node { border-left: 3px solid #ff3c41; }
+        .card h2 { font-size: 2.3rem; margin: 0; letter-spacing: 4px; font-weight: bold; }
+        .card p { margin-top: 15px; color: var(--neon-cyan); opacity: 0.6; font-size: 1rem; }
+
+        .admin-node { border-left: 4px solid #ff3c41; }
         .admin-node h2 { color: #ff3c41; }
 
-        .title-text {
-            font-size: 4.5rem; letter-spacing: 18px; font-weight: 900;
-            margin: 10px 0; text-shadow: 0 0 20px rgba(255,255,255,0.2);
+        /* 6. 扫描线效果 */
+        .scan-bar {
+            position: fixed; top: 0; left: 0; width: 100%; height: 2px;
+            background: rgba(0, 242, 255, 0.1);
+            box-shadow: 0 0 15px var(--neon-cyan);
+            z-index: 100; pointer-events: none;
+            animation: scanMove 10s linear infinite;
         }
+        @keyframes scanMove { from { top: -5%; } to { top: 105%; } }
     </style>
 </head>
-<body onclick="enableAudio()">
+<body>
 
     <div class="grid-layer"></div>
     <div id="light-tracker"></div>
-    <div class="scanline"></div>
+    <div class="scan-bar"></div>
 
-    <div class="logo-box">
-        <svg width="160" height="160" viewBox="0 0 100 100">
-            <path d="M50 5 L92 28 V72 L50 95 L8 72 V28 Z" fill="none" stroke="var(--neon-yellow)" stroke-width="3" stroke-dasharray="80 5 20 10 40" />
-            <path d="M56 18 L34 52 H50 L44 82 L66 48 H50 L56 18 Z" fill="var(--neon-yellow)">
-                <animate attributeName="opacity" values="1;0.7;1" dur="0.1s" repeatCount="indefinite" />
+    <div class="logo-box" id="main-logo">
+        <svg width="150" height="150" viewBox="0 0 100 100">
+            <defs>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            <path d="M50 5 L92 28 V72 L50 95 L8 72 V28 Z" fill="none" stroke="var(--neon-yellow)" stroke-width="3" stroke-dasharray="70 10 20 5" filter="url(#glow)"/>
+            <path d="M56 18 L34 52 H50 L44 82 L66 48 H50 L56 18 Z" fill="var(--neon-yellow)" filter="url(#glow)">
+                <animate attributeName="opacity" values="1;0.8;1" dur="0.05s" repeatCount="indefinite" />
             </path>
-            <rect x="85" y="40" width="8" height="1.5" fill="var(--neon-yellow)" />
-            <rect x="10" y="55" width="5" height="1" fill="var(--neon-yellow)" />
-            <path d="M80 20 L85 15" stroke="var(--neon-yellow)" stroke-width="1" />
-            <path d="M20 80 L15 85" stroke="var(--neon-yellow)" stroke-width="1" />
+            <rect x="85" y="45" width="8" height="2" fill="var(--neon-yellow)" />
+            <rect x="5" y="50" width="6" height="1" fill="var(--neon-yellow)" />
         </svg>
     </div>
 
-    <h1 class="title-text">生存法则</h1>
-    <div style="color: var(--neon-cyan); opacity: 0.5; font-size: 12px; letter-spacing: 5px;">> ENCRYPTED_SYNC_ACTIVE...</div>
+    <h1 class="main-title">生存法则</h1>
+    <div class="sub-status">> STATUS: ENCRYPTED_SYNC_ACTIVE... [NODE_09]</div>
 
     <main class="terminal-grid">
-        <div class="mil-card" onmouseenter="tick()">
+        <div class="card" onmouseenter="playTick()">
             <h2>全服聊天</h2>
             <p>> 大厅实时广播频道</p>
         </div>
-        <div class="mil-card" onmouseenter="tick()">
+        <div class="card" onmouseenter="playTick()">
             <h2>物资交易</h2>
             <p>> 发布、寻找各类资源</p>
         </div>
-        <div class="mil-card" onmouseenter="tick()">
+        <div class="card" onmouseenter="playTick()">
             <h2>加密私聊</h2>
             <p>> 点对点加密通讯协议</p>
         </div>
-        <div class="mil-card" onmouseenter="tick()">
+        <div class="card" onmouseenter="playTick()">
             <h2>同步补给</h2>
             <p>> 24小时周期资源同步</p>
         </div>
-        <div class="mil-card" onmouseenter="tick()">
+        <div class="card" onmouseenter="playTick()">
             <h2>荣誉排行</h2>
             <p>> 全服 XP 贡献排名</p>
         </div>
-        <div class="mil-card admin-node" onmouseenter="warn()">
+        <div class="card admin-node" onmouseenter="playWarn()">
             <h2>管理终端</h2>
             <p>> ROOT 核心权限接口</p>
         </div>
     </main>
 
     <script>
+        // 鼠标追踪光晕逻辑
         const tracker = document.getElementById('light-tracker');
         document.addEventListener('mousemove', (e) => {
             tracker.style.left = e.clientX + 'px';
             tracker.style.top = e.clientY + 'px';
         });
 
+        // 音频系统 - 仅在鼠标切入瞬间播放，不吵闹
         let audioCtx;
-        function enableAudio() {
+        function initAudio() {
             if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         }
 
-        function tick() {
+        function playTick() {
+            initAudio();
             if(!audioCtx) return;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.frequency.setValueAtTime(1000, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+            o.frequency.setValueAtTime(1200, audioCtx.currentTime);
+            o.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08);
+            g.gain.setValueAtTime(0.03, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08);
             o.connect(g).connect(audioCtx.destination);
             o.start(); o.stop(audioCtx.currentTime + 0.1);
         }
 
-        function warn() {
+        function playWarn() {
+            initAudio();
             if(!audioCtx) return;
             const o = audioCtx.createOscillator();
             const g = audioCtx.createGain();
-            o.type = 'sawtooth'; o.frequency.value = 80;
-            g.gain.setValueAtTime(0.1, audioCtx.currentTime);
-            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+            o.type = 'square';
+            o.frequency.setValueAtTime(120, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.06, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
             o.connect(g).connect(audioCtx.destination);
             o.start(); o.stop(audioCtx.currentTime + 0.3);
         }
+
+        // 随机强化 Logo 震动效果
+        const logo = document.getElementById('main-logo');
+        setInterval(() => {
+            if(Math.random() > 0.9) {
+                logo.style.filter = "hue-rotate(90deg) brightness(2)";
+                setTimeout(() => logo.style.filter = "", 50);
+            }
+        }, 2000);
     </script>
 </body>
 </html>
