@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <title>生存法则官网 | 战术终端 V36 标志重构版</title>
-    <!-- Google Analytics -->
+    <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-L39F7GPMF4"></script>
     <script>
       window.dataLayer = window.dataLayer || [];
@@ -11,104 +9,114 @@
       gtag('js', new Date());
       gtag('config', 'G-L39F7GPMF4');
     </script>
+
+    <meta charset="UTF-8">
+    <title>生存法则官网 | 官方战术终端 V37</title>
+    <meta name="description" content="生存法则 (Survival Rule) - Bloxd.io 服务器官方中继站。提供实时聊天、物资交易、好友系统、悬赏中心及荣誉排行。">
+    <meta name="keywords" content="Bloxd.io, 生存法则, Survival Rule, 游戏社区, 物资交易">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+SC:wght@300;700&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --neon-yellow: #f1c40f; --neon-cyan: #00f2ff; --neon-red: #ff3c41;
             --bg-deep: #010608; --glass: rgba(6, 18, 24, 0.96); --grid-line: rgba(0, 242, 255, 0.04);
         }
         body, html { margin: 0; padding: 0; background-color: var(--bg-deep); color: white; font-family: 'Share Tech Mono', 'Noto Sans SC', sans-serif; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
+        
+        /* 战术装饰与背景 */
         .grid-layer { position: fixed; inset: 0; background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px); background-size: 45px 45px; z-index: -2; }
         #light-tracker { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%); pointer-events: none; z-index: -1; transform: translate(-50%, -50%); }
-        .scan-bar { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 242, 255, 0.1); box-shadow: 0 0 15px var(--neon-cyan); z-index: 100; pointer-events: none; animation: scanMove 10s linear infinite; }
+        .scan-bar { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 242, 255, 0.1); box-shadow: 0 0 15px var(--neon-cyan); z-index: 100; pointer-events: none; animation: scanMove 12s linear infinite; }
         @keyframes scanMove { from { top: -5%; } to { top: 105%; } }
-        
-        /* Logo 高级震动干扰动画 */
+
+        /* Logo 还原图片风格 & 故障干扰 */
         @keyframes tactical-glitch {
-            0% { transform: translate(0); opacity: 1; }
-            20% { transform: translate(-2px, 1px) skewX(2deg); }
-            40% { transform: translate(2px, -1px) scale(1.02); }
-            60% { transform: translate(-1px, -2px) skewY(-1deg); opacity: 0.9; }
-            80% { transform: translate(1px, 2px); }
-            100% { transform: translate(0); opacity: 1; }
+            0% { transform: translate(0); }
+            25% { transform: translate(-1.5px, 1.5px) skewX(1deg); }
+            50% { transform: translate(1.5px, -1.5px); }
+            75% { transform: translate(-1.5px, -0.5px) skewX(-1deg); }
+            100% { transform: translate(0); }
         }
-        .logo-box { margin-top: 40px; cursor: pointer; animation: tactical-glitch 0.15s infinite linear; filter: drop-shadow(0 0 15px var(--neon-yellow)); position: relative; }
+        .logo-box { margin-top: 40px; cursor: pointer; animation: tactical-glitch 0.1s infinite linear; filter: drop-shadow(0 0 12px var(--neon-yellow)); }
 
         #global-announcement { width: 100%; background: rgba(255, 60, 65, 0.2); border-bottom: 1px solid var(--neon-red); padding: 10px; text-align: center; color: var(--neon-red); font-weight: bold; font-size: 14px; display: none; z-index: 1500; }
         .top-nav { width: 100%; height: 60px; background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 242, 255, 0.2); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-sizing: border-box; position: sticky; top: 0; z-index: 1000; }
         .coordinates { font-size: 10px; color: var(--neon-cyan); opacity: 0.7; letter-spacing: 1px; }
+
+        /* 卡片磁贴 */
         .terminal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 25px; width: 90%; max-width: 1500px; padding: 40px 0; }
         .card { background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.15); padding: 45px 35px; backdrop-filter: blur(15px); clip-path: polygon(0 0, 100% 0, 100% 86%, 93% 100%, 0 100%); transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
         .card:hover { border-color: var(--neon-cyan); transform: translateY(-8px); background: rgba(0, 242, 255, 0.1); box-shadow: 0 10px 40px rgba(0,0,0,0.6); }
         .card h2 { font-size: 2.2rem; margin: 0; letter-spacing: 2px; }
         .card p { color: var(--neon-cyan); opacity: 0.7; margin-top: 10px; font-size: 1rem; }
         .admin-node { border-left: 6px solid var(--neon-red); }
+
+        /* 称号系统样式 */
         .tag { font-weight: bold; margin-right: 8px; padding: 1px 5px; border-radius: 2px; font-size: 0.85em; white-space: nowrap; }
         .tag-fz { color: #ff3c41; border: 1px solid #ff3c41; text-shadow: 0 0 8px #ff3c41; }
         .tag-ffz { color: #f1c40f; border: 1px solid #f1c40f; text-shadow: 0 0 8px #f1c40f; }
         .tag-mod { color: #00f2ff; border: 1px solid #00f2ff; text-shadow: 0 0 8px #00f2ff; }
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.97); z-index: 5000; backdrop-filter: blur(25px); }
         .modal-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 850px; max-width: 95vw; background: #03080f; border: 1px solid var(--neon-cyan); padding: 40px; max-height: 85vh; overflow-y: auto; }
+        
         .btn-rule { background: transparent; color: var(--neon-cyan); border: 1px solid var(--neon-cyan); padding: 10px 20px; font-family: 'Share Tech Mono'; cursor: pointer; transition: 0.2s; text-transform: uppercase; margin: 4px; text-decoration: none; }
         .btn-rule:hover { background: var(--neon-cyan); color: #000; box-shadow: 0 0 15px var(--neon-cyan); }
         .btn-rule.danger { color: var(--neon-red); border-color: var(--neon-red); }
-        input, textarea { width: 100%; background: #000; border: 1px solid #1a3a4a; color: #fff; padding: 15px; margin-bottom: 20px; box-sizing: border-box; font-family: 'Share Tech Mono'; outline: none; }
+
+        input, textarea { width: 100%; background: #000; border: 1px solid #1a3a4a; color: #fff; padding: 15px; margin-bottom: 15px; box-sizing: border-box; font-family: 'Share Tech Mono'; outline: none; }
         .item-row { border-bottom: 1px solid #1a3a4a; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
+
         #p-chat-win { position: fixed; bottom: 0; right: 20px; width: 380px; height: 500px; background: #03080f; border: 1px solid var(--neon-cyan); z-index: 10000; display: none; flex-direction: column; box-shadow: 0 0 40px rgba(0,0,0,0.9); }
         .p-chat-header { padding: 12px; background: rgba(0, 242, 255, 0.1); border-bottom: 1px solid var(--neon-cyan); display: flex; justify-content: space-between; align-items: center; }
         #p-chat-flow { flex: 1; overflow-y: auto; padding: 15px; font-size: 13px; }
         #p-chat-inp { border: none !important; border-top: 1px solid var(--neon-cyan) !important; margin: 0 !important; }
+
         .bounty-item { border: 1px dashed var(--neon-cyan); padding: 15px; margin-bottom: 15px; background: rgba(255, 255, 255, 0.02); }
         .bounty-staff { border: 1px solid var(--neon-yellow) !important; background: rgba(241, 196, 15, 0.05) !important; box-shadow: 0 0 15px rgba(241, 196, 15, 0.1); }
     </style>
 </head>
 <body>
 
-    <div id="global-announcement">系统同步中...</div>
+    <div id="global-announcement">接入生存法则中继站...</div>
     <div class="grid-layer"></div>
     <div id="light-tracker"></div>
     <div class="scan-bar"></div>
 
     <div class="top-nav">
-        <div style="color: var(--neon-cyan); font-weight: bold; letter-spacing: 2px;">SURVIVAL_LAW_PROTOCOL_V36</div>
+        <div style="color: var(--neon-cyan); font-weight: bold; letter-spacing: 2px;">SURVIVAL_LAW_OFFICIAL</div>
         <div class="coordinates" id="coord-display">COORD: 6963DDBC</div>
         <div id="nav-auth-slot"><button class="btn-rule" onclick="UI.open('auth-modal')">接入终端</button></div>
     </div>
 
-    <!-- 标志重构：高度还原图片风格 -->
+    <!-- 还原度最高标志 -->
     <div class="logo-box" id="main-logo">
-        <svg width="150" height="150" viewBox="0 0 100 100">
+        <svg width="120" height="120" viewBox="0 0 100 100">
             <defs>
-                <filter id="bloom">
-                    <feGaussianBlur stdDeviation="1.5" result="blur" />
-                    <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                </filter>
+                <filter id="tactical-glow"><feGaussianBlur stdDeviation="1.5" result="blur" /><feComposite in="SourceGraphic" in2="blur" operator="over" /></filter>
             </defs>
-            <!-- 垂直背景流光 -->
-            <rect x="45" y="0" width="2" height="100" fill="var(--neon-yellow)" opacity="0.1" />
-            <rect x="55" y="0" width="1" height="100" fill="var(--neon-yellow)" opacity="0.1" />
-            
-            <!-- 六边形外框（带断点和方块坏点） -->
-            <path d="M50 5 L90 27 V55 M90 65 V73 L50 95 L10 73 V27 L50 5" fill="none" stroke="var(--neon-yellow)" stroke-width="3" filter="url(#bloom)" />
-            <rect x="88" y="56" width="4" height="4" fill="var(--neon-yellow)" />
-            <rect x="8" y="45" width="3" height="3" fill="var(--neon-yellow)" />
-            
-            <!-- 中心战术 A 符号 -->
-            <path d="M50 35 L70 65 H55 L55 75 L45 75 L45 65 H30 Z" fill="var(--neon-yellow)" filter="url(#bloom)" />
-            <!-- A 内部闪电切口 -->
+            <!-- 背景射线 -->
+            <path d="M50 0 V100 M0 50 H100" stroke="var(--neon-yellow)" stroke-width="0.2" opacity="0.2" />
+            <!-- 六边形框 -->
+            <path d="M50 5 L90 27 V55 M90 65 V73 L50 95 L10 73 V27 L50 5" fill="none" stroke="var(--neon-yellow)" stroke-width="3" filter="url(#tactical-glow)" />
+            <rect x="88" y="56" width="5" height="5" fill="var(--neon-yellow)" />
+            <rect x="7" y="45" width="4" height="4" fill="var(--neon-yellow)" />
+            <!-- A 符号 -->
+            <path d="M50 35 L70 65 H55 L55 75 L45 75 L45 65 H30 Z" fill="var(--neon-yellow)" filter="url(#tactical-glow)" />
+            <!-- 闪电切口 -->
             <path d="M50 50 L45 62 H55 L50 75" fill="var(--bg-deep)" />
-            <!-- 上方箭头 -->
-            <path d="M50 22 L62 30 H38 Z" fill="var(--neon-yellow)" />
-            
-            <!-- 横穿闪电射线 -->
+            <!-- 顶部箭头 -->
+            <path d="M50 20 L62 28 H38 Z" fill="var(--neon-yellow)" />
+            <!-- 穿透闪电 -->
             <path d="M5 60 L25 45 L40 55 L65 30 L95 45" fill="none" stroke="var(--neon-yellow)" stroke-width="1.5" opacity="0.8" />
-            <path d="M0 40 L20 25 L35 35 L60 10 L80 25" fill="none" stroke="var(--neon-yellow)" stroke-width="1" opacity="0.4" />
         </svg>
     </div>
 
     <h1 style="font-size: 3.5rem; letter-spacing: 15px; margin: 10px 0; font-weight: 900; text-shadow: 0 0 20px var(--neon-cyan);">生存法则</h1>
-    <div style="color: var(--neon-cyan); opacity: 0.6; font-size: 12px; letter-spacing: 4px; margin-bottom: 30px;">
-        > Bloxd服务器生存法则的官网 // DATA_TERMINAL_V36
+    <div style="color: var(--neon-cyan); opacity: 0.6; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px;">
+        > Bloxd服务器生存法则的官网 // DATA_STREAM_V37
     </div>
 
     <main class="terminal-grid" id="main-grid" style="display:none;"></main>
@@ -119,17 +127,18 @@
             <button onclick="document.getElementById('p-chat-win').style.display='none'" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">[退出]</button>
         </div>
         <div id="p-chat-flow"></div>
-        <input id="p-chat-inp" placeholder="输入加密报文并回车发送..." autocomplete="off">
+        <input id="p-chat-inp" placeholder="输入并回车发送..." autocomplete="off">
     </div>
 
+    <!-- 弹窗集 -->
     <div id="auth-modal" class="modal"><div class="modal-content">
-        <h2 style="color:var(--neon-cyan);">身份识别 // IDENT</h2>
+        <h2 style="color:var(--neon-cyan);">身份验证 // IDENT</h2>
         <input type="text" id="auth-uid" placeholder="UID (识别码)">
-        <input type="text" id="auth-nick" placeholder="NICKNAME (游戏名)">
-        <input type="password" id="auth-pw" placeholder="密码">
+        <input type="text" id="auth-nick" placeholder="NICKNAME (游戏昵称)">
+        <input type="password" id="auth-pw" placeholder="访问密码">
         <div style="display:flex; gap:10px;">
-            <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.login()">连接</button>
-            <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.register()">注册</button>
+            <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.login()">连接系统</button>
+            <button class="btn-rule" style="flex:1" onclick="SurvivalAuth.register()">注册序列</button>
         </div>
     </div></div>
 
@@ -137,8 +146,8 @@
         <h2 style="color:var(--neon-cyan);">全服大厅 // GLOBAL</h2>
         <div id="chat-box" style="height:400px; overflow-y:auto; background:rgba(0,0,0,0.4); padding:15px; margin-bottom:15px; border:1px solid #111;"></div>
         <div style="display:flex; gap:10px;">
-            <input id="chat-input" placeholder="输入广播信息并按 Enter 或点击发送..." style="margin:0; flex:1;" autocomplete="off">
-            <button class="btn-rule" style="margin:0; min-width:80px;" onclick="GlobalChat.send()">发送</button>
+            <input id="chat-input" placeholder="输入信息..." style="margin:0; flex:1;" autocomplete="off">
+            <button class="btn-rule" style="margin:0;" onclick="GlobalChat.send()">[发送]</button>
         </div>
         <button class="btn-rule" style="width:100%; margin-top:15px;" onclick="UI.close()">返回主页</button>
     </div></div>
@@ -146,7 +155,7 @@
     <div id="friend-modal" class="modal"><div class="modal-content">
         <h2 style="color:var(--neon-cyan);">常用联通 // FRIENDS</h2>
         <div style="display:flex; gap:10px; margin-bottom:20px;">
-            <input id="friend-target-uid" placeholder="输入目标 UID 开启私聊" style="margin:0;">
+            <input id="friend-target-uid" placeholder="目标 UID 开启双向连接" style="margin:0;">
             <button class="btn-rule" onclick="Social.initiateConnection()">建立连接</button>
         </div>
         <div id="friend-list"></div>
@@ -158,7 +167,7 @@
         <div style="background:rgba(0,242,255,0.05); padding:15px; border:1px solid #1a3a4a; margin-bottom:15px;">
             <input id="m-item-name" placeholder="物资名称">
             <input id="m-item-price" placeholder="价格说明">
-            <textarea id="m-item-desc" placeholder="详细介绍..."></textarea>
+            <textarea id="m-item-desc" placeholder="详细介绍 (由卖家撰写)"></textarea>
             <button class="btn-rule" style="width:100%" onclick="SurvivalMarket.listItem()">上传挂单</button>
         </div>
         <div id="market-list"></div>
@@ -180,7 +189,7 @@
     </div></div>
 
     <div id="settings-modal" class="modal"><div class="modal-content">
-        <h2 style="color:var(--neon-cyan);">系统配置 // CONFIG</h2>
+        <h2 style="color:var(--neon-cyan);">个人配置 // CONFIG</h2>
         <div style="padding:15px; background:rgba(241, 196, 15, 0.05); border:1px solid var(--neon-yellow); margin-bottom:20px;">
             我的识别码 (UID): <b id="my-uid-label" style="color:var(--neon-yellow); font-size:1.4rem;">----</b>
         </div>
@@ -191,14 +200,14 @@
         <button class="btn-rule" style="width:100%" onclick="Settings.changeNick()">更新昵称</button>
         <input type="password" id="set-new-pw" placeholder="新访问密码">
         <button class="btn-rule" style="width:100%" onclick="Settings.changePw()">更新密码</button>
-        <button class="btn-rule danger" style="width:100%; margin-top:20px;" onclick="Settings.deleteAccount()">注销账户</button>
+        <button class="btn-rule danger" style="width:100%; margin-top:20px;" onclick="Settings.deleteAccount()">注销账户并彻底清除数据</button>
         <button class="btn-rule" style="width:100%; margin-top:10px; border-color:#444;" onclick="UI.close()">返回主页</button>
     </div></div>
 
     <div id="checkin-modal" class="modal"><div class="modal-content">
         <h2 style="color:var(--neon-yellow);">每日打卡 // CHECK_IN</h2>
-        <p>每日签到奖励: 100 XP。每 24 小时可执行一次。</p>
-        <button class="btn-rule" style="width:100%; padding:20px;" onclick="CheckIn.claim()">立即打卡</button>
+        <p>今日签到奖励: 100 XP。每 24 小时可打卡一次。</p>
+        <button class="btn-rule" style="width:100%; padding:20px;" onclick="CheckIn.claim()">立即执行打卡</button>
         <button class="btn-rule" style="width:100%; margin-top:15px; border-color:#444;" onclick="UI.close()">返回</button>
     </div></div>
 
@@ -225,24 +234,24 @@
             <p><span class="tag tag-fz">[腐竹]</span> IKUN5556</p>
             <p><span class="tag tag-ffz">[副腐竹]</span> Peter_YT_Bilibili</p>
             <p><span class="tag tag-mod">[Discord 开发/管理员]</span> CS||Steve, 焦糖猫</p>
-            <p><span class="tag tag-mod">[服务器建筑师]</span> GhastlyCyclops_432</p>
+            <p><span class="tag tag-mod">[生存法则服务器建筑师]</span> GhastlyCyclops_432</p>
             <p><span class="tag tag-mod">[Boxim 群主/管理员]</span> Peter_YYDS</p>
         </div>
-        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">确定</button>
+        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">了解完毕</button>
     </div></div>
 
     <div id="admin-modal" class="modal"><div class="modal-content">
         <h2 style="color:var(--neon-red);">核心控制终端 // ROOT</h2>
         <div style="border:1px solid #444; padding:15px; margin-bottom:15px;">
             <h4>系统控制</h4>
-            <input id="admin-notice-input" placeholder="输入全服公告...">
+            <input id="admin-notice-input" placeholder="输入全服公告内容...">
             <button class="btn-rule" onclick="Admin.postNotice()">发布公告</button>
             <button class="btn-rule danger" onclick="Admin.toggleMaintenance()">维护模式切换</button>
             <button class="btn-rule danger" onclick="Admin.clearLobby()">清空大厅</button>
             <button class="btn-rule danger" onclick="Admin.wipeMarket()">重置市场</button>
         </div>
         <div style="border:1px solid #444; padding:15px;">
-            <h4>审计</h4>
+            <h4>玩家审计</h4>
             <input id="admin-target-uid" placeholder="目标 UID">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
                 <button class="btn-rule danger" onclick="Admin.setUserStatus('banned', true)">封禁账号</button>
@@ -250,9 +259,9 @@
                 <button class="btn-rule danger" onclick="Admin.setUserStatus('muted', true)">禁言玩家</button>
                 <button class="btn-rule" onclick="Admin.setUserStatus('muted', false)">解除禁言</button>
             </div>
-            <button class="btn-rule" onclick="Admin.modXP()">修改 XP</button>
+            <button class="btn-rule" style="width:100%; margin-top:10px;" onclick="Admin.modXP()">修改 XP 数值</button>
         </div>
-        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">退出</button>
+        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">断开终端</button>
     </div></div>
 
     <script type="module">
@@ -272,7 +281,7 @@
         };
 
         window.UI = {
-            open: (id) => { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById(id).style.display = 'block'; if(id==='bounty-modal') Bounty.load(); },
+            open: (id) => { document.querySelectorAll('.modal').forEach(m => m.style.display = 'none'); document.getElementById(id).style.display = 'block'; if(id==='bounty-modal') Bounty.load(); if(id==='settings-modal') Settings.load(); },
             close: () => document.querySelectorAll('.modal').forEach(m => m.style.display = 'none')
         };
 
@@ -280,7 +289,6 @@
         function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
         window.playTick = () => { initAudio(); if(!audioCtx) return; const o = audioCtx.createOscillator(); const g = audioCtx.createGain(); o.frequency.setValueAtTime(1200, audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(600, audioCtx.currentTime + 0.08); g.gain.setValueAtTime(0.03, audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.08); o.connect(g).connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime + 0.1); };
 
-        // 身份引擎精准匹配 Peter_YYDS -> Peter -> Boxim 管理员
         function getTag(uid, nick) {
             if (uid === "IKUN5556") return `<span class="tag tag-fz">[腐竹]</span>`;
             if (uid === "Peter_YT_Bilibili") return `<span class="tag tag-ffz">[副腐竹]</span>`;
@@ -301,7 +309,7 @@
                 const u = document.getElementById('auth-uid').value.trim();
                 const n = document.getElementById('auth-nick').value.trim();
                 const p = document.getElementById('auth-pw').value;
-                if(!u || !n || !p) return alert("字段必填");
+                if(!u || !n || !p) return alert("必填");
                 await setDoc(doc(db, "users", u), { uid: u, nick: n, pw: p, xp: 0, lastCheckIn: 0, banned: false, muted: false, allowPM: true, usedCodes: [] });
                 alert("注册成功");
             },
@@ -310,11 +318,11 @@
                 const p = document.getElementById('auth-pw').value;
                 const snap = await getDoc(doc(db, "users", u));
                 if(snap.exists() && snap.data().pw === p) {
-                    if(snap.data().banned) return alert("账号被封禁");
+                    if(snap.data().banned) return alert("账号封禁中");
                     State.user = { id: u, nick: snap.data().nick };
                     localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
                     location.reload();
-                } else alert("凭据错误");
+                } else alert("识别失败");
             },
             logout: () => { localStorage.clear(); location.reload(); }
         };
@@ -324,8 +332,8 @@
                 const tid = document.getElementById('friend-target-uid').value.trim();
                 if(!tid || tid === State.user.id) return alert("目标无效");
                 const snap = await getDoc(doc(db, "users", tid));
-                if(!snap.exists()) return alert("UID 未注册");
-                if(!snap.data().allowPM) return alert("对方已开启隐私保护");
+                if(!snap.exists()) return alert("目标未找到");
+                if(!snap.data().allowPM) return alert("对方拒绝私聊协议");
                 const cid = [State.user.id, tid].sort().join("_");
                 await setDoc(doc(db, "p_chats_meta", cid), { members: [State.user.id, tid], lastUpdate: serverTimestamp() }, { merge: true });
                 SurvivalChat.start(tid, snap.data().nick);
@@ -338,12 +346,12 @@
                         const otherSnap = await getDoc(doc(db, "users", otherId));
                         if(otherSnap.exists()){
                             const data = otherSnap.data();
-                            list.innerHTML += `<div class="item-row"><span>${getTag(otherId, data.nick)}${data.nick} (${otherId})</span><div><button class="btn-rule" onclick="SurvivalChat.start('${otherId}','${data.nick}')">私聊</button><button class="btn-rule danger" onclick="Social.erase('${d.id}')">抹除</button></div></div>`;
+                            list.innerHTML += `<div class="item-row"><span>${getTag(otherId, data.nick)}${data.nick}</span><div><button class="btn-rule" onclick="SurvivalChat.start('${otherId}','${data.nick}')">私聊</button><button class="btn-rule danger" onclick="Social.erase('${d.id}')">抹除</button></div></div>`;
                         }
                     });
                 });
             },
-            erase: async (id) => { if(confirm("确定抹除该信道？")) await deleteDoc(doc(db, "p_chats_meta", id)); }
+            erase: async (id) => { if(confirm("抹除此加密信道？对方也将失去记录。")) await deleteDoc(doc(db, "p_chats_meta", id)); }
         };
 
         let curPrivUnsub = null;
@@ -378,15 +386,15 @@
                             <div style="margin-top:4px;">${m.text}</div>
                             <div style="margin-top:5px; font-size:10px;">
                                 <a href="javascript:void(0)" onclick="GlobalChat.reply('${m.senderNick}')" style="color:var(--neon-cyan); margin-right:15px; text-decoration:none;">[回复]</a>
-                                ${(isMe || State.isAdmin) ? `<a href="javascript:void(0)" onclick="GlobalChat.recall('${m.id}')" style="color:var(--neon-red); text-decoration:none;">[撤回]</a>` : ''}
+                                ${(m.senderId === State.user.id || State.isAdmin) ? `<a href="javascript:void(0)" onclick="GlobalChat.recall('${m.id}')" style="color:var(--neon-red); text-decoration:none;">[撤回]</a>` : ''}
                             </div>
                         </div>`; 
                     });
                     box.scrollTop = box.scrollHeight;
                 });
             },
-            reply: (nick) => { const inp = document.getElementById('chat-input'); inp.value = `@${nick} `; inp.focus(); },
-            recall: async (id) => { if(confirm("确定撤回此条广播？")) await deleteDoc(doc(db, "global_messages", id)); },
+            reply: (nick) => { document.getElementById('chat-input').value = `@${nick} `; document.getElementById('chat-input').focus(); },
+            recall: async (id) => { if(confirm("撤回此条信息？")) await deleteDoc(doc(db, "global_messages", id)); },
             send: async () => {
                 const uDoc = await getDoc(doc(db, "users", State.user.id));
                 if(uDoc.data().muted) return alert("你已被禁言");
@@ -396,6 +404,7 @@
                 inp.value = '';
             }
         };
+        document.getElementById('chat-input').onkeydown = (e) => { if(e.key === "Enter") GlobalChat.send(); };
 
         window.SurvivalMarket = {
             load: () => {
@@ -419,11 +428,11 @@
             listItem: async () => {
                 const n = document.getElementById('m-item-name').value;
                 const p = document.getElementById('m-item-price').value;
-                if(!n || !p) return alert("名称和价格必填");
+                if(!n || !p) return alert("物资名称和价格必填");
                 await addDoc(collection(db, "market"), { sellerId: State.user.id, sellerNick: State.user.nick, itemName: n, price: p, desc: document.getElementById('m-item-desc').value, time: serverTimestamp() });
                 alert("发布成功");
             },
-            del: async (id) => { if(confirm("强制下架？")) await deleteDoc(doc(db, "market", id)); }
+            del: async (id) => { if(confirm("下架该挂单？")) await deleteDoc(doc(db, "market", id)); }
         };
 
         window.Bounty = {
@@ -434,11 +443,11 @@
                     sList.innerHTML = ''; pList.innerHTML = '';
                     sn.forEach(d => {
                         const b = d.data(); const isMine = b.posterId === State.user.id;
-                        const isStaff = STAFF_UIDS.includes(b.posterId) || STAFF_UIDS.includes(b.posterNick);
+                        const isStaff = STAFF_UIDS.includes(b.posterId);
                         const html = `<div class="bounty-item ${isStaff?'bounty-staff':''}">
                             <div style="font-weight:bold; color:var(--neon-yellow)">${b.title}</div>
                             <div style="color:var(--neon-cyan); margin:5px 0;">奖励: ${b.reward}</div>
-                            <div style="font-size:10px; color:#666;">发布者: ${getTag(b.posterId, b.posterNick)}${b.posterNick}</div>
+                            <div style="font-size:10px;">发布: ${getTag(b.posterId, b.posterNick)}${b.posterNick}</div>
                             ${(isMine || State.isAdmin) ? `<button class="btn-rule danger" style="margin-top:10px; font-size:10px;" onclick="Bounty.del('${d.id}')">撤回</button>` : ''}
                         </div>`;
                         if(isStaff) sList.innerHTML += html; else pList.innerHTML += html;
@@ -448,11 +457,11 @@
             post: async () => {
                 const t = document.getElementById('b-item-title').value;
                 const r = document.getElementById('b-item-reward').value;
-                if(!t || !r) return alert("必填");
+                if(!t || !r) return alert("悬赏信息不全");
                 await addDoc(collection(db, "bounties"), { posterId: State.user.id, posterNick: State.user.nick, title: t, reward: r, time: serverTimestamp() });
-                alert("已发布"); document.getElementById('b-item-title').value = ''; document.getElementById('b-item-reward').value = '';
+                alert("已发布");
             },
-            del: async (id) => { if(confirm("撤回悬赏？")) await deleteDoc(doc(db, "bounties", id)); }
+            del: async (id) => { if(confirm("撤回？")) await deleteDoc(doc(db, "bounties", id)); }
         };
 
         window.Gifts = {
@@ -472,10 +481,9 @@
             claim: async () => {
                 const ref = doc(db, "users", State.user.id);
                 const snap = await getDoc(ref);
-                const last = snap.data().lastCheckIn || 0;
-                if(Date.now() - last < 86400000) return alert("补给冷却中");
+                if(Date.now() - (snap.data().lastCheckIn || 0) < 86400000) return alert("打卡冷却中");
                 await updateDoc(ref, { xp: increment(100), lastCheckIn: Date.now() });
-                alert("打卡成功：注入 100 XP"); UI.close();
+                alert("签到成功：获得 100 XP"); UI.close();
             }
         };
 
@@ -488,11 +496,11 @@
             togglePM: async () => { await updateDoc(doc(db, "users", State.user.id), { allowPM: !document.getElementById('privacy-toggle').checked }); },
             changeNick: async () => {
                 const n = document.getElementById('set-new-nick').value.trim();
-                if(n) { await updateDoc(doc(db, "users", State.user.id), { nick: n }); State.user.nick = n; localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user)); location.reload(); }
+                if(n) { await updateDoc(doc(db, "users", State.user.id), { nick: n }); location.reload(); }
             },
             changePw: async () => { await updateDoc(doc(db, "users", State.user.id), { pw: document.getElementById('set-new-pw').value }); alert("密码已同步"); },
             deleteAccount: async () => {
-                if(confirm("确定抹除账号、XP、挂单、任务！确定？")) {
+                if(confirm("警告：将抹除全服数据（账号、XP、挂单、任务）！确定？")) {
                     const uid = State.user.id; await deleteDoc(doc(db, "users", uid));
                     const mSn = await getDocs(query(collection(db, "market"), where("sellerId", "==", uid)));
                     mSn.forEach(async (d) => await deleteDoc(doc(db, "market", d.id)));
@@ -538,13 +546,13 @@
                 { title: "全服大厅", desc: "实时广播终端协议", action: "GlobalChat.init()" },
                 { title: "常用联通", desc: "双向同步加密私聊", action: "UI.open('friend-modal')" },
                 { title: "物资广场", desc: "单据发布与审计管理", action: "SurvivalMarket.load()" },
-                { title: "悬赏中心", desc: "全民发布战术任务平台", action: "UI.open('bounty-modal')" },
-                { title: "荣誉排行", desc: "全服 XP 贡献度排行榜单", action: "SurvivalRankLoad()" },
+                { title: "悬赏中心", desc: "官方与全服任务平台", action: "UI.open('bounty-modal')" },
+                { title: "荣誉排行", desc: "全服贡献排行榜单", action: "SurvivalRankLoad()" },
                 { title: "个人配置", desc: "UID、改名改密、注销", action: "UI.open('settings-modal')" },
-                { title: "每日打卡", desc: "签到领取每日奖励 XP", action: "UI.open('checkin-modal')" },
-                { title: "协议激活", desc: "密匙激活特权值", action: "UI.open('gift-modal')" },
-                { title: "生存档案", desc: "团队成员与指南", action: "UI.open('wiki-modal')" },
-                { title: "核心终端", desc: "ROOT 核心权限系统", action: "UI.open('admin-modal')", admin: true }
+                { title: "每日打卡", desc: "签到领取 100 XP", action: "UI.open('checkin-modal')" },
+                { title: "协议激活", desc: "激活密匙注入特权", action: "UI.open('gift-modal')" },
+                { title: "生存档案", desc: "团队成员与指南文档", action: "UI.open('wiki-modal')" },
+                { title: "核心终端", desc: "ROOT 核心权限入口", action: "UI.open('admin-modal')", admin: true }
             ];
             document.getElementById('main-grid').innerHTML = features.map(f => {
                 if(f.admin && !State.isAdmin) return '';
