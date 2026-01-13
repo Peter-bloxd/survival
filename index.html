@@ -11,15 +11,15 @@
     </script>
     
     <script>
-        // 域名锁定保护：防止镜像站
+        // 域名锁定：防抄袭
         if (window.location.hostname !== "peter-bloxd.github.io" && window.location.hostname !== "localhost") {
             window.location.href = "https://peter-bloxd.github.io/survival/";
         }
     </script>
 
     <meta charset="UTF-8">
-    <title>生存法则官网 | 官方战术终端 V47</title>
-    <meta name="description" content="生存法则 (Survival Rule) - Bloxd.io 服务器官方数据中继站。提供实时聊天、物资交易、好友系统、悬赏中心及荣誉排行。">
+    <title>生存法则官网 | 官方战术终端 V48</title>
+    <meta name="description" content="生存法则 (Survival Rule) - Bloxd.io 服务器官方数据中继站。">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" href="favicon.png" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+SC:wght@300;700&display=swap" rel="stylesheet">
@@ -30,7 +30,6 @@
             --bg-deep: #010608; --glass: rgba(6, 18, 24, 0.96); --grid-line: rgba(0, 242, 255, 0.04);
         }
         body, html { margin: 0; padding: 0; background-color: var(--bg-deep); color: white; font-family: 'Share Tech Mono', 'Noto Sans SC', sans-serif; min-height: 100vh; overflow-x: hidden; display: flex; flex-direction: column; align-items: center; }
-        
         .grid-layer { position: fixed; inset: 0; background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px); background-size: 45px 45px; z-index: -2; }
         #light-tracker { position: fixed; width: 600px; height: 600px; background: radial-gradient(circle, rgba(0, 242, 255, 0.08) 0%, transparent 70%); pointer-events: none; z-index: -1; transform: translate(-50%, -50%); }
         .scan-bar { position: fixed; top: 0; left: 0; width: 100%; height: 2px; background: rgba(0, 242, 255, 0.1); box-shadow: 0 0 15px var(--neon-cyan); z-index: 100; pointer-events: none; animation: scanMove 10s linear infinite; }
@@ -41,7 +40,6 @@
 
         #global-announcement { width: 100%; background: rgba(255, 60, 65, 0.2); border-bottom: 1px solid var(--neon-red); padding: 10px; text-align: center; color: var(--neon-red); font-weight: bold; font-size: 14px; display: none; z-index: 1500; }
         .top-nav { width: 100%; height: 60px; background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 242, 255, 0.2); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-sizing: border-box; position: sticky; top: 0; z-index: 1000; }
-        .coordinates { font-size: 10px; color: var(--neon-cyan); opacity: 0.7; letter-spacing: 1px; }
 
         .terminal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; width: 90%; max-width: 1500px; padding: 40px 0; }
         .card { background: var(--glass); border: 1px solid rgba(0, 242, 255, 0.15); padding: 45px 35px; backdrop-filter: blur(15px); clip-path: polygon(0 0, 100% 0, 100% 86%, 93% 100%, 0 100%); transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
@@ -64,7 +62,6 @@
         .btn-rule.danger { color: var(--neon-red); border-color: var(--neon-red); }
 
         input, textarea, select { width: 100%; background: #000; border: 1px solid #1a3a4a; color: #fff; padding: 12px; margin-bottom: 15px; box-sizing: border-box; font-family: 'Share Tech Mono'; outline: none; }
-        .item-row { border-bottom: 1px solid #1a3a4a; padding: 15px 0; display: flex; justify-content: space-between; align-items: center; }
         .reply-box { margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.02); border: 1px solid #222; max-height: 150px; overflow-y: auto; }
         .reply-item { font-size: 12px; color: #aaa; margin-bottom: 5px; border-bottom: 1px solid #111; padding-bottom: 2px; }
 
@@ -83,7 +80,6 @@
 
     <div class="top-nav">
         <div style="color: var(--neon-cyan); font-weight: bold; letter-spacing: 1px;">SURVIVAL_LAW_OFFICIAL</div>
-        <div class="coordinates" id="coord-display">COORD: 6963DDBC</div>
         <div id="nav-auth-slot"><button class="btn-rule" onclick="UI.open('auth-modal')">接入终端</button></div>
     </div>
 
@@ -103,12 +99,11 @@
 
     <h1 style="font-size: 3.5rem; letter-spacing: 15px; margin: 10px 0; font-weight: 900; text-shadow: 0 0 20px var(--neon-cyan);">生存法则</h1>
     <div style="color: var(--neon-cyan); opacity: 0.6; font-size: 12px; letter-spacing: 4px; margin-bottom: 20px;">
-        > Bloxd服务器生存法则官网 // DATA_TERMINAL_V47
+        > Bloxd服务器生存法则官网 // DATA_TERMINAL_V48
     </div>
 
     <main class="terminal-grid" id="main-grid" style="display:none;"></main>
 
-    <!-- 私聊组件 -->
     <div id="p-chat-win">
         <div class="p-chat-header"><span id="p-chat-title">加密信道</span><button onclick="document.getElementById('p-chat-win').style.display='none'" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">[X]</button></div>
         <div id="p-chat-flow"></div>
@@ -118,10 +113,11 @@
     <!-- 弹窗集 -->
     <div id="auth-modal" class="modal"><div class="modal-content">
         <h2 style="color:var(--neon-cyan);">身份识别 // IDENT</h2>
-        <input type="text" id="auth-uid" placeholder="UID (识别码)">
-        <input type="text" id="auth-nick" placeholder="昵称 (游戏昵称)">
+        <p style="color:var(--neon-yellow); font-size:12px;">* 提示：登录必须输入 UID（识别码）和密码</p>
+        <input type="text" id="auth-uid" placeholder="UID (识别码 - 必填)">
+        <input type="text" id="auth-nick" placeholder="昵称 (仅在注册时使用)">
         <input type="password" id="auth-pw" placeholder="密码">
-        <div style="display:flex; gap:10px;"><button class="btn-rule" style="flex:1" onclick="SurvivalAuth.login()">连接</button><button class="btn-rule" style="flex:1" onclick="SurvivalAuth.register()">注册</button></div>
+        <div style="display:flex; gap:10px;"><button class="btn-rule" style="flex:1" onclick="SurvivalAuth.login()">连接系统</button><button class="btn-rule" style="flex:1" onclick="SurvivalAuth.register()">注册序列</button></div>
     </div></div>
 
     <div id="chat-modal" class="modal"><div class="modal-content">
@@ -156,21 +152,8 @@
         <button class="btn-rule" style="width:100%; margin-top:15px;" onclick="UI.close()">返回</button>
     </div></div>
 
-    <div id="suggest-modal" class="modal"><div class="modal-content">
-        <h2 style="color:var(--neon-cyan);">投建议 // SUGGEST</h2>
-        <textarea id="suggest-text" placeholder="建议将直接发送给 Peter 和 IKUN..." style="height:150px;"></textarea>
-        <button class="btn-rule" style="width:100%" onclick="SurvivalAuth.sendSuggest()">发送建议</button>
-        <button class="btn-rule" style="width:100%; margin-top:10px; border-color:#333;" onclick="UI.close()">返回</button>
-    </div></div>
-
-    <div id="view-suggest-modal" class="modal"><div class="modal-content">
-        <h2 style="color:var(--neon-red);">建议审查 // AUDIT</h2>
-        <div id="suggest-list"></div>
-        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">退出</button>
-    </div></div>
-
     <div id="settings-modal" class="modal"><div class="modal-content">
-        <h2 style="color:var(--neon-cyan);">配置中心 // CONFIG</h2>
+        <h2 style="color:var(--neon-cyan);">个人配置 // CONFIG</h2>
         <div style="padding:15px; background:rgba(241, 196, 15, 0.05); border:1px solid var(--neon-yellow); margin-bottom:20px;">
             我的识别码 (UID): <b id="my-uid-label" style="color:var(--neon-yellow); font-size:1.4rem;">----</b>
         </div>
@@ -178,9 +161,22 @@
         <button class="btn-rule" style="width:100%" onclick="Settings.changeNick()">更新昵称</button>
         <input type="password" id="set-new-pw" placeholder="新访问密码">
         <button class="btn-rule" style="width:100%" onclick="Settings.changePw()">更新密码</button>
-        <div style="border:1px solid #333; padding:10px; margin-top:10px;"><input type="checkbox" id="privacy-toggle" style="width:20px; margin:0;" onchange="Settings.togglePM()"> 拒绝私聊搜索</div>
-        <button class="btn-rule danger" style="width:100%; margin-top:20px;" onclick="Settings.deleteAccount()">注销账户并彻底清除数据</button>
+        <div style="border:1px solid #333; padding:10px; margin-top:10px;"><input type="checkbox" id="privacy-toggle" style="width:20px; margin:0;" onchange="Settings.togglePM()"> 拒绝所有私聊搜索</div>
+        <button class="btn-rule danger" style="width:100%; margin-top:20px;" onclick="Settings.deleteAccount()">注销账户</button>
         <button class="btn-rule" style="width:100%; margin-top:10px; border-color:#444;" onclick="UI.close()">返回主页</button>
+    </div></div>
+
+    <div id="suggest-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-cyan);">投建议 // SUGGEST</h2>
+        <textarea id="suggest-text" placeholder="建议将直接发送给 Peter 和 IKUN..." style="height:150px;"></textarea>
+        <button class="btn-rule" style="width:100%" onclick="SurvivalAuth.sendSuggest()">发送建议</button>
+        <button class="btn-rule" style="width:100%; margin-top:10px;" onclick="UI.close()">返回</button>
+    </div></div>
+
+    <div id="view-suggest-modal" class="modal"><div class="modal-content">
+        <h2 style="color:var(--neon-red);">建议审查 // AUDIT</h2>
+        <div id="suggest-list"></div>
+        <button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">返回</button>
     </div></div>
 
     <div id="admin-modal" class="modal"><div class="modal-content">
@@ -208,10 +204,10 @@
     </div></div>
 
     <div id="rank-modal" class="modal"><div class="modal-content"><h2 style="color:var(--neon-cyan);">排行 // RANK</h2><div id="rank-list"></div><button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">返回</button></div></div>
-    <div id="checkin-modal" class="modal"><div class="modal-content"><h2 style="color:var(--neon-yellow);">签到 // CHECK_IN</h2><button class="btn-rule" style="width:100%; padding:20px;" onclick="CheckIn.claim()">打卡奖励 (100XP)</button><button class="btn-rule" style="width:100%; margin-top:10px;" onclick="UI.close()">返回</button></div></div>
+    <div id="checkin-modal" class="modal"><div class="modal-content"><h2 style="color:var(--neon-yellow);">打卡 // CHECK_IN</h2><button class="btn-rule" style="width:100%; padding:20px;" onclick="CheckIn.claim()">打卡奖励 (100XP)</button><button class="btn-rule" style="width:100%; margin-top:10px;" onclick="UI.close()">返回</button></div></div>
     <div id="gift-modal" class="modal"><div class="modal-content"><h2 style="color:var(--neon-cyan);">协议激活 // GIFTS</h2><input id="gift-code-input" placeholder="激活码"><button class="btn-rule" style="width:100%" onclick="Gifts.redeem()">激活</button><button class="btn-rule" style="width:100%; margin-top:10px;" onclick="UI.close()">返回</button></div></div>
     <div id="wiki-modal" class="modal"><div class="modal-content"><h2 style="color:var(--neon-cyan);">生存档案 // ARCHIVE</h2><div id="wiki-content" style="line-height:1.7; color:#ccc;"></div><button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">确认</button></div></div>
-    <div id="friend-modal" class="modal"><div class="modal-content"><h2 style="color:var(--neon-cyan);">常用联通 // CONTACTS</h2><div style="display:flex; gap:10px; margin-bottom:20px;"><input id="friend-target-uid" placeholder="输入目标 UID" style="margin:0;"><button class="btn-rule" onclick="Social.initiateConnection()">建立连接</button></div><div id="friend-list"></div><button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">返回</button></div></div>
+    <div id="friend-modal" class="modal"><div class="modal-content"><h2 style="color:var(--neon-cyan);">常用联通 // CONTACTS</h2><div style="display:flex; gap:10px; margin-bottom:20px;"><input id="friend-target-uid" placeholder="目标 UID" style="margin:0;"><button class="btn-rule" onclick="Social.initiateConnection()">建立连接</button></div><div id="friend-list"></div><button class="btn-rule" style="width:100%; margin-top:20px;" onclick="UI.close()">返回</button></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -257,16 +253,17 @@
             },
             login: async () => {
                 const u = document.getElementById('auth-uid').value.trim(); const p = document.getElementById('auth-pw').value;
+                if(!u) return alert("请输入识别码 (UID)");
                 const snap = await getDoc(doc(db, "users", u));
                 if(snap.exists() && snap.data().pw === p) {
-                    if(snap.data().banned) return alert("封禁中");
+                    if(snap.data().banned) return alert("已被封禁");
                     State.user = { id: u, nick: snap.data().nick };
                     localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user)); location.reload();
-                } else alert("错误");
+                } else alert("识别失败：UID 或密码错误");
             },
             sendSuggest: async () => {
                 await addDoc(collection(db, "suggestions"), { from: State.user.nick, text: document.getElementById('suggest-text').value, time: serverTimestamp() });
-                alert("已投递"); UI.close();
+                alert("建议已投递"); UI.close();
             }
         };
 
@@ -277,10 +274,10 @@
                     sn.forEach(d => {
                         const m = d.data();
                         area.innerHTML += `<div class="market-item">
-                            <div><span style="color:var(--neon-cyan)">[${m.type}]</span> <b>${m.itemName}</b> <span style="float:right">${m.price}</span></div>
-                            <p style="font-size:12px; color:#888; margin:5px 0;">${m.desc}</p>
+                            <div><span style="border:1px solid var(--neon-cyan); padding:2px 5px; font-size:10px; color:var(--neon-cyan);">${m.type || '物资'}</span> <b>${m.itemName}</b> <span style="float:right">${m.price}</span></div>
+                            <p style="font-size:12px; color:#888; margin:10px 0;">${m.desc}</p>
                             <div id="m-replies-${d.id}" class="reply-box"></div>
-                            <div style="display:flex; gap:5px; margin-top:5px;"><input id="m-inp-${d.id}" placeholder="议价回复..." style="margin:0; padding:5px;"><button class="btn-rule" style="padding:4px 10px; font-size:10px;" onclick="SurvivalMarket.reply('${d.id}')">回复</button>
+                            <div style="display:flex; gap:5px; margin-top:5px;"><input id="m-inp-${d.id}" placeholder="回复..." style="margin:0; padding:5px;"><button class="btn-rule" style="padding:4px 10px; font-size:10px;" onclick="SurvivalMarket.reply('${d.id}')">回复</button>
                             ${(m.sellerId === State.user.id || State.isRoot) ? `<button class="btn-rule danger" onclick="SurvivalMarket.del('${d.id}')">下架</button>` : ''}</div>
                         </div>`;
                         SurvivalMarket.loadReplies(d.id);
@@ -348,9 +345,9 @@
             initiateConnection: async () => {
                 const tid = document.getElementById('friend-target-uid').value.trim();
                 const snap = await getDoc(doc(db, "users", tid));
-                if(!snap.exists() || !snap.data().allowPM) return alert("无法开启");
+                if(!snap.exists() || !snap.data().allowPM) return alert("无法开启信道");
                 const cid = [State.user.id, tid].sort().join("_");
-                await setDoc(doc(db, "p_chats_meta", cid), { members: [State.user.id, tid] }, { merge: true });
+                await setDoc(doc(db, "p_chats_meta", cid), { members: [State.user.id, tid], lastUpdate: serverTimestamp() }, { merge: true });
                 SurvivalChat.start(tid, snap.data().nick);
             },
             loadFriends: () => onSnapshot(query(collection(db, "p_chats_meta"), where("members", "array-contains", State.user.id)), (sn) => {
@@ -371,54 +368,36 @@
                 onSnapshot(query(collection(db, "p_chats"), where("chatId", "==", cid)), (sn) => {
                     const msgs = sn.docs.map(d => d.data()).sort((a,b) => (a.time?.seconds || 0) - (b.time?.seconds || 0));
                     document.getElementById('p-chat-flow').innerHTML = msgs.map(m => `<div style="text-align:${m.senderId===State.user.id?'right':'left'}; margin-bottom:10px; color:${m.senderId===State.user.id?'var(--neon-cyan)':'white'}">${m.text}</div>`).join('');
+                    document.getElementById('p-chat-flow').scrollTop = document.getElementById('p-chat-flow').scrollHeight;
                 });
-                document.getElementById('p-chat-inp').onkeydown = async (e) => { if(e.key === 'Enter' && e.target.value) { await addDoc(collection(db, "p_chats"), { chatId: cid, senderId: State.user.id, text: e.target.value, time: serverTimestamp() }); e.target.value = ''; } };
+                document.getElementById('p-chat-inp').onkeydown = async (e) => { if(e.key === 'Enter' && e.target.value) { await addDoc(collection(db, "p_chats"), { chatId: cid, senderId: State.user.id, text: e.target.value, time: serverTimestamp() }); await updateDoc(doc(db, "p_chats_meta", cid), { lastUpdate: serverTimestamp() }); e.target.value = ''; } };
             }
         };
 
         window.Settings = {
             load: () => { document.getElementById('my-uid-label').innerText = State.user.id; },
-            togglePM: async () => { await updateDoc(doc(db, "users", State.user.id), { allowPM: !document.getElementById('privacy-toggle').checked }); },
             changeNick: async () => { await updateDoc(doc(db, "users", State.user.id), { nick: document.getElementById('set-new-nick').value }); location.reload(); },
-            changePw: async () => await updateDoc(doc(db, "users", State.user.id), { pw: document.getElementById('set-new-pw').value }),
-            deleteAccount: async () => { if(confirm("抹除全数据？")) { const uid = State.user.id; await deleteDoc(doc(db, "users", uid)); SurvivalAuth.logout(); } }
+            changePw: async () => { await updateDoc(doc(db, "users", State.user.id), { pw: document.getElementById('set-new-pw').value }); alert("同步成功"); },
+            togglePM: async () => await updateDoc(doc(db, "users", State.user.id), { allowPM: !document.getElementById('privacy-toggle').checked }),
+            deleteAccount: async () => { if(confirm("抹除全数据？")) { await deleteDoc(doc(db, "users", State.user.id)); SurvivalAuth.logout(); } }
         };
 
         window.Wiki = {
             load: () => {
                 document.getElementById('wiki-content').innerHTML = `
-                    <p>● 官网快捷网址: <a href="https://survshortcut-dqdfdiyi.manus.space/" target="_blank" style="color:var(--neon-yellow);">点击跳转</a></p>
+                    <p>● 官网快捷: <a href="https://survshortcut-dqdfdiyi.manus.space/" target="_blank" style="color:var(--neon-yellow);">点击跳转</a></p>
                     <p>● Discord 服务器: <a href="https://discord.gg/TjbXjc7twv" target="_blank" style="color:var(--neon-yellow);">加入社区</a></p>
-                    <p>● Boxim 服务器: 添加 <b>Peter_YYDS</b> 加入 (备注生存法则)</p><hr>
-                    <p><span class="tag tag-fz">[腐竹]</span> IKUN5556</p><p><span class="tag tag-ffz">[副腐竹/网站创建者]</span> Peter_YT_Bilibili</p>
-                    <p><span class="tag tag-mod">[Discord 开发/管理员]</span> CS||Steve, 焦糖猫</p>
-                    <p><span class="tag tag-mod">[服务器建筑师]</span> GhastlyCyclops_432</p>
-                    <p><span class="tag tag-mod">[Boxim 群主/管理员]</span> Peter_YYDS</p>
-                `;
+                    <p>● Boxim 服务器: 请添加 <b>Peter_YYDS</b> 备注加入</p><hr>
+                    <p><span class="tag tag-fz">[腐竹]</span> IKUN5556</p><p><span class="tag tag-ffz">[副腐竹/开发者]</span> Peter_YT_Bilibili</p>
+                    <p><span class="tag tag-mod">[Discord 开发/管理]</span> CS||Steve, 焦糖猫</p><p><span class="tag tag-mod">[服务器建筑师]</span> GhastlyCyclops_432</p><p><span class="tag tag-mod">[Boxim群主/管理]</span> Peter_YYDS</p>`;
             }
         };
 
-        window.CheckIn = {
-            claim: async () => {
-                const ref = doc(db, "users", State.user.id); const snap = await getDoc(ref);
-                if(Date.now() - (snap.data().lastCheckIn || 0) < 86400000) return alert("打卡冷却中");
-                await updateDoc(ref, { xp: increment(100), lastCheckIn: Date.now() }); alert("打卡成功"); UI.close();
-            }
-        };
-
-        window.Gifts = {
-            redeem: async () => {
-                const code = document.getElementById('gift-code-input').value;
-                const ref = doc(db, "users", State.user.id); const snap = await getDoc(ref);
-                if(snap.data().usedCodes?.includes(code)) return alert("已激活过");
-                if(code==="IKUN666"||code==="STEVE"){ await updateDoc(ref, { xp: increment(1000), usedCodes: arrayUnion(code) }); alert("成功"); UI.close(); }
-            }
-        };
+        window.CheckIn = { claim: async () => { const ref = doc(db, "users", State.user.id); const snap = await getDoc(ref); if(Date.now() - (snap.data().lastCheckIn || 0) < 86400000) return alert("冷却中"); await updateDoc(ref, { xp: increment(100), lastCheckIn: Date.now() }); alert("打卡完成"); UI.close(); } };
+        window.Gifts = { redeem: async () => { const code = document.getElementById('gift-code-input').value; const ref = doc(db, "users", State.user.id); const snap = await getDoc(ref); if(snap.data().usedCodes?.includes(code)) return alert("已激活"); if(code==="IKUN666"||code==="STEVE"){ await updateDoc(ref,{xp:increment(1000),usedCodes:arrayUnion(code)}); alert("成功"); UI.close(); } } };
 
         window.Admin = {
-            loadSuggest: () => onSnapshot(collection(db, "suggestions"), (sn) => {
-                document.getElementById('suggest-list').innerHTML = sn.docs.map(d => `<div style="border-bottom:1px solid #222; padding:10px;"><b>${d.data().from}:</b> ${d.data().text} <button class="btn-rule danger" style="float:right" onclick="Admin.delSug('${d.id}')">删除</button></div>`).join('');
-            }),
+            loadSuggest: () => onSnapshot(collection(db, "suggestions"), (sn) => { document.getElementById('suggest-list').innerHTML = sn.docs.map(d => `<div style="border-bottom:1px solid #222; padding:10px;"><b>${d.data().from}:</b> ${d.data().text} <button class="btn-rule danger" style="float:right" onclick="Admin.delSug('${d.id}')">删除</button></div>`).join(''); }),
             delSug: async (id) => await deleteDoc(doc(db, "suggestions", id)),
             postNotice: async () => await setDoc(doc(db, "system", "notice"), { text: document.getElementById('admin-notice-input').value }),
             setUserStatus: async (f, v) => await updateDoc(doc(db, "users", document.getElementById('admin-target-uid').value), { [f]: v }),
@@ -444,10 +423,10 @@
                 { title: "荣誉排行", desc: "XP 贡献排行", action: "SurvivalRankLoad()" },
                 { title: "个人配置", desc: "改名/改密/UID", action: "UI.open('settings-modal')" },
                 { title: "意见反馈", desc: "向管理投递建议", action: "UI.open('suggest-modal')" },
-                { title: "审阅建议", desc: "审阅反馈", action: "UI.open('view-suggest-modal')", admin: true },
+                { title: "审阅建议", desc: "查阅审阅反馈", action: "UI.open('view-suggest-modal')", admin: true },
+                { title: "协议激活", desc: "注入特权 XP", action: "UI.open('gift-modal')" },
                 { title: "生存档案", desc: "团队指南", action: "UI.open('wiki-modal')" },
-                { title: "核心终端", desc: "ROOT 核心权限", action: "UI.open('admin-modal')", admin: true },
-                { title: "协议激活", desc: "密匙激活特权", action: "UI.open('gift-modal')" }
+                { title: "核心终端", desc: "ROOT 核心权限", action: "UI.open('admin-modal')", admin: true }
             ];
             document.getElementById('main-grid').innerHTML = features.map(f => (f.admin && !State.isRoot) ? '' : `<div class="card ${f.admin?'admin-node':''}" onclick="${f.action}" onmouseenter="playTick()" id="${f.id||''}"><h2>${f.title}</h2><p>> ${f.desc}</p></div>`).join('');
         }
