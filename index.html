@@ -947,3 +947,506 @@
         };
 
 请回复“继续”以输出最后的社交系统、管理员后台、生存档案及 bootstrap 启动逻辑。
+/* 
+        ------------------------------------------------------------
+        [MODULE] 悬赏中心 (Bounty Hub)
+        官方与民间任务分级显示，支持实时回复接单
+        ------------------------------------------------------------
+        */
+        window.Bounty = {
+            // 加载全服悬赏并按权限分发显示
+            load: () => {
+                onSnapshot(collection(db, "bounties"), (sn) => {
+                    const sList = document.getElementById('staff-b-list');
+                    const pList = document.getElementById('player-b-list');
+                    sList.innerHTML = ''; 
+                    pList.innerHTML = '';
+
+                    sn.forEach(d => {
+                        const b = d.data();
+                        const isMine = b.posterId === State.user.id;
+                        // 判定是否为管理组发布的官方指令
+                        const isStaff = STAFF_ADMIN_UIDS.includes(b.posterId) || STAFF_ADMIN_UIDS.includes(b.posterNick);
+
+                        const html = `
+                        <div class="bounty-item ${isStaff ? 'bounty-staff' : ''}" style="border: 1px dashed ${isStaff ? 'var(--neon-yellow)' : 'var(--neon-cyan)'}; padding: 20px; margin-bottom: 20px; background: rgba(255,255,255,0.02);">
+                            <div style="font-weight:bold; font-size:1.2rem; color:${isStaff ? 'var(--neon-yellow)' : 'white'}">
+                                ${isStaff ? '[OFFICIAL_ORDER] ' : '[COMMUNITY_TASK] '}${b.title}
+                            </div>
+                            <div style="color:var(--neon-cyan); margin:8px 0;">报酬奖励: ${b.reward}</div>
+                            <div style="font-size:11px; opacity:0.5; margin-bottom:10px;">发布源: ${getTag(b.posterId, b.posterNick)}${b.posterNick}</div>
+                            
+                            <!-- 悬赏任务回复展示区 -->
+                            <div id="b-rep-box-${d.id}" class="reply-box">正在同步任务反馈...</div>
+                            
+                            <div style="display:flex; gap:10px; margin-top:15px;">
+                                <input id="b-inp-${d.id}" placeholder="对此任务提交反馈或接单留言..." style="margin:0; padding:10px; font-size:12px;">
+                                <button class="btn-rule" style="padding:0 15px; font-size:11px;" onclick="Bounty.sendReply('${d.id}')">提交反馈</button>
+                                ${(isMine || State.isRoot) ? `<button class="btn-rule danger" style="padding:0 15px; font-size:11px;" onclick="Bounty.del('${d.id}')">撤回任务</button>` : ''}
+                            </div>
+                        </div>`;
+
+                        if (isStaff) sList.innerHTML += html;
+                        else pList.innerHTML += html;
+
+                        // 嵌套监听任务下方的回复子集合
+                        onSnapshot(query(collection(db, "bounties", d.id, "replies"), orderBy("time", "asc")), (rsn) => {
+                            const rBox = document.getElementById(`b-rep-box-${d.id}`);
+                            if (rBox) {
+                                rBox.innerHTML = rsn.docs.map(rd => `<div class="reply-item"><b>${rd.data().nick}:</b> ${rd.data().text}</div>`).join('') || "暂无任务反馈";
+                            }
+                        });
+                    });
+                });
+            },
+
+            sendReply: async (id) => {
+                const inp = document.getElementById(`b-inp-${id}`);
+                if (!inp.value.trim()) return;
+                await addDoc(collection(db, "bounties", id, "replies"), {
+                    nick: State.user.nick,
+                    uid: State.user.id,
+                    text: inp.value,
+                    time: serverTimestamp()
+                });
+                inp.value = '';
+            },
+
+            post: async () => {
+                const t = document.getElementById('b-title').value;
+                const r = document.getElementById('b-reward').value;
+                if (!t || !r) return alert("请完整输入任务标题和奖励描述。");
+                
+                await addDoc(collection(db, "bounties"), {
+                    posterId: State.user.id,
+                    posterNick: State.user.nick,
+                    title: t,
+                    reward: r,
+                    time: serverTimestamp()
+                });
+                alert("战术悬赏已全服同步。");
+                document.getElementById('b-title').value = '';
+                document.getElementById('b-reward').value = '';
+            },
+
+            del: async (id) => {
+                if (confirm("确定永久下架此悬赏任务？")) {
+                    await deleteDoc(doc(db, "bounties", id));
+                }
+            }
+        };
+
+        /* 
+        ------------------------------------------------------------
+        [MODULE] 社交中继系统 (Social Relay)
+        核心：通过 Metadata 实现双向瞬间感知，不需要对方手动同意
+        ------------------------------------------------------------
+        */
+        window.Social = {
+            // 输入 UID 开启直接对话
+            initiateConnection: async () => {
+                const tid = document.getElementById('friend-target-uid').value.trim();
+                if (!tid || tid === State.user.id) return alert("错误：无效的连接目标。");
+                
+                const snap = await getDoc(doc(db, "users", tid));
+                if (!snap.exists()) return alert("识别码错误：目标 UID 未在数据链中注册。");
+                if (!snap.data().allowPM) return alert("接入受阻：对方已开启隐私保护协议，拒绝私聊。");
+
+                // 创建包含双方 UID 的元数据，确保双方都能通过查询 members 看到此信道
+                const chatId = [State.user.id, tid].sort().join("_");
+                await setDoc(doc(db, "p_chats_meta", chatId), {
+                    members: [State.user.id, tid],
+                    lastUpdate: serverTimestamp()
+                }, { merge: true });
+
+                SurvivalChat.start(tid, snap.data().nick);
+            },
+
+            // 监听所有包含我的对话记录，实时显示在常用联通里
+            loadFriends: () => {
+                onSnapshot(query(collection(db, "p_chats_meta"), where("members", "array-contains", State.user.id)), (sn) => {
+                    const list = document.getElementById('friend-list');
+                    list.innerHTML = '';
+                    
+                    if (sn.empty) {
+                        list.innerHTML = `<p style="color:#444;">-- 当前无活跃联通记录 --</p>`;
+                    }
+
+                    sn.forEach(async (d) => {
+                        const otherId = d.data().members.find(m => m !== State.user.id);
+                        const oSnap = await getDoc(doc(db, "users", otherId));
+                        if (oSnap.exists()) {
+                            const data = oSnap.data();
+                            const item = document.createElement('div');
+                            item.className = 'item-row';
+                            item.innerHTML = `
+                                <span>${getTag(otherId, data.nick)}${data.nick} (${otherId})</span>
+                                <div>
+                                    <button class="btn-rule" style="padding:5px 10px; font-size:11px;" onclick="SurvivalChat.start('${otherId}','${data.nick}')">开启私聊</button>
+                                    <button class="btn-rule danger" style="padding:5px 10px; font-size:11px;" onclick="Social.erase('${d.id}')">抹除历史</button>
+                                </div>
+                            `;
+                            list.appendChild(item);
+                        }
+                    });
+                    
+                    // 消息红点显示逻辑：有几个活跃信道就显示多少
+                    const badge = document.getElementById('msg-badge-area');
+                    if (badge) {
+                        badge.innerHTML = sn.size > 0 ? `<span class="badge">${sn.size}</span>` : '';
+                    }
+                });
+            },
+
+            erase: async (id) => {
+                if (confirm("确定抹除该加密信道的所有历史记录？对方也将无法查看。")) {
+                    await deleteDoc(doc(db, "p_chats_meta", id));
+                }
+            }
+        };
+
+        /* 
+        ------------------------------------------------------------
+        [MODULE] 加密私聊引擎 (SurvivalChat)
+        基于 Firebase 的实时点对点报文流
+        ------------------------------------------------------------
+        */
+        let currentPrivUnsub = null;
+        window.SurvivalChat = {
+            start: (tid, tnick) => {
+                UI.close();
+                const win = document.getElementById('p-chat-win');
+                const flow = document.getElementById('p-chat-flow');
+                win.style.display = 'flex';
+                document.getElementById('p-chat-title').innerHTML = `加密信道: ${getTag(tid, tnick)}${tnick}`;
+                
+                const cid = [State.user.id, tid].sort().join("_");
+                if (currentPrivUnsub) currentPrivUnsub(); // 卸载旧监听器
+
+                // 监听私聊消息集合
+                currentPrivUnsub = onSnapshot(query(collection(db, "p_chats"), where("chatId", "==", cid)), (sn) => {
+                    const msgs = sn.docs.map(d => d.data()).sort((a,b) => (a.time?.seconds || 0) - (b.time?.seconds || 0));
+                    
+                    flow.innerHTML = msgs.map(m => {
+                        const isMe = m.senderId === State.user.id;
+                        return `
+                        <div style="text-align:${isMe ? 'right' : 'left'}; margin-bottom:12px;">
+                            <div style="display:inline-block; padding:10px 14px; background:${isMe ? 'rgba(0,242,255,0.15)' : '#1a1a1a'}; border:1px solid ${isMe ? 'var(--neon-cyan)' : '#333'};">
+                                ${m.text}
+                            </div>
+                        </div>`;
+                    }).join('');
+                    flow.scrollTop = flow.scrollHeight;
+                });
+
+                // 绑定回车发送
+                document.getElementById('p-chat-inp').onkeydown = async (e) => {
+                    if (e.key === 'Enter' && e.target.value.trim()) {
+                        const msg = e.target.value;
+                        e.target.value = '';
+                        await addDoc(collection(db, "p_chats"), {
+                            chatId: cid,
+                            senderId: State.user.id,
+                            text: msg,
+                            time: serverTimestamp()
+                        });
+                        // 更新元数据活跃时间
+                        await updateDoc(doc(db, "p_chats_meta", cid), { lastUpdate: serverTimestamp() });
+                    }
+                };
+            }
+        };
+
+        /* 
+        ------------------------------------------------------------
+        [MODULE] 管理员 ROOT 后台 (Admin)
+        订单处理、维护模式、审计控制
+        ------------------------------------------------------------
+        */
+        window.Admin = {
+            // 查阅商店兑换订单
+            loadOrders: () => {
+                onSnapshot(collection(db, "orders"), (sn) => {
+                    const box = document.getElementById('admin-order-list');
+                    box.innerHTML = sn.docs.map(d => {
+                        const o = d.data();
+                        return `
+                        <div style="border-bottom:1px solid #333; padding:10px 0;">
+                            <b>[待发货]</b> 玩家: ${o.nick} (${o.uid}) <br>
+                            兑换物资: <span style="color:var(--neon-cyan)">${o.itemName}</span> (成本: ${o.cost} XP) <br>
+                            <button class="btn-rule" style="padding:2px 8px; font-size:10px; margin-top:5px;" onclick="Admin.finishOrder('${d.id}')">确认已发货 (销单)</button>
+                        </div>`;
+                    }).join('') || "当前无挂起订单。";
+                });
+            },
+
+            finishOrder: async (id) => {
+                if(confirm("确定已在游戏内将物资交给玩家？")) await deleteDoc(doc(db, "orders", id));
+            },
+
+            // 查阅并管理玩家建议
+            loadSuggest: () => {
+                onSnapshot(query(collection(db, "suggestions"), orderBy("time", "desc")), (sn) => {
+                    document.getElementById('suggest-list').innerHTML = sn.docs.map(d => {
+                        const s = d.data();
+                        return `
+                        <div style="border-bottom:1px solid #222; padding:15px;">
+                            <div style="color:var(--neon-cyan);">FROM: ${s.from} (${s.uid})</div>
+                            <div style="margin:10px 0; font-size:14px; line-height:1.5;">${s.text}</div>
+                            <button class="btn-rule danger" style="padding:2px 8px; font-size:10px;" onclick="Admin.delSug('${d.id}')">删除记录</button>
+                        </div>`;
+                    }).join('') || "暂无玩家建议。";
+                });
+            },
+
+            delSug: async (id) => await deleteDoc(doc(db, "suggestions", id)),
+
+            postNotice: async () => {
+                const text = document.getElementById('admin-notice-input').value;
+                await setDoc(doc(db, "system", "notice"), { text: text, time: serverTimestamp() });
+                alert("公告已向全服终端推送。");
+            },
+
+            setUserStatus: async (field, val) => {
+                const uid = document.getElementById('admin-target-uid').value.trim();
+                if (!uid) return alert("请填入目标 UID。");
+                let updateData = {};
+                updateData[field] = val;
+                await updateDoc(doc(db, "users", uid), updateData);
+                alert(`审计操作成功：${field} 已更新。`);
+            },
+
+            modXP: async () => {
+                const uid = document.getElementById('admin-target-uid').value.trim();
+                const amount = parseInt(prompt("请输入要注能或扣除的 XP 数值 (如: 1000 或 -1000):"));
+                if (!uid || isNaN(amount)) return;
+                await updateDoc(doc(db, "users", uid), { xp: increment(amount) });
+                alert("XP 注入协议执行完毕。");
+            },
+
+            toggleMaintenance: async () => {
+                const ref = doc(db, "system", "config");
+                const snap = await getDoc(ref);
+                const current = snap.data()?.status || "ONLINE";
+                const next = current === "MAINTENANCE" ? "ONLINE" : "MAINTENANCE";
+                await setDoc(ref, { status: next }, { merge: true });
+                alert(`系统模式已切换至: ${next}`);
+            },
+
+            clearLobby: async () => {
+                if(confirm("警告：确定清空全服大厅所有聊天记录？")) {
+                    const sn = await getDocs(collection(db, "global_messages"));
+                    sn.forEach(async (d) => await deleteDoc(doc(db, "global_messages", d.id)));
+                    alert("大厅数据已净空。");
+                }
+            },
+
+            wipeMarket: async () => {
+                if(confirm("警告：确定重置物资广场所有玩家挂单？")) {
+                    const sn = await getDocs(collection(db, "market"));
+                    sn.forEach(async (d) => await deleteDoc(doc(db, "market", d.id)));
+                    alert("物资市场已重置。");
+                }
+            }
+        };
+
+        /* 
+        ------------------------------------------------------------
+        [MODULE] 打卡与设置 (Settings & Check-in)
+        ------------------------------------------------------------
+        */
+        window.CheckIn = {
+            claim: async () => {
+                const today = getBeijingDateStr();
+                const ref = doc(db, "users", State.user.id);
+                const snap = await getDoc(ref);
+                if(snap.data().lastCheckDate === today) return alert("接入受限：您在北京时间今日已完成打卡协议。");
+                
+                await updateDoc(ref, {
+                    xp: increment(100),
+                    lastCheckDate: today
+                });
+                alert("打卡成功！100 XP 荣誉值已注入您的账户。");
+                UI.close();
+            }
+        };
+
+        window.Settings = {
+            load: () => {
+                document.getElementById('my-uid-label').innerText = "我的系统识别码 (UID): " + State.user.id;
+            },
+            changeNick: async () => {
+                const n = document.getElementById('set-new-nick').value.trim();
+                if(!n) return;
+                await updateDoc(doc(db, "users", State.user.id), { nick: n });
+                State.user.nick = n;
+                localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
+                alert("昵称修改成功，协议即将重新加载。");
+                location.reload();
+            },
+            changePw: async () => {
+                const p = document.getElementById('set-new-pw').value;
+                if(p.length < 4) return alert("为了安全，密码协议长度不得低于 4 位。");
+                await updateDoc(doc(db, "users", State.user.id), { pw: p });
+                alert("访问密码已更新。");
+            },
+            togglePM: async () => {
+                const val = !document.getElementById('privacy-toggle').checked;
+                await updateDoc(doc(db, "users", State.user.id), { allowPM: val });
+            },
+            deleteAccount: async () => {
+                if(confirm("DANGER: 您确定要永久销毁此账户并清除云端所有关联数据？此操作不可逆！")) {
+                    const uid = State.user.id;
+                    // 1. 销毁账号
+                    await deleteDoc(doc(db, "users", uid));
+                    // 2. 清除该 UID 的挂单
+                    const mSn = await getDocs(query(collection(db, "market"), where("sellerId", "==", uid)));
+                    mSn.forEach(async d => await deleteDoc(doc(db, "market", d.id)));
+                    // 3. 退出
+                    localStorage.clear();
+                    location.reload();
+                }
+            }
+        };
+
+        /* 
+        ------------------------------------------------------------
+        [BOOTSTRAP] 页面启动引导程序
+        负责视图切换、实时监听初始化、权限分发
+        ------------------------------------------------------------
+        */
+        function bootstrap() {
+            // 1. 全局系统监听 (公告与停服状态)
+            onSnapshot(doc(db, "system", "notice"), (sn) => {
+                const el = document.getElementById('global-announcement');
+                if(sn.exists() && sn.data().text) {
+                    el.innerText = `[协议指令] ${sn.data().text}`;
+                    el.style.display = 'block';
+                } else el.style.display = 'none';
+            });
+
+            onSnapshot(doc(db, "system", "config"), (sn) => {
+                if(sn.exists() && sn.data().status === "MAINTENANCE" && !STAFF_ROOT.includes(State.user?.id)) {
+                    document.body.innerHTML = `
+                        <div style="display:flex; flex-direction:column; height:100vh; align-items:center; justify-content:center; text-align:center;">
+                            <h1 style="color:var(--neon-red); font-size:3rem;">SYSTEM_MAINTENANCE</h1>
+                            <p style="color:#555;">生存法则中继站正在进行停服更新。请关注 Discord 频道获取接入时间。</p>
+                        </div>`;
+                }
+            });
+
+            // 2. 如果未登录，停止加载后续磁贴
+            if(!State.user) return;
+
+            // 3. 视图切换：隐藏英雄首页，展示战术磁贴
+            document.getElementById('landing-hero').style.display = 'none';
+            document.getElementById('main-grid').style.display = 'grid';
+
+            // 4. 权限分发
+            if(STAFF_ROOT.includes(State.user.id)) State.isRoot = true;
+
+            // 5. 初始化实时社交同步 (常用联通与红点)
+            Social.loadFriends();
+
+            // 6. 实时同步导航栏个人信息
+            onSnapshot(doc(db, "users", State.user.id), (sn) => {
+                const d = sn.data();
+                if(d.banned) { alert("协议接入已被 Root 终端断开。"); SurvivalAuth.logout(); }
+                document.getElementById('nav-auth-slot').innerHTML = `
+                    <span style="color:var(--neon-cyan); margin-right:15px; font-size:13px;">
+                        ${getTag(State.user.id, d.nick)}${d.nick} // ${d.xp} XP
+                    </span>
+                    <button class="btn-rule danger" style="padding:5px 12px; font-size:11px;" onclick="SurvivalAuth.logout()">断开</button>
+                `;
+            });
+
+            // 7. 渲染功能磁贴阵列
+            const features = [
+                { title: "全服大厅", desc: "实时同步广播协议", action: "GlobalChat.init()" },
+                { title: "常用联通", desc: "双向加密同步信道", action: "UI.open('friend-modal')", id: "msg-badge-area" },
+                { title: "物资广场", desc: "玩家挂单与回复议价", action: "UI.open('market-modal')" },
+                { title: "荣誉排行", desc: "贡献度全服动态排行", action: "SurvivalRankLoad()" },
+                { title: "生存档案", desc: "团队指南与官方文档", action: "UI.open('wiki-modal')" },
+                { title: "个人配置", desc: "UID查询与账号设置", action: "UI.open('settings-modal')" },
+                { title: "每日打卡", desc: "北京时间 0点奖励刷新", action: "UI.open('checkin-modal')" },
+                { title: "意见反馈", desc: "向管理层投递加密建议", action: "UI.open('suggest-modal')" },
+                { title: "XP 商店", desc: "官方物资换领兑换店", action: "UI.open('xp-store-modal')" },
+                { title: "协议激活", desc: "输入激活密匙注入特权", action: "UI.open('gift-modal')" },
+                { title: "悬赏中心", desc: "战术任务雇佣接单平台", action: "UI.open('bounty-modal')" },
+                { title: "审阅建议", desc: "管理后台反馈查阅", action: "UI.open('view-suggest-modal')", admin: true },
+                { title: "核心终端", desc: "ROOT 核心控制权限系统", action: "UI.open('admin-modal')", admin: true }
+            ];
+
+            const grid = document.getElementById('main-grid');
+            grid.innerHTML = features.map(f => {
+                if(f.admin && !State.isRoot) return ''; // 红色磁贴只展示给 Root
+                return `<div class="card ${f.admin ? 'admin-node' : ''}" onclick="${f.action}" onmouseenter="playTick()" id="${f.id || ''}">
+                            <h2>${f.title}</h2><p>> ${f.desc}</p>
+                        </div>`;
+            }).join('');
+        }
+
+        // 排行榜实时渲染
+        window.SurvivalRankLoad = () => {
+            UI.open('rank-modal');
+            onSnapshot(query(collection(db, "users"), orderBy("xp", "desc"), limit(15)), (sn) => {
+                const list = document.getElementById('rank-list');
+                list.innerHTML = sn.docs.map(d => {
+                    const u = d.data();
+                    return `<div class="item-row"><span>${getTag(d.id, u.nick)}${u.nick}</span> <span>${u.xp} XP</span></div>`;
+                }).join('');
+            });
+        };
+
+        // 磁贴功能：生存档案库文字内容加载
+        window.Wiki = {
+            load: () => {
+                document.getElementById('wiki-content').innerHTML = `
+                    <div style="margin-bottom:20px;">
+                        <p>● 官网快捷网址: <a href="https://survshortcut-dqdfdiyi.manus.space/" target="_blank" style="color:var(--neon-yellow);">点击跳转访问</a></p>
+                        <p>● Discord 服务器: <a href="https://discord.gg/TjbXjc7twv" target="_blank" style="color:var(--neon-yellow);">点击加入社区</a></p>
+                        <p>● Boxim 服务器: 请添加 <b>Peter_YYDS</b> 接入（备注生存法则）</p>
+                    </div>
+                    <hr style="border-color:#333; margin:15px 0;">
+                    <div style="color:var(--neon-cyan)">[ 核心成员协议记录 ]</div>
+                    <p><span class="tag tag-fz">[腐竹]</span> IKUN5556 (Server Owner)</p>
+                    <p><span class="tag tag-ffz">[副腐竹]</span> Peter_YT_Bilibili (Lead Developer)</p>
+                    <p><span class="tag tag-mod">[Discord 开发/管理]</span> CS||Steve, 焦糖猫</p>
+                    <p><span class="tag tag-mod">[服务器建筑师]</span> GhastlyCyclops_432</p>
+                    <p><span class="tag tag-mod">[Boxim 群主/管理]</span> Peter_YYDS</p>
+                `;
+            }
+        };
+
+        // 激活 Gifts 礼包码
+        window.Gifts = {
+            redeem: async () => {
+                const code = document.getElementById('gift-code-input').value.trim();
+                const ref = doc(db, "users", State.user.id);
+                const snap = await getDoc(ref);
+                const used = snap.data().usedCodes || [];
+                if(used.includes(code)) return alert("协议冲突：该密匙已被您的账号激活。");
+                
+                if(code === "IKUN666" || code === "STEVE") {
+                    const bonus = code === "IKUN666" ? 1000 : 2000;
+                    await updateDoc(ref, { 
+                        xp: increment(bonus),
+                        usedCodes: arrayUnion(code)
+                    });
+                    alert(`协议激活成功！已注入 ${bonus} XP 特权经验。`);
+                    UI.close();
+                } else alert("识别失败：无效的激活密匙。");
+            }
+        };
+
+        // 启动应用
+        bootstrap();
+
+        // [MISC] 随机坐标跳动与鼠标追踪
+        const tracker = document.getElementById('light-tracker');
+        document.addEventListener('mousemove', (e) => {
+            if(tracker) { tracker.style.left = e.clientX + 'px'; tracker.style.top = e.clientY + 'px'; }
+        });
+    </script>
+</body>
+</html>
