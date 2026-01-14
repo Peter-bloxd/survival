@@ -55,8 +55,28 @@
         @keyframes tactical-glitch { 0% { transform: translate(0); } 25% { transform: translate(-1.5px, 1.5px) skewX(1deg); } 50% { transform: translate(1.5px, -1.5px); } 100% { transform: translate(0); } }
         .logo-box { margin: 40px 0 20px 0; cursor: pointer; animation: tactical-glitch 0.12s infinite linear; filter: drop-shadow(0 0 12px var(--neon-yellow)); }
 
-        /* 顶部 UI */
-        #global-announcement { width: 100%; background: rgba(255, 60, 65, 0.2); border-bottom: 1px solid var(--neon-red); padding: 10px; text-align: center; color: var(--neon-red); font-weight: bold; font-size: 14px; display: none; z-index: 1500; }
+        /* 顶部 UI - 修复1: 增强公告显示效果 */
+        #global-announcement { 
+            width: 100%; 
+            background: rgba(255, 60, 65, 0.3); 
+            border-bottom: 2px solid var(--neon-red); 
+            padding: 18px 10px; 
+            text-align: center; 
+            color: #fff; 
+            text-shadow: 0 0 10px var(--neon-red), 0 0 20px var(--neon-red);
+            font-weight: 900; 
+            font-size: 20px; 
+            letter-spacing: 4px;
+            display: none; 
+            z-index: 1500; 
+            animation: announcement-pulse 2s infinite;
+        }
+        @keyframes announcement-pulse {
+            0% { background: rgba(255, 60, 65, 0.2); }
+            50% { background: rgba(255, 60, 65, 0.5); transform: scaleY(1.02); }
+            100% { background: rgba(255, 60, 65, 0.2); }
+        }
+
         .top-nav { width: 100%; height: 60px; background: rgba(0,0,0,0.85); border-bottom: 1px solid rgba(0, 242, 255, 0.2); display: flex; justify-content: space-between; align-items: center; padding: 0 40px; box-sizing: border-box; position: sticky; top: 0; z-index: 1000; }
         .coordinates { font-size: 10px; color: var(--neon-cyan); opacity: 0.7; letter-spacing: 1px; }
 
@@ -168,6 +188,7 @@
     <!-- STORE: XP 官方商店 -->
     <div id="xp-store-modal" class="modal"><div class="modal-content" style="width:900px;">
         <h2 style="color:var(--neon-yellow);">XP_OFFICIAL_STORE // 官方商店</h2>
+        <!-- 修复2: 该区域将由代码控制，仅腐竹/副腐竹可见 -->
         <div id="admin-store-controls" style="display:none; background:rgba(241,196,15,0.05); padding:20px; border:1px solid #444; margin-bottom:15px;">
             <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:10px;">
                 <input id="s-item-name" placeholder="官方货品名称" style="margin:0;"><input id="s-item-cost" type="number" placeholder="XP价格" style="margin:0;"><input id="s-item-stock" type="number" placeholder="库存数量" style="margin:0;">
@@ -252,11 +273,6 @@
         </div>
     </div>
 
-    <!-- ============================================================
-         SECTION: 核心 JavaScript 逻辑 (FIREBASE_CORE)
-         包含了权限锁、双向私聊同步、北京时间打卡等全套功能
-         ============================================================ -->
-
     <script type="module">
         /**
          * 导入 Firebase 全套实时数据库模块
@@ -320,32 +336,16 @@
 
         /**
          * [ENGINE] 头衔名牌识别引擎
-         * 严格锁定：Peter_YYDS -> Boxim 群主
          */
         window.getTag = function(uid, nick) {
-            // 腐竹：IKUN5556
             if (uid === "IKUN5556") return `<span class="tag tag-fz">[腐竹]</span>`;
-            // 副腐竹：Peter_YT_Bilibili
             if (uid === "Peter_YT_Bilibili") return `<span class="tag tag-ffz">[副腐竹]</span>`;
-            // Boxim 群主/管理员：Peter_YYDS 或昵称为 Peter 的账户
-            if (uid === "Peter_YYDS" || nick === "Peter") {
-                return `<span class="tag tag-mod">[Boxim 群主/管理员]</span>`;
-            }
-            // Discord 管理员：焦糖猫 (111) 和 Steve
-            if (uid === "111" || nick === "焦糖猫" || nick === "CS||Steve" || uid === "CS||Steve") {
-                return `<span class="tag tag-mod">[Discord 开发/管理员]</span>`;
-            }
-            // 建筑师：Ghastly
-            if (nick === "GhastlyCyclops_432") {
-                return `<span class="tag tag-mod">[服务器建筑师]</span>`;
-            }
+            if (uid === "Peter_YYDS" || nick === "Peter") return `<span class="tag tag-mod">[Boxim 群主/管理员]</span>`;
+            if (uid === "111" || nick === "焦糖猫" || nick === "CS||Steve" || uid === "CS||Steve") return `<span class="tag tag-mod">[Discord 开发/管理员]</span>`;
+            if (nick === "GhastlyCyclops_432") return `<span class="tag tag-mod">[服务器建筑师]</span>`;
             return "";
         };
 
-        /**
-         * [ENGINE] 北京时间日期生成器
-         * 确保 00:00 打卡刷新不受用户本地时间干扰
-         */
         window.getBeijingDateStr = function() {
             const now = new Date();
             const utc = now.getTime() + (now.getTimezoneOffset() * 60000);
@@ -370,163 +370,88 @@
             o.start(); o.stop(audioCtx.currentTime + 0.1); 
         };
 
-        /* 
-        ------------------------------------------------------------
-        [MODULE] 身份验证协议 (SurvivalAuth)
-        ------------------------------------------------------------
-        */
         window.SurvivalAuth = {
             register: async () => {
                 const u = document.getElementById('auth-uid').value.trim();
                 const n = document.getElementById('auth-nick').value.trim();
                 const p = document.getElementById('auth-pw').value;
                 if(!u || !p) return alert("致命错误：UID (识别码) 和 密码是建立生存协议的必须字段。");
-                
                 const ref = doc(db, "users", u);
                 const snap = await getDoc(ref);
                 if(snap.exists()) return alert("识别码冲突：该 UID 已在数据链中被占用。");
-
                 try {
-                    await setDoc(ref, {
-                        uid: u, nick: n || u, pw: p, xp: 0,
-                        lastCheckDate: "", banned: false, muted: false,
-                        allowPM: true, usedCodes: [], regTime: serverTimestamp()
-                    });
+                    await setDoc(ref, { uid: u, nick: n || u, pw: p, xp: 0, lastCheckDate: "", banned: false, muted: false, allowPM: true, usedCodes: [], regTime: serverTimestamp() });
                     alert("新玩家序列注册成功！请执行连接协议。");
                 } catch(e) { alert("云端写入失败，请检查网络环境。"); }
             },
-
             login: async () => {
                 const u = document.getElementById('auth-uid').value.trim();
                 const p = document.getElementById('auth-pw').value;
                 if(!u) return alert("请输入您的 UID 识别码。");
-                
                 const snap = await getDoc(doc(db, "users", u));
                 if(snap.exists() && snap.data().pw === p) {
                     const data = snap.data();
                     if(data.banned) return alert("接入失败：您的 UID 已被 Root 终端永久封禁。");
-                    
                     State.user = { id: u, nick: data.nick };
                     localStorage.setItem('SURVIVAL_USER', JSON.stringify(State.user));
-                    location.reload(); // 重载页面以触发 bootstrap
-                } else {
-                    alert("识别失败：凭据无效或密码错误。");
-                }
+                    location.reload();
+                } else { alert("识别失败：凭据无效或密码错误。"); }
             },
-
-            // 投建议逻辑
             sendSuggest: async () => {
                 const text = document.getElementById('suggest-text').value.trim();
                 if(!text) return alert("建议内容不能为空。");
-                await addDoc(collection(db, "suggestions"), {
-                    from: State.user.nick, uid: State.user.id,
-                    text: text, time: serverTimestamp()
-                });
+                await addDoc(collection(db, "suggestions"), { from: State.user.nick, uid: State.user.id, text: text, time: serverTimestamp() });
                 alert("建议已加密传送。");
                 document.getElementById('suggest-text').value = '';
                 UI.close();
             },
-
-            logout: () => {
-                localStorage.clear();
-                location.reload();
-            }
+            logout: () => { localStorage.clear(); location.reload(); }
         };
 
-        /* 
-        ------------------------------------------------------------
-        [MODULE] 全服大厅协议 (GlobalChat)
-        100% 修复点不进去 Bug，含回复/撤回
-        ------------------------------------------------------------
-        */
         window.GlobalChat = {
             init: () => {
                 UI.open('chat-modal');
-                // 使用免索引本地排序方案，确保大厅能秒开
                 onSnapshot(query(collection(db, "global_messages")), (sn) => {
-                    const msgs = sn.docs.map(d => ({ id: d.id, ...d.data() }))
-                                 .sort((a,b) => (a.time?.seconds || 0) - (b.time?.seconds || 0));
-                    
+                    const msgs = sn.docs.map(d => ({ id: d.id, ...d.data() })).sort((a,b) => (a.time?.seconds || 0) - (b.time?.seconds || 0));
                     const box = document.getElementById('chat-box');
-                    box.innerHTML = msgs.map(m => {
-                        const isMe = m.senderId === State.user.id;
-                        return `
+                    box.innerHTML = msgs.map(m => `
                         <div style="margin-bottom:12px; border-left:2px solid #222; padding-left:12px;">
-                            <div style="font-size:11px; opacity:0.6;">
-                                ${getTag(m.senderId, m.senderNick)}<b>${m.senderNick}</b>
-                            </div>
+                            <div style="font-size:11px; opacity:0.6;">${getTag(m.senderId, m.senderNick)}<b>${m.senderNick}</b></div>
                             <div style="margin-top:4px;">${m.text}</div>
                             <div style="font-size:10px; margin-top:5px;">
                                 <a href="javascript:void(0)" onclick="GlobalChat.reply('${m.senderNick}')" style="color:var(--neon-cyan); margin-right:12px; text-decoration:none;">[回复]</a>
                                 ${(m.senderId === State.user.id || State.isRoot) ? `<a href="javascript:void(0)" onclick="GlobalChat.recall('${m.id}')" style="color:var(--neon-red); text-decoration:none;">[撤回]</a>` : ''}
                             </div>
-                        </div>`;
-                    }).join('');
+                        </div>`).join('');
                     box.scrollTop = box.scrollHeight;
                 });
             },
-
-            reply: (nick) => {
-                const inp = document.getElementById('chat-input');
-                inp.value = `@${nick} `;
-                inp.focus();
-            },
-
-            recall: async (id) => {
-                if(confirm("确定撤回这条全服报文？")) {
-                    await deleteDoc(doc(db, "global_messages", id));
-                }
-            },
-
+            reply: (nick) => { const inp = document.getElementById('chat-input'); inp.value = `@${nick} `; inp.focus(); },
+            recall: async (id) => { if(confirm("确定撤回这条全服报文？")) await deleteDoc(doc(db, "global_messages", id)); },
             send: async () => {
                 const inp = document.getElementById('chat-input');
-                const text = inp.value.trim();
-                if(!text) return;
-                
+                const text = inp.value.trim(); if(!text) return;
                 const snap = await getDoc(doc(db, "users", State.user.id));
                 if(snap.data().muted) return alert("接入拒绝：您已被禁言。");
-                
-                await addDoc(collection(db, "global_messages"), {
-                    senderId: State.user.id,
-                    senderNick: State.user.nick,
-                    text: text,
-                    time: serverTimestamp()
-                });
+                await addDoc(collection(db, "global_messages"), { senderId: State.user.id, senderNick: State.user.nick, text: text, time: serverTimestamp() });
                 inp.value = '';
             }
         };
 
-        /* 
-        ------------------------------------------------------------
-        [MODULE] 物资广场 (Market)
-        玩家自由交易 + 内嵌回复议价
-        ------------------------------------------------------------
-        */
         window.SurvivalMarket = {
             load: () => {
                 onSnapshot(collection(db, "market"), (sn) => {
                     const area = document.getElementById('market-list');
                     area.innerHTML = sn.docs.map(d => {
-                        const m = d.data();
-                        const isMine = m.sellerId === State.user.id;
-                        return `
-                        <div class="market-item">
-                            <div style="display:flex; justify-content:space-between;">
-                                <b><span style="color:var(--neon-cyan)">[${m.type}]</span> ${m.itemName}</b>
-                                <span style="color:var(--neon-cyan)">${m.price}</span>
-                            </div>
+                        const m = d.data(); const isMine = m.sellerId === State.user.id;
+                        return `<div class="market-item">
+                            <div style="display:flex; justify-content:space-between;"><b><span style="color:var(--neon-cyan)">[${m.type}]</span> ${m.itemName}</b><span style="color:var(--neon-cyan)">${m.price}</span></div>
                             <p style="font-size:12px; color:#888; margin:10px 0;">${m.desc || '发布者未提供详细描述。'}</p>
                             <div id="m-rep-box-${d.id}" class="reply-box">同步留言中...</div>
-                            <div style="display:flex; gap:5px; margin-top:10px;">
-                                <input id="m-inp-${d.id}" placeholder="对此单留言议价..." style="margin:0; padding:8px; font-size:12px;">
-                                <button class="btn-rule" style="padding:5px 12px; font-size:10px;" onclick="SurvivalMarket.sendReply('${d.id}')">回复</button>
-                                ${(isMine || State.isRoot) ? `<button class="btn-rule danger" style="padding:5px 12px; font-size:10px;" onclick="SurvivalMarket.del('${d.id}')">下架</button>` : ''}
-                            </div>
+                            <div style="display:flex; gap:5px; margin-top:10px;"><input id="m-inp-${d.id}" placeholder="对此单留言议价..." style="margin:0; padding:8px; font-size:12px;"><button class="btn-rule" style="padding:5px 12px; font-size:10px;" onclick="SurvivalMarket.sendReply('${d.id}')">回复</button>${(isMine || State.isRoot) ? `<button class="btn-rule danger" style="padding:5px 12px; font-size:10px;" onclick="SurvivalMarket.del('${d.id}')">下架</button>` : ''}</div>
                             <div style="font-size:10px; color:#444; margin-top:8px;">卖家: ${getTag(m.sellerId, m.sellerNick)}${m.sellerNick}</div>
                         </div>`;
                     }).join('') || "<p style='color:#444'>当前无活跃挂单。</p>";
-
-                    // 挂载回复监听
                     sn.forEach(d => {
                         onSnapshot(query(collection(db, "market", d.id, "replies"), orderBy("time", "asc")), (rsn) => {
                             const box = document.getElementById(`m-rep-box-${d.id}`);
@@ -535,58 +460,42 @@
                     });
                 });
             },
-
             sendReply: async (id) => {
-                const text = document.getElementById(`m-inp-${id}`).value;
-                if(!text) return;
+                const text = document.getElementById(`m-inp-${id}`).value; if(!text) return;
                 await addDoc(collection(db, "market", id, "replies"), { nick: State.user.nick, text: text, time: serverTimestamp() });
                 document.getElementById(`m-inp-${id}`).value = '';
             },
-
             listItem: async () => {
-                const n = document.getElementById('m-item-name').value;
-                const p = document.getElementById('m-item-price').value;
-                const t = document.getElementById('m-item-type').value;
-                const d = document.getElementById('m-item-desc').value;
+                const n = document.getElementById('m-item-name').value; const p = document.getElementById('m-item-price').value;
+                const t = document.getElementById('m-item-type').value; const d = document.getElementById('m-item-desc').value;
                 if(!n || !p) return alert("请填写物资名称和价格。");
-                await addDoc(collection(db, "market"), {
-                    sellerId: State.user.id, sellerNick: State.user.nick,
-                    itemName: n, price: p, type: t, desc: d, time: serverTimestamp()
-                });
+                await addDoc(collection(db, "market"), { sellerId: State.user.id, sellerNick: State.user.nick, itemName: n, price: p, type: t, desc: d, time: serverTimestamp() });
                 alert("挂单已发布。");
             },
-
             del: async (id) => { if(confirm("确定撤回挂单？")) await deleteDoc(doc(db, "market", id)); }
         };
 
-        /* 
-        ------------------------------------------------------------
-        [MODULE] XP 商店协议 (XPStore)
-        官方兑换区：管理员发布，带库存自动下架
-        ------------------------------------------------------------
-        */
+        /* 修复2: 锁定商店上架权限给 腐竹 和 副腐竹 */
         window.XPStore = {
             load: () => {
-                // 只有管理组成员能看到上架面板
-                if(STAFF_ADMIN_UIDS.includes(State.user.id)) document.getElementById('admin-store-controls').style.display = 'block';
+                // 仅允许 STAFF_ROOT 成员（腐竹/副腐竹）看到上架功能
+                if(STAFF_ROOT.includes(State.user.id)) {
+                    document.getElementById('admin-store-controls').style.display = 'block';
+                } else {
+                    document.getElementById('admin-store-controls').style.display = 'none';
+                }
                 
                 onSnapshot(collection(db, "xp_store"), (sn) => {
                     document.getElementById('store-list').innerHTML = sn.docs.map(d => {
                         const s = d.data();
-                        if(s.stock <= 0) return ''; // 卖完了就看不到了
-                        return `
-                        <div class="item-row">
+                        if(s.stock <= 0) return '';
+                        return `<div class="item-row">
                             <span><b>${s.name}</b> (库存: <font color="#f1c40f">${s.stock}</font>)</span>
-                            <div>
-                                <span style="margin-right:15px; color:var(--neon-yellow);">${s.cost} XP</span>
-                                <button class="btn-rule" onclick="XPStore.buy('${d.id}', ${s.cost}, '${s.name}')">立即兑换</button>
-                                ${State.isRoot ? `<button class="btn-rule danger" onclick="XPStore.del('${d.id}')">下架</button>` : ''}
-                            </div>
+                            <div><span style="margin-right:15px; color:var(--neon-yellow);">${s.cost} XP</span><button class="btn-rule" onclick="XPStore.buy('${d.id}', ${s.cost}, '${s.name}')">立即兑换</button>${State.isRoot ? `<button class="btn-rule danger" onclick="XPStore.del('${d.id}')">下架</button>` : ''}</div>
                         </div>`;
                     }).join('') || "<p style='color:#444'>当前商店物资已售罄。</p>";
                 });
             },
-
             listItem: async () => {
                 const n = document.getElementById('s-item-name').value;
                 const c = parseInt(document.getElementById('s-item-cost').value);
@@ -594,56 +503,33 @@
                 if(!n || isNaN(c)) return alert("请填入货品名称和 XP 价格。");
                 await addDoc(collection(db, "xp_store"), { name: n, cost: c, stock: s || 999, time: serverTimestamp() });
                 alert("官方物资已入库。");
+                document.getElementById('s-item-name').value = '';
+                document.getElementById('s-item-cost').value = '';
+                document.getElementById('s-item-stock').value = '';
             },
-
             buy: async (id, cost, name) => {
-                const ref = doc(db, "users", State.user.id);
-                const snap = await getDoc(ref);
+                const ref = doc(db, "users", State.user.id); const snap = await getDoc(ref);
                 if(snap.data().xp < cost) return alert("荣誉 XP 不足。");
-                
                 if(confirm(`确定消耗 ${cost} XP 兑换官方物资 [${name}]？`)) {
                     await updateDoc(ref, { xp: increment(-cost) });
                     await updateDoc(doc(db, "xp_store", id), { stock: increment(-1) });
-                    await addDoc(collection(db, "orders"), {
-                        uid: State.user.id, nick: State.user.nick,
-                        itemName: name, cost: cost, time: serverTimestamp()
-                    });
+                    await addDoc(collection(db, "orders"), { uid: State.user.id, nick: State.user.nick, itemName: name, cost: cost, time: serverTimestamp() });
                     alert("兑换成功！订单已下达至 ROOT 终端。");
                 }
             },
-
             del: async (id) => { if(confirm("确定下架此官方商品？")) await deleteDoc(doc(db, "xp_store", id)); }
         };
 
-        /* 
-        ------------------------------------------------------------
-        [MODULE] 悬赏与建议 (Bounty & Suggestion)
-        ------------------------------------------------------------
-        */
         window.Bounty = {
             load: () => onSnapshot(collection(db, "bounties"), (sn) => {
-                const sl = document.getElementById('staff-b-list');
-                const pl = document.getElementById('player-b-list');
+                const sl = document.getElementById('staff-b-list'); const pl = document.getElementById('player-b-list');
                 sl.innerHTML = ''; pl.innerHTML = '';
                 sn.forEach(d => {
-                    const b = d.data();
-                    const staff = STAFF_ADMIN_UIDS.includes(b.posterId);
-                    const html = `
-                    <div class="bounty-item ${staff ? 'bounty-staff' : ''}" style="border: 1px dashed #444; padding:15px; margin-bottom:15px; background:rgba(255,255,255,0.01);">
-                        <div style="font-weight:bold; color:var(--neon-yellow)">[任务] ${b.title}</div>
-                        <div>奖励报酬: ${b.reward}</div>
-                        <div id="b-rep-${d.id}" class="reply-box">正在加载回复...</div>
-                        <div style="display:flex; gap:5px; margin-top:10px;">
-                            <input id="b-inp-${d.id}" placeholder="我有线索/接单..." style="margin:0; padding:5px;">
-                            <button class="btn-rule" style="padding:4px 10px; font-size:10px;" onclick="Bounty.reply('${d.id}')">回复</button>
-                            ${(b.posterId === State.user.id || State.isRoot) ? `<button class="btn-rule danger" style="padding:4px 10px; font-size:10px;" onclick="Bounty.del('${d.id}')">下架</button>` : ''}
-                        </div>
-                        <div style="font-size:10px; color:#444; margin-top:5px;">发布: ${getTag(b.posterId, b.posterNick)}${b.posterNick}</div>
-                    </div>`;
+                    const b = d.data(); const staff = STAFF_ADMIN_UIDS.includes(b.posterId);
+                    const html = `<div class="bounty-item ${staff ? 'bounty-staff' : ''}" style="border: 1px dashed #444; padding:15px; margin-bottom:15px; background:rgba(255,255,255,0.01);"><div style="font-weight:bold; color:var(--neon-yellow)">[任务] ${b.title}</div><div>奖励报酬: ${b.reward}</div><div id="b-rep-${d.id}" class="reply-box">正在加载回复...</div><div style="display:flex; gap:5px; margin-top:10px;"><input id="b-inp-${d.id}" placeholder="我有线索/接单..." style="margin:0; padding:5px;"><button class="btn-rule" style="padding:4px 10px; font-size:10px;" onclick="Bounty.reply('${d.id}')">回复</button>${(b.posterId === State.user.id || State.isRoot) ? `<button class="btn-rule danger" style="padding:4px 10px; font-size:10px;" onclick="Bounty.del('${d.id}')">下架</button>` : ''}</div><div style="font-size:10px; color:#444; margin-top:5px;">发布: ${getTag(b.posterId, b.posterNick)}${b.posterNick}</div></div>`;
                     if(staff) sl.innerHTML += html; else pl.innerHTML += html;
                     onSnapshot(query(collection(db,"bounties",d.id,"replies"), orderBy("time","asc")), rsn => {
-                        const box = document.getElementById(`b-rep-${d.id}`);
-                        if(box) box.innerHTML = rsn.docs.map(r => `<div class='reply-item'><b>${r.data().nick}:</b> ${r.data().text}</div>`).join('') || "等待勇者接单...";
+                        const box = document.getElementById(`b-rep-${d.id}`); if(box) box.innerHTML = rsn.docs.map(r => `<div class='reply-item'><b>${r.data().nick}:</b> ${r.data().text}</div>`).join('') || "等待勇者接单...";
                     });
                 });
             }),
@@ -652,23 +538,16 @@
             del: async (id) => { await deleteDoc(doc(db, "bounties", id)); }
         };
 
-        /* 
-        ------------------------------------------------------------
-        [MODULE] 社交与设置 (Social & Settings)
-        ------------------------------------------------------------
-        */
         window.Social = {
             initiateConnection: async () => {
-                const tid = document.getElementById('friend-target-uid').value.trim();
-                const cid = [State.user.id, tid].sort().join("_");
+                const tid = document.getElementById('friend-target-uid').value.trim(); const cid = [State.user.id, tid].sort().join("_");
                 await setDoc(doc(db, "p_chats_meta", cid), { members: [State.user.id, tid], lastUpdate: serverTimestamp() }, { merge: true });
                 SurvivalChat.start(tid, "目标玩家");
             },
             loadFriends: () => onSnapshot(query(collection(db,"p_chats_meta"), where("members", "array-contains", State.user.id)), (sn) => {
                 const list = document.getElementById('friend-list'); list.innerHTML = '';
                 sn.forEach(async d => {
-                    const otherId = d.data().members.find(m => m !== State.user.id);
-                    const oSnap = await getDoc(doc(db,"users",otherId));
+                    const otherId = d.data().members.find(m => m !== State.user.id); const oSnap = await getDoc(doc(db,"users",otherId));
                     if(oSnap.exists()){
                         const dNick = oSnap.data().nick;
                         list.innerHTML += `<div class="item-row"><span>${getTag(otherId, dNick)}${dNick} (${otherId})</span> <div><button class="btn-rule" style="padding:5px 10px;" onclick="SurvivalChat.start('${otherId}','${dNick}')">私聊</button><button class="btn-rule danger" style="padding:5px 10px;" onclick="Social.erase('${d.id}')">抹除</button></div></div>`;
@@ -693,8 +572,7 @@
 
         window.CheckIn = {
             claim: async () => {
-                const today = getBeijingDateStr();
-                const ref = doc(db,"users",State.user.id); const snap = await getDoc(ref);
+                const today = getBeijingDateStr(); const ref = doc(db,"users",State.user.id); const snap = await getDoc(ref);
                 if(snap.data().lastCheckDate === today) return alert("协议受限：今日已完成签到。");
                 await updateDoc(ref, { xp: increment(100), lastCheckDate: today });
                 alert("打卡成功！100 XP 注入完毕。"); UI.close();
@@ -709,11 +587,6 @@
             togglePM: async () => await updateDoc(doc(db,"users",State.user.id), { allowPM: !document.getElementById('privacy-toggle').checked })
         };
 
-        /* 
-        ------------------------------------------------------------
-        [MODULE] ROOT 审计后台 (Admin)
-        ------------------------------------------------------------
-        */
         window.Admin = {
             loadSuggest: () => onSnapshot(collection(db, "suggestions"), sn => {
                 document.getElementById('suggest-list').innerHTML = sn.docs.map(d => `<div style="border-bottom:1px solid #222; padding:10px;"><b>${d.data().from} (UID:${d.data().uid}):</b> ${d.data().text} <button class="btn-rule danger" style="float:right; padding:2px 8px; font-size:10px;" onclick="Admin.delSug('${d.id}')">删除</button></div>`).join('') || "当前无玩家反馈。";
@@ -740,49 +613,24 @@
                 document.getElementById('wiki-content').innerHTML = `
                     <p>● 官网快捷网址: <a href="https://survshortcut-dqdfdiyi.manus.space/" target="_blank" style="color:var(--neon-yellow);">点击访问跳转</a></p>
                     <p>● Discord 服务器: <a href="https://discord.gg/TjbXjc7twv" target="_blank" style="color:var(--neon-yellow);">点击加入社区</a></p>
-                    <p>● Boxim 服务器: 添加 <b>Peter_YYDS</b> 备注加入</p>
                     <hr style="border-color:#222; margin:15px 0;">
                     <p><span class="tag tag-fz">[腐竹]</span> IKUN5556 (Server Owner)</p>
                     <p><span class="tag tag-ffz">[副腐竹]</span> Peter_YT_Bilibili (Lead Developer)</p>
-                    <p><span class="tag tag-mod">[Discord 开发/管理]</span> CS||Steve, 焦糖猫</p>
-                    <p><span class="tag tag-mod">[服务器建筑师]</span> GhastlyCyclops_432</p>
-                    <p><span class="tag tag-mod">[Boxim 群主/管理]</span> Peter_YYDS</p>
                 `;
             }
         };
 
-        /* 
-        ------------------------------------------------------------
-        [CORE_BOOT] 终端系统引导程序
-        ------------------------------------------------------------
-        */
         function bootstrap() {
-            // 公告实时同步
             onSnapshot(doc(db, "system", "notice"), sn => { const el = document.getElementById('global-announcement'); if(sn.exists() && sn.data().text) { el.innerText = `[协议指令] ${sn.data().text}`; el.style.display = 'block'; } else el.style.display = 'none'; });
-            
-            // 维护模式检测
             onSnapshot(doc(db, "system", "config"), sn => { if(sn.exists() && sn.data().status === "MAINTENANCE" && !STAFF_ROOT.includes(State.user?.id)) document.body.innerHTML = "<h1 style='margin-top:200px; text-align:center;'>中继站停机维护中...请在 Discord 关注更新。</h1>"; });
-
-            if (!State.user) return; // 未登录停止加载核心
-
-            // 切换到控制台视图
+            if (!State.user) return;
             document.getElementById('landing-hero').style.display = 'none';
             document.getElementById('main-grid').style.display = 'grid';
-
             if (STAFF_ROOT.includes(State.user.id)) State.isRoot = true;
-
-            // 头部信息监听
             onSnapshot(doc(db, "users", State.user.id), sn => {
                 const d = sn.data(); if(d.banned) location.reload();
-                document.getElementById('nav-auth-slot').innerHTML = `
-                    <span style="color:var(--neon-cyan); font-size:13px; margin-right:15px;">
-                        ${getTag(State.user.id, d.nick)}${d.nick} // ${d.xp} XP
-                    </span>
-                    <button class="btn-rule danger" style="padding:5px 12px; font-size:10px;" onclick="SurvivalAuth.logout()">注销</button>
-                `;
+                document.getElementById('nav-auth-slot').innerHTML = `<span style="color:var(--neon-cyan); font-size:13px; margin-right:15px;">${getTag(State.user.id, d.nick)}${d.nick} // ${d.xp} XP</span><button class="btn-rule danger" style="padding:5px 12px; font-size:10px;" onclick="SurvivalAuth.logout()">注销</button>`;
             });
-
-            // 动态生成 12 个功能磁贴
             const f = [
                 { title: "全服大厅", desc: "实时同步广播协议", action: "GlobalChat.init()" },
                 { title: "常用联通", desc: "双向加密私聊信道", action: "UI.open('friend-modal')", id: "msg-badge-area" },
@@ -798,21 +646,14 @@
                 { title: "审阅建议", desc: "查阅玩家加密反馈", action: "UI.open('view-suggest-modal')", admin: true },
                 { title: "核心终端", desc: "ROOT 核心权限系统", action: "UI.open('admin-modal')", admin: true }
             ];
-
             document.getElementById('main-grid').innerHTML = f.map(x => (x.admin && !State.isRoot) ? '' : `<div class="card ${x.admin ? 'admin-node' : ''}" onclick="${x.action}" onmouseenter="playTick()" id="${x.id || ''}"><h2>${x.title}</h2><p>> ${x.desc}</p></div>`).join('');
         }
-
         window.SurvivalRankLoad = () => { UI.open('rank-modal'); onSnapshot(query(collection(db, "users"), orderBy("xp", "desc"), limit(15)), (sn) => { document.getElementById('rank-list').innerHTML = sn.docs.map(d => `<div class='item-row'><span>${getTag(d.id, d.data().nick)}${d.data().nick}</span> <span>${d.data().xp} XP</span></div>`).join(''); }); };
-
         bootstrap();
-
-        // 战术坐标变化效果
         setInterval(() => {
             const chars = 'ABCDEF0123456789'; let res = ''; for(let i=0; i<8; i++) res += chars[Math.floor(Math.random()*chars.length)];
             const el = document.getElementById('coord-display'); if(el) el.innerText = `COORD: ${res}`;
         }, 3000);
-
-        // 鼠标追踪
         document.addEventListener('mousemove', (e) => { 
             const t = document.getElementById('light-tracker'); if(t){ t.style.left = e.clientX + 'px'; t.style.top = e.clientY + 'px'; } 
         });
